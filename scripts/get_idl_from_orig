@@ -1,0 +1,1 @@
+sed 's/\(^[a-zA-Z0-9]*\)/\1.idl/g' nsidl_file_list_orig > nsidl_filelist
