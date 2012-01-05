@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.6)
-project(webconnect)
+project(webconnect2)
 
 #default gecko version
 if(NOT MOZ_VERSION)
