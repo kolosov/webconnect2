@@ -13,6 +13,7 @@
 #ifndef __WXWEBCONNECT_NSUTILS_H
 #define __WXWEBCONNECT_NSUTILS_H
 
+#include "moz_config.h"
 
 wxString ns2wx(nsEmbedCString& str);
 wxString ns2wx(nsEmbedString& str);
@@ -41,7 +42,7 @@ ns_smartptr<nsIURI> nsNewURI(const wxString& spec);
 
 class wxWebProgressBase;
 
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
 class ProgressListenerAdaptor18 : public nsITransfer18
 {
 public:

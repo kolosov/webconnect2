@@ -18,6 +18,7 @@
 #include "webcontrol.h"
 #include "nsinclude.h"
 
+#include "moz_config.h"
 
 #ifdef __WXMSW__
 #include <windows.h>
@@ -115,7 +116,7 @@ typedef nsresult (PR_CALLBACK *GetFrozenFunctionsFunc)(XPCOMFunctionTable *func_
 #define XPCOM_PATH_SEPARATOR L'/'
 #endif
 
-
+/*
 
 static void GetDependentLibraryList(const char* xpcom_dll_path, wxArrayString& arr)
 {
@@ -417,7 +418,7 @@ PRUint32 NS_CStringGetData(const nsACString& str,
 
     return funcs.CStringGetData(str, str_data, terminated);
 }
-
+*/
 
 
 
@@ -678,7 +679,7 @@ ns_smartptr<nsIURI> nsNewURI(const wxString& spec)
 //  ProgressListenerAdaptor18 class implementation
 ///////////////////////////////////////////////////////////////////////////////
 
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
 ProgressListenerAdaptor18::ProgressListenerAdaptor18(wxWebProgressBase* progress)
 {
     m_progress = progress;
@@ -940,7 +941,7 @@ NS_INTERFACE_MAP_END
 
 nsIWebProgressListener* CreateProgressListenerAdaptor(wxWebProgressBase* progress)
 {
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     if (wxWebControl::IsVersion18())
     {
         ProgressListenerAdaptor18* p = new ProgressListenerAdaptor18(progress);

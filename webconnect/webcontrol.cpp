@@ -148,14 +148,17 @@ GeckoEngine g_gecko_engine;
 class NS_NO_VTABLE nsIChromeInternal : public nsISupports
 {
 public: 
-#if (MOZILLA_VERSION_1 >= 2 ) ||  ((MOZILLA_VERSION_1 == 1) && (MOZILLA_VERSION_2 >= 9))
-    NS_DEFINE_STATIC_IID_ACCESSOR(nsIChromeInternal,NS_ICHROMEINTERNAL_IID)
-#else
-    NS_DEFINE_STATIC_IID_ACCESSOR(NS_ICHROMEINTERNAL_IID)
-#endif
+//#if (MOZILLA_VERSION_1 >= 2 ) ||  ((MOZILLA_VERSION_1 == 1) && (MOZILLA_VERSION_2 >= 9))
+    //NS_DEFINE_STATIC_IID_ACCESSOR(nsIChromeInternal,NS_ICHROMEINTERNAL_IID) //FIXME
+//    NS_DECLARE_STATIC_IID_ACCESSOR(NS_ICHROMEINTERNAL_IID) //FIXME
+//#else
+//    NS_DEFINE_STATIC_IID_ACCESSOR(NS_ICHROMEINTERNAL_IID)
+//#endif
 
     virtual wxWebControl* GetWebControl() = 0;
 };
+
+//NS_DEFINE_STATIC_IID_ACCESSOR(nsIChromeInternal,NS_ICHROMEINTERNAL_IID) //FIXME
 
 
 class BrowserChrome : public nsIWebBrowserChrome,
@@ -2022,7 +2025,7 @@ public:
     {
         if (m_progress)
         {
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
             if (wxWebControl::IsVersion18())
                 ((ProgressListenerAdaptor18*)m_progress)->ClearProgressReference();
                  else
@@ -2176,6 +2179,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     {
         dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
     }
+#if MOZILLA_VERSION_1 < 1
      else
     {
         // 1.8.x support
@@ -2187,6 +2191,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
         }
         dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
     }
+#endif
     
     // get base window interface and set its native window
     #ifdef __WXGTK__
@@ -2250,6 +2255,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     }
      else
     {
+#if MOZILLA_VERSION_1 < 1
         // 1.8.x support
         ns_smartptr<ns18IDOMWindow2> dom_window2(dom_window);
         if (!dom_window2)
@@ -2257,6 +2263,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
             wxASSERT(0);
             return;
         }
+#endif
         res = dom_window2->GetWindowRoot(&m_ptrs->m_event_target.p);
         if (NS_FAILED(res))
         {
@@ -2430,6 +2437,7 @@ bool wxWebControl::AddContentHandler(wxWebContentHandler* handler,
             return false;
         g_gecko_engine.AddContentListener(l);
     }
+#if MOZILLA_VERSION_1 < 1
      else
     {
         ns_smartptr<ns18IURILoader> uri_loader18 = uri_loader;
@@ -2443,7 +2451,7 @@ bool wxWebControl::AddContentHandler(wxWebContentHandler* handler,
             return false;
         g_gecko_engine.AddContentListener(l);
     }
-    
+#endif
     return true;
 }
 
@@ -2840,13 +2848,18 @@ void wxWebControl::OpenURI(const wxString& uri,
             sp_post_data = strs;
         }
     }
-       
     
     
+
     PRUnichar* ns_uri = wxToUnichar(uri);
 
+    //test
+    //NS_ConvertUTF8toUTF16(aUri).get()
+    //PRUnichar* ns_uri_1 = L"www.google.com";
+    const char* ns_uri_1 = "www.google.com";
     nsresult res;
-    res = m_ptrs->m_web_navigation->LoadURI(ns_uri,
+    res = m_ptrs->m_web_navigation->LoadURI(NS_ConvertUTF8toUTF16(ns_uri_1).get(),
+    //res = m_ptrs->m_web_navigation->LoadURI(ns_uri,
                                             ns_load_flags,
                                             NULL,
                                             sp_post_data.p,
@@ -3033,7 +3046,7 @@ void wxWebControl::Print(bool silent)
     }
     
     InitPrintSettings();
-    
+#if MOZILLA_VERSION_1 < 1
     ns_smartptr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
     if (settings18)
     {
@@ -3043,6 +3056,7 @@ void wxWebControl::Print(bool silent)
         ns_smartptr<nsIWebBrowserPrint18> web_browser_print = nsRequestInterface(m_ptrs->m_web_browser);
         web_browser_print->Print(settings18.p, NULL);
     }
+#endif
 
     ns_smartptr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
@@ -3080,7 +3094,7 @@ void wxWebControl::SetPageSettings(double page_width, double page_height,
     
     InitPrintSettings();
     
-    
+#if MOZILLA_VERSION_1 < 1
     ns_smartptr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
     if (settings18)
     {
@@ -3103,7 +3117,7 @@ void wxWebControl::SetPageSettings(double page_width, double page_height,
         settings18->SetMarginTop(top_margin);
         settings18->SetMarginBottom(bottom_margin);
     }
-    
+#endif
     
     ns_smartptr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
@@ -3155,7 +3169,7 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
 
     InitPrintSettings();
 
-
+#if MOZILLA_VERSION_1 < 1
     ns_smartptr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
     if (settings18)
     {
@@ -3177,7 +3191,7 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
             *page_height = t;
         }
     }
-    
+#endif
     ns_smartptr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
     {
@@ -3629,31 +3643,22 @@ void wxWebControl::OnSize(wxSizeEvent& evt)
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-#define NS_ISCRIPTGLOBALOBJECT_IID \
+/*#define NS_ISCRIPTGLOBALOBJECT_IID \
 { 0xd326a211, 0xdc31, 0x45c6, \
  { 0x98, 0x97, 0x22, 0x11, 0xea, 0xbc, 0xd0, 0x1c } }
+*/
 
 class nsIScriptContext;
 class nsIArray;
 class nsScriptErrorEvent;
-class nsEventStatus;
+//class nsEventStatus;
 class nsIScriptGlobalObjectOwner;
 class nsPresContext;
 class nsEvent;
 class nsIDocShell;
 class nsIDOMWindowInternal;
 
+/*
 class nsIScriptGlobalObject : public nsISupports
 {
 public:
@@ -3692,19 +3697,19 @@ public:
     virtual void SetScriptsEnabled(PRBool enabled, PRBool fire_timeouts) = 0;
     virtual nsresult SetNewArguments(PRUint32 argc, void* argv) = 0;
 };
+*/
 
 
-
-#define NS_ISCRIPTCONTEXT_IID \
-{ /* b3fd8821-b46d-4160-913f-cc8fe8176f5f */ \
-  0xb3fd8821, 0xb46d, 0x4160, \
-  {0x91, 0x3f, 0xcc, 0x8f, 0xe8, 0x17, 0x6f, 0x5f} }
+//#define NS_ISCRIPTCONTEXT_IID \
+//{ /* b3fd8821-b46d-4160-913f-cc8fe8176f5f */ \
+//  0xb3fd8821, 0xb46d, 0x4160, \
+//  {0x91, 0x3f, 0xcc, 0x8f, 0xe8, 0x17, 0x6f, 0x5f} }
 
 class nsIAtom;
 class nsIScriptContextOwner;
 typedef void (*nsScriptTerminationFunc)(nsISupports* ref);
 
-
+/*
 class nsIScriptContext : public nsISupports
 {
 public:
@@ -3808,7 +3813,7 @@ public:
     virtual void WillInitializeContext() = 0;
     virtual void DidInitializeContext() = 0;
 };
-
+*/
 
 
 

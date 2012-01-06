@@ -260,10 +260,6 @@ BEGIN_EVENT_TABLE(PromptDlgPassword, wxDialog)
 END_EVENT_TABLE()
 
 
-
-
-
-
 /*
 class PromptDlgBadCert : public wxDialog
 {
@@ -379,23 +375,12 @@ END_EVENT_TABLE()
 */
 
 
-
-
-
-
-
-
-
-
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //  PromptService class implementation
 ///////////////////////////////////////////////////////////////////////////////
 
-
 class PromptService : public nsIPromptService2,
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
                       public nsIBadCertListener,
 #endif
                       public nsIBadCertListener2
@@ -410,7 +395,7 @@ public:
     NS_DECL_ISUPPORTS
     NS_DECL_NSIPROMPTSERVICE
     NS_DECL_NSIPROMPTSERVICE2
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     NS_DECL_NSIBADCERTLISTENER
 #endif
     NS_DECL_NSIBADCERTLISTENER2
@@ -424,7 +409,7 @@ NS_INTERFACE_MAP_BEGIN(PromptService)
     NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIPromptService)
     NS_INTERFACE_MAP_ENTRY(nsIPromptService)
     NS_INTERFACE_MAP_ENTRY(nsIPromptService2)
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     NS_INTERFACE_MAP_ENTRY(nsIBadCertListener)
 #endif
 NS_INTERFACE_MAP_END
@@ -620,7 +605,7 @@ NS_IMETHODIMP PromptService::Select(nsIDOMWindow* parent,
 }
 
 
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
 NS_IMETHODIMP PromptService::ConfirmUnknownIssuer(
                                     nsIInterfaceRequestor* socketInfo,
                                     nsIX509Cert* cert,
@@ -700,7 +685,7 @@ NS_IMETHODIMP PromptService::AsyncPromptAuth(nsIDOMWindow* parent,
     return NS_OK;
 }
 
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
 NS_IMETHODIMP PromptService::ConfirmMismatchDomain(
                                     nsIInterfaceRequestor* socketInfo,
                                     const nsACString& targetURL,
@@ -928,7 +913,7 @@ void CreatePromptServiceFactory(nsIFactory** result)
 //  TransferService class implementation
 ///////////////////////////////////////////////////////////////////////////////
 
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
 class TransferService18 : public nsITransfer18
 {
 public:
@@ -1161,7 +1146,7 @@ public:
         if (outer)
             return NS_ERROR_NO_AGGREGATION;       
 
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
 		if (wxWebControl::IsVersion18())
         {
             TransferService18* obj = new TransferService18();
@@ -1210,8 +1195,12 @@ void CreateTransferFactory(nsIFactory** result)
 ///////////////////////////////////////////////////////////////////////////////
 
 
-class UnknownContentTypeHandler : public nsIHelperAppLauncherDialog,
-                                  public nsIHelperAppLauncherDialog18
+class UnknownContentTypeHandler :
+	public nsIHelperAppLauncherDialog
+#if MOZILLA_VERSION_1 < 1
+	,
+    public nsIHelperAppLauncherDialog18
+#endif
 {
 public:
 
@@ -1257,13 +1246,15 @@ public:
         ns_smartptr<nsISupports> mime_info_supports;
         launcher->GetMIMEInfo((nsIMIMEInfo**)&mime_info_supports.p);
         wxString mime_type;
-        
+
+#if MOZILLA_VERSION_1 < 1
         ns_smartptr<nsIMIMEInfo18> mime_info18 = mime_info_supports;
         if (mime_info18)
         {
             mime_info18->GetMIMEType(ns_mimetype);
             mime_type = ns2wx(ns_mimetype);
         }
+#endif
         ns_smartptr<nsIMIMEInfo> mime_info = mime_info_supports;
         if (mime_info)
         {
@@ -1322,10 +1313,11 @@ public:
             {
                 evt.m_download_listener->Init(url, evt.m_download_action_path);
                 nsIWebProgressListener* progress = CreateProgressListenerAdaptor(evt.m_download_listener);
-                
+#if MOZILLA_VERSION_1 < 1
                 if (wxWebControl::IsVersion18())
                     launcher->SetWebProgressListener((nsIWebProgressListener2*)(nsIWebProgressListener2_18*)progress);
                      else
+#endif
                     launcher->SetWebProgressListener((nsIWebProgressListener2*)progress);
                 
                 progress->Release();
@@ -1410,14 +1402,10 @@ NS_IMPL_RELEASE(UnknownContentTypeHandler)
 NS_INTERFACE_MAP_BEGIN(UnknownContentTypeHandler)
     NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIHelperAppLauncherDialog)
     NS_INTERFACE_MAP_ENTRY(nsIHelperAppLauncherDialog)
+#if MOZILLA_VERSION_1 < 1
     NS_INTERFACE_MAP_ENTRY(nsIHelperAppLauncherDialog18)
+#endif
 NS_INTERFACE_MAP_END
-
-
-
-
-
-
 
 
 
@@ -1474,19 +1462,6 @@ void CreateUnknownContentTypeHandlerFactory(nsIFactory** result)
     obj->AddRef();
     *result = obj;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class CertOverrideService : public nsICertOverrideService

@@ -84,7 +84,7 @@ const PRBool PR_FALSE = 0;
 //  function declarations
 ///////////////////////////////////////////////////////////////////////////////
 
-
+/*
 nsresult XPCOMGlueStartup(const char* xpcom_dll_path);
 nsresult NS_InitXPCOM2(nsIServiceManager** result, nsIFile* bin_directory, nsIDirectoryServiceProvider* app_file_location_provider);
 void*    NS_Alloc(PRSize size);
@@ -102,7 +102,7 @@ nsresult NS_CStringContainerInit(nsCStringContainer& str);
 nsresult NS_CStringContainerInit2(nsCStringContainer& str, const char* str_data, PRUint32 len = PR_UINT32_MAX, PRUint32 flags = 0);
 void     NS_CStringContainerFinish(nsCStringContainer& str);
 PRUint32 NS_CStringGetData(const nsACString& str, const char** str_data, PRBool* terminated = NULL);
-
+*/
 
 
 
