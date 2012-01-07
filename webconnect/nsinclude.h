@@ -13,6 +13,11 @@
 #ifndef __WXWEBCONNECT_NSINCLUDE_H
 #define __WXWEBCONNECT_NSINCLUDE_H
 
+
+#undef NS_WC_OLD_WAY
+
+#include "moz_config.h"
+
 #ifdef NS_WC_OLD_WAY
 #include "nsbase.h"
 #include "nsstr.h"
@@ -58,16 +63,17 @@
 #include "nsWeakReference.h"
 
 #include "nsIDOMEvent.h"
+
+#if MOZILLA_VERSION_1 < 5
 #include "nsIDOM3Document.h"
+#endif
+
 #include "nsIDOMMouseEvent.h"
 #include "nsIURIContentListener.h"
 #include "nsIDirectoryService.h"
 
-
-
 #include "nsIContextMenuListener2.h"
 #include "nsITooltipListener.h"
-
 
 #include "nsIBaseWindow.h"
 #include "nsIConsoleService.h"
@@ -75,8 +81,14 @@
 #include "nsIDOMEventListener.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIDOMEventTarget.h"
+
+#if MOZILLA_VERSION_1 < 7
 #include "nsIDOMWindow2.h"
 #include "nsIDOMWindowInternal.h"
+#else
+#include "nsIDOMWindow.h"
+#endif
+
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
 #include "nsIScriptContext.h"
@@ -109,7 +121,12 @@
 #include "nsIDOMHTMLParamElement.h"
 #include "nsIDOMHTMLSelectElement.h"
 #include "nsIDOMHTMLTextAreaElement.h"
+
+#if MOZILLA_VERSION_1 < 2
 #include "nsIPref.h"
+#else
+#include "nsIPrefBranch2.h"
+#endif
 #include "nsITransfer.h"
 
 #include "nsptr.h"

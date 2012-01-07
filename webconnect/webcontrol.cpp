@@ -816,7 +816,11 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
         // now get the dom document
         ns_smartptr<nsIDOMDocument> dom_doc;
         element->GetOwnerDocument(&dom_doc.p);
+#if MOZILLA_VERSION_1 < 5
         ns_smartptr<nsIDOM3Document> dom3_doc = dom_doc;
+#else
+        ns_smartptr<nsIDOMDocument> dom3_doc = dom_doc;
+#endif
         if (!dom3_doc)
             return NS_OK;
         
@@ -2242,8 +2246,11 @@ wxWebControl::wxWebControl(wxWindow* parent,
         return;
     }
     
-    
+#if MOZILLA_VERSION_1 < 7
     ns_smartptr<nsIDOMWindow2> dom_window2(dom_window);
+#else
+    ns_smartptr<nsIDOMWindow> dom_window2(dom_window);
+#endif
     if (dom_window2)
     {
         res = dom_window2->GetWindowRoot(&m_ptrs->m_event_target.p);

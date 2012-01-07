@@ -5117,13 +5117,19 @@ void wxDOMHTMLTextAreaElement::SetAccessKey(const wxString& value)
 // Remarks:
 //
 // Returns:
-
+#if MOZILLA_VERSION_1 < 7
 int wxDOMHTMLTextAreaElement::GetCols()
+#else
+unsigned int wxDOMHTMLTextAreaElement::GetCols()
+#endif
 {
     if (!IsOk())
         return 0;
-        
+#if MOZILLA_VERSION_1 < 7
     PRInt32 val = 0;
+#else
+    PRUint32 val = 0;
+#endif
     m_data->textarea_ptr->GetCols(&val);
     return val;
 }
@@ -5268,13 +5274,21 @@ void wxDOMHTMLTextAreaElement::SetReadOnly(bool value)
 // Remarks:
 //
 // Returns:
-
+#if MOZILLA_VERSION_1 < 7
 int wxDOMHTMLTextAreaElement::GetRows()
+#else
+unsigned int wxDOMHTMLTextAreaElement::GetRows()
+#endif
 {
     if (!IsOk())
         return 0;
         
+
+#if MOZILLA_VERSION_1 < 7
     PRInt32 val = 0;
+#else
+    PRUint32 val = 0;
+#endif
     m_data->textarea_ptr->GetRows(&val);
     return val;
 }
