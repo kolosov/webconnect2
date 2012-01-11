@@ -129,7 +129,7 @@
 #endif
 #include "nsITransfer.h"
 
-#include "nsptr.h"
+//#include "nsptr.h"
 
 #include "nsEmbedString.h"
 

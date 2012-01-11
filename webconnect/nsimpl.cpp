@@ -18,7 +18,7 @@
 #include "webcontrol.h"
 #include "nsinclude.h"
 
-#include "moz_config.h"
+//#include "moz_config.h"
 
 #ifdef __WXMSW__
 #include <windows.h>
@@ -496,28 +496,28 @@ void freeUnichar(PRUnichar* p)
     NS_Free((void*)p);
 }
 
-ns_smartptr<nsIWindowWatcher> nsGetWindowWatcherService()
+nsCOMPtr<nsIWindowWatcher> nsGetWindowWatcherService()
 {
-    ns_smartptr<nsIServiceManager> service_mgr;
-    ns_smartptr<nsIWindowWatcher> result;
+    nsCOMPtr<nsIServiceManager> service_mgr;
+    nsCOMPtr<nsIWindowWatcher> result;
     nsresult res;
     
-    res = NS_GetServiceManager(&service_mgr.p);
+    res = NS_GetServiceManager(getter_AddRefs(service_mgr));
     if (NS_FAILED(res))
         return result;
     
     nsIID iid = NS_IWINDOWWATCHER_IID;
     service_mgr->GetServiceByContractID("@mozilla.org/embedcomp/window-watcher;1",
                                         iid,
-                                        (void**)&result.p);
+                                        getter_AddRefs(result));
     
     return result;
 }
 #if MOZILLA_VERSION_1 < 2
-ns_smartptr<nsIPref> nsGetPrefService()
+nsCOMPtr<nsIPref> nsGetPrefService()
 {
-    ns_smartptr<nsIServiceManager> service_mgr;
-    ns_smartptr<nsIPref> result;
+    nsCOMPtr<nsIServiceManager> service_mgr;
+    nsCOMPtr<nsIPref> result;
     nsresult res;
     
     res = NS_GetServiceManager(&service_mgr.p);
@@ -532,13 +532,13 @@ ns_smartptr<nsIPref> nsGetPrefService()
     return result;
 }
 #else
-ns_smartptr<nsIPrefBranch> nsGetPrefService()
+nsCOMPtr<nsIPrefBranch> nsGetPrefService()
 {
-    ns_smartptr<nsIServiceManager> service_mgr;
-    ns_smartptr<nsIPrefBranch> result;
+    nsCOMPtr<nsIServiceManager> service_mgr;
+    nsCOMPtr<nsIPrefBranch> result;
     nsresult res;
 
-    res = NS_GetServiceManager(&service_mgr.p);
+    res = NS_GetServiceManager(getter_AddRefs(service_mgr));
     if (NS_FAILED(res))
         return result;
 
@@ -546,128 +546,129 @@ ns_smartptr<nsIPrefBranch> nsGetPrefService()
     nsIID iid = NS_IPREFBRANCH_IID;
     res = service_mgr->GetServiceByContractID("@mozilla.org/preferences-service;1",
                                         iid,
-                                        (void**)&result.p);
+                                        getter_AddRefs(result));
 
     return result;
 }
 #endif
 
-ns_smartptr<nsIProperties> nsGetDirectoryService()
+nsCOMPtr<nsIProperties> nsGetDirectoryService()
 {
-    ns_smartptr<nsIProperties> result;
-    ns_smartptr<nsIServiceManager> service_mgr;
+    nsCOMPtr<nsIProperties> result;
+    nsCOMPtr<nsIServiceManager> service_mgr;
     nsresult res;
     
-    res = NS_GetServiceManager(&service_mgr.p);
+    res = NS_GetServiceManager(getter_AddRefs(service_mgr));
     if (NS_FAILED(res))
         return result;
     
     nsIID iid = NS_IPROPERTIES_IID;
     res = service_mgr->GetServiceByContractID("@mozilla.org/file/directory_service;1",
                                         iid,
-                                        (void**)&result.p);
+                                        getter_AddRefs(result));
     
     return result;
 }
 
-ns_smartptr<nsIIOService> nsGetIOService()
+nsCOMPtr<nsIIOService> nsGetIOService()
 {
-    ns_smartptr<nsIIOService> result;
-    ns_smartptr<nsIServiceManager> service_mgr;
+    nsCOMPtr<nsIIOService> result;
+    nsCOMPtr<nsIServiceManager> service_mgr;
     nsresult res;
     
-    res = NS_GetServiceManager(&service_mgr.p);
+    res = NS_GetServiceManager(getter_AddRefs(service_mgr));
     if (NS_FAILED(res))
         return result;
     
     nsIID iid = NS_IIOSERVICE_IID;
     service_mgr->GetServiceByContractID("@mozilla.org/network/io-service;1",
                                         iid,
-                                        (void**)&result.p);
+                                        getter_AddRefs(result));
     
     return result;
 }
 
-ns_smartptr<nsISupports> nsGetService(const char* contract_id)
+nsCOMPtr<nsISupports> nsGetService(const char* contract_id)
 {
-    ns_smartptr<nsISupports> result;
-    ns_smartptr<nsIServiceManager> service_mgr;
+    nsCOMPtr<nsISupports> result;
+    nsCOMPtr<nsIServiceManager> service_mgr;
     nsresult res;
     
-    res = NS_GetServiceManager(&service_mgr.p);
+    res = NS_GetServiceManager(getter_AddRefs(service_mgr));
     if (NS_FAILED(res))
         return result;
     
     nsIID iid = NS_ISUPPORTS_IID;
     service_mgr->GetServiceByContractID(contract_id,
                                         iid,
-                                        (void**)&result.p);
+                                        getter_AddRefs(result));
     
     return result;
 }
 
-ns_smartptr<nsISupports> nsCreateInstance(const char* contract_id)
+nsCOMPtr<nsISupports> nsCreateInstance(const char* contract_id)
 {
-    ns_smartptr<nsISupports> res;
+    nsCOMPtr<nsISupports> res;
     static nsIID nsISupportsIID = NS_ISUPPORTS_IID;
     nsresult result;
     
-    ns_smartptr<nsIComponentManager> comp_mgr;
-    result = NS_GetComponentManager(&comp_mgr.p);
+    nsCOMPtr<nsIComponentManager> comp_mgr;
+    result = NS_GetComponentManager(getter_AddRefs(comp_mgr));
     if (comp_mgr)
     {
         result = comp_mgr->CreateInstanceByContractID(contract_id,
                                              0,
                                              nsISupportsIID,
-                                             (void**)&res.p);
+                                             getter_AddRefs(res));
     }
     
     return res;
 }
 
-ns_smartptr<nsISupports> nsCreateInstance(const nsCID& cid)
+nsCOMPtr<nsISupports> nsCreateInstance(const nsCID& cid)
 {
-    ns_smartptr<nsISupports> res;
+    nsCOMPtr<nsISupports> res;
     static nsIID nsISupportsIID = NS_ISUPPORTS_IID;
     
-    ns_smartptr<nsIComponentManager> comp_mgr;
-    NS_GetComponentManager(&comp_mgr.p);
+    nsCOMPtr<nsIComponentManager> comp_mgr;
+    NS_GetComponentManager(getter_AddRefs(comp_mgr));
     if (comp_mgr)
     {
         comp_mgr->CreateInstance(cid,
                                  0,
                                  nsISupportsIID,
-                                 (void**)&res.p);
+                                 getter_AddRefs(res));
     }
     
     return res;
 }
 
-ns_smartptr<nsILocalFile> nsNewLocalFile(const wxString& filename)
+nsCOMPtr<nsILocalFile> nsNewLocalFile(const wxString& filename)
 {
     nsresult res = 0;
-    ns_smartptr<nsILocalFile> ret;
+    nsCOMPtr<nsILocalFile> ret;
     
-    res = NS_NewNativeLocalFile(nsDependentCString((const char*)filename.mbc_str()), TRUE, &ret.p);
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)filename.mbc_str()), TRUE, getter_AddRefs(ret));
     
-    if (NS_FAILED(res))
-        ret.clear();
+    //if (NS_FAILED(res))
+    //    ret.clear();
     
     return ret;
 }
 
 
-ns_smartptr<nsIURI> nsNewURI(const wxString& spec)
+nsCOMPtr<nsIURI> nsNewURI(const wxString& spec)
 {
-    ns_smartptr<nsIURI> res;
+    nsCOMPtr<nsIURI> res;
     
-    ns_smartptr<nsIIOService> io_service = nsGetIOService();
-    if (io_service.empty())
+    nsCOMPtr<nsIIOService> io_service = nsGetIOService();
+    //if (io_service.empty())
+    if (!io_service) //FIXME?
         return res;
     
     std::string cstr_spec = (const char*)spec.mbc_str();
     
-    io_service->NewURI(nsDependentCString(cstr_spec.c_str()), nsnull, nsnull, &res.p);
+    io_service->NewURI(nsDependentCString(cstr_spec.c_str()), nsnull, nsnull, getter_AddRefs(res));
     
     return res;
 }

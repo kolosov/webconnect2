@@ -52,7 +52,10 @@ wxDOMNode& wxDOMNode::operator=(const wxDOMNode& c)
 
 void wxDOMNode::assign(const wxDOMNode& c)
 {
+	//FIXME implement later
+	/*
     m_data->setNode(c.m_data->node_ptr.p);
+    */
 }
 
 // (METHOD) wxDOMNode::IsOk
@@ -66,7 +69,9 @@ void wxDOMNode::assign(const wxDOMNode& c)
 
 bool wxDOMNode::IsOk() const
 {
-    return (m_data->node_ptr ? true : false);
+	//FIXME implement later
+	return (m_data->node_ptr ? true : false);
+	return true;
 }
 
 // (METHOD) wxDOMNode::GetOwnerDocument
@@ -222,7 +227,8 @@ wxDOMNodeList wxDOMNode::GetChildNodes()
     if (!IsOk())
         return node_list;
 
-    m_data->node_ptr->GetChildNodes(&node_list.m_data->ptr.p);
+    //m_data->node_ptr->GetChildNodes(&node_list.m_data->ptr.p);
+	m_data->node_ptr->GetChildNodes( getter_AddRefs ( node_list.m_data->ptr ));
     return node_list;
 }
 
@@ -474,7 +480,8 @@ wxDOMNamedNodeMap wxDOMNode::GetAttributes()
     if (!IsOk())
         return node_map;
 
-    m_data->node_ptr->GetAttributes(&node_map.m_data->ptr.p);
+    //m_data->node_ptr->GetAttributes(&node_map.m_data->ptr.p);
+    m_data->node_ptr->GetAttributes( getter_AddRefs (node_map.m_data->ptr));
     return node_map;
 }
 
@@ -729,7 +736,8 @@ NS_IMPL_ISUPPORTS1(wxDOMEventAdaptor, nsIDOMEventListener)
 // Remarks:
 //
 // Returns:
-
+//FIXME implement later
+/*
 bool wxDOMNode::AddEventListener(const wxString& type,
                                  wxEvtHandler* event_handler,
                                  int event_id,
@@ -738,7 +746,7 @@ bool wxDOMNode::AddEventListener(const wxString& type,
     if (!IsOk())
         return false;
         
-    ns_smartptr<nsIDOMEventTarget> evt_target = m_data->node_ptr;
+    nsCOMPtr<nsIDOMEventTarget> evt_target = m_data->node_ptr;
     if (!evt_target)
         return false;
     
@@ -760,7 +768,7 @@ bool wxDOMNode::AddEventListener(const wxString& type,
 
     return false;
 }
-
+*/
 
 
 
@@ -1135,7 +1143,7 @@ wxDOMNodeList wxDOMElement::GetElementsByTagName(const wxString& name)
     wx2ns(name, nsname);
 
     m_data->element_ptr->GetElementsByTagName(nsname,
-                                              &node_list.m_data->ptr.p);
+                                              getter_AddRefs(node_list.m_data->ptr));
     return node_list;
 }
 
@@ -1306,7 +1314,7 @@ wxDOMNodeList wxDOMElement::GetElementsByTagNameNS(const wxString& namespace_uri
 
     m_data->doc_ptr->GetElementsByTagNameNS(nsnamespace_uri,
                                             nslocal_name,
-                                            &node_list.m_data->ptr.p);
+                                            getter_AddRefs(node_list.m_data->ptr));
     return node_list;
 }
 
@@ -1639,7 +1647,7 @@ wxDOMNodeList wxDOMDocument::GetElementsByTagName(const wxString& name)
     nsEmbedString nsname;
     wx2ns(name, nsname);
 
-    m_data->doc_ptr->GetElementsByTagName(nsname, &node_list.m_data->ptr.p);
+    m_data->doc_ptr->GetElementsByTagName(nsname, getter_AddRefs(node_list.m_data->ptr));
     return node_list;
 }
 
@@ -1771,7 +1779,7 @@ wxDOMNodeList wxDOMDocument::GetElementsByTagNameNS(const wxString& namespace_ur
 
     m_data->doc_ptr->GetElementsByTagNameNS(nsnamespace_uri,
                                             nslocal_name,
-                                            &node_list.m_data->ptr.p);
+                                            getter_AddRefs(node_list.m_data->ptr));
     return node_list;
 }
 
@@ -1869,7 +1877,8 @@ wxString wxDOMHTMLElement::GetId()
         return wxEmptyString;
 
     nsEmbedString ns;
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -1897,7 +1906,8 @@ void wxDOMHTMLElement::SetId(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -1920,7 +1930,8 @@ wxString wxDOMHTMLElement::GetTitle()
         return wxEmptyString;
 
     nsEmbedString ns;
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -1948,7 +1959,8 @@ void wxDOMHTMLElement::SetTitle(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -1971,7 +1983,8 @@ wxString wxDOMHTMLElement::GetLang()
         return wxEmptyString;
 
     nsEmbedString ns;
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -1999,7 +2012,8 @@ void wxDOMHTMLElement::SetLang(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -2022,7 +2036,8 @@ wxString wxDOMHTMLElement::GetDir()
         return wxEmptyString;
 
     nsEmbedString ns;
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -2050,7 +2065,8 @@ void wxDOMHTMLElement::SetDir(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -2073,7 +2089,8 @@ wxString wxDOMHTMLElement::GetClassName()
         return wxEmptyString;
 
     nsEmbedString ns;
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -2101,7 +2118,8 @@ void wxDOMHTMLElement::SetClassName(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    ns_smartptr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
     
     if (e)
     {
@@ -2117,17 +2135,18 @@ void wxDOMHTMLElement::SetClassName(const wxString& value)
 // Remarks:
 //
 // Returns:
-
+//FIXME implement later
+/*
 void wxDOMHTMLElement::SetValue(const wxString& value)
 {
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
     
-    ns_smartptr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
     
     if (e1)
     {
@@ -2162,6 +2181,7 @@ void wxDOMHTMLElement::SetValue(const wxString& value)
     wxDOMElement e6 = *this;
     e6.SetAttribute(wxT("value"), value);
 }
+*/
 
 // (METHOD) wxDOMHTMLElement::GetValue
 // Description:
@@ -2171,14 +2191,15 @@ void wxDOMHTMLElement::SetValue(const wxString& value)
 // Remarks:
 //
 // Returns:
-
+//FIXME implement later
+/*
 wxString wxDOMHTMLElement::GetValue()
 {
-    ns_smartptr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
     
     nsEmbedString nsvalue;
     
@@ -2215,7 +2236,7 @@ wxString wxDOMHTMLElement::GetValue()
     wxDOMElement e6 = *this;
     return e6.GetAttribute(wxT("value"));
 }
-
+*/
 // (METHOD) wxDOMHTMLElement::HasValueProperty
 // Description:
 //
@@ -2224,17 +2245,17 @@ wxString wxDOMHTMLElement::GetValue()
 // Remarks:
 //
 // Returns:
-
-bool wxDOMHTMLElement::HasValueProperty() const
+//FIXME implement later
+/*bool wxDOMHTMLElement::HasValueProperty() const
 {
     if (!IsOk())
         return false;
         
-    ns_smartptr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
-    ns_smartptr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
 
     if (e1) return true;
     if (e2) return true;
@@ -2243,7 +2264,7 @@ bool wxDOMHTMLElement::HasValueProperty() const
     if (e5) return true;
     
     return false;
-}
+}*/
 
 
 
@@ -5484,7 +5505,8 @@ wxDOMNode wxDOMNodeList::Item(size_t idx)
     wxDOMNode node;
     if (!IsOk())
         return node;
-    m_data->ptr->Item(idx, &node.m_data->node_ptr.p);
+    //m_data->ptr->Item(idx, &node.m_data->node_ptr.p);
+    m_data->ptr->Item(idx, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
 
@@ -5591,7 +5613,7 @@ wxDOMNode wxDOMNamedNodeMap::Item(size_t idx)
     if (!IsOk())
         return node;
 
-    m_data->ptr->Item(idx, &node.m_data->node_ptr.p);
+    m_data->ptr->Item(idx, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
 
@@ -5613,7 +5635,7 @@ wxDOMNode wxDOMNamedNodeMap::GetNamedItem(const wxString& name)
     if (!IsOk())
         return node;
 
-    m_data->ptr->GetNamedItem(nsstr, &node.m_data->node_ptr.p);
+    m_data->ptr->GetNamedItem(nsstr, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
 
@@ -5637,7 +5659,7 @@ wxDOMNode wxDOMNamedNodeMap::GetNamedItemNS(const wxString& namespace_uri,
     wxDOMNode node;
     if (!IsOk())
         return node;
-    m_data->ptr->GetNamedItemNS(nsstr_uri, nsstr_name, &node.m_data->node_ptr.p);
+    m_data->ptr->GetNamedItemNS(nsstr_uri, nsstr_name, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
 
@@ -5658,7 +5680,7 @@ wxDOMNode wxDOMNamedNodeMap::RemoveNamedItem(const wxString& name)
     wxDOMNode node;
     if (!IsOk())
         return node;
-    m_data->ptr->RemoveNamedItem(nsstr, &node.m_data->node_ptr.p);
+    m_data->ptr->RemoveNamedItem(nsstr, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
 
@@ -5682,7 +5704,7 @@ wxDOMNode wxDOMNamedNodeMap::RemoveNamedItemNS(const wxString& namespace_uri,
     wxDOMNode node;
     if (!IsOk())
         return node;
-    m_data->ptr->RemoveNamedItemNS(nsstr_uri, nsstr_name, &node.m_data->node_ptr.p);
+    m_data->ptr->RemoveNamedItemNS(nsstr_uri, nsstr_name, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
 
@@ -5700,7 +5722,7 @@ wxDOMNode wxDOMNamedNodeMap::SetNamedItem(wxDOMNode& arg)
     wxDOMNode node;
     if (!IsOk())
         return node;
-    m_data->ptr->SetNamedItem(arg.m_data->node_ptr, &node.m_data->node_ptr.p);
+    m_data->ptr->SetNamedItem(arg.m_data->node_ptr, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
 
@@ -5718,7 +5740,7 @@ wxDOMNode wxDOMNamedNodeMap::SetNamedItemNS(wxDOMNode& arg)
     wxDOMNode node;
     if (!IsOk())
         return node;
-    m_data->ptr->SetNamedItemNS(arg.m_data->node_ptr, &node.m_data->node_ptr.p);
+    m_data->ptr->SetNamedItemNS(arg.m_data->node_ptr, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
 
@@ -5750,20 +5772,23 @@ wxDOMEvent::~wxDOMEvent()
 wxDOMEvent::wxDOMEvent(const wxDOMEvent& c)
 {
     m_data = new wxDOMEventData;
-    assign(c);
+    //FIXME
+    //assign(c);
 }
 
 wxDOMEvent& wxDOMEvent::operator=(const wxDOMEvent& c)
 {
-    assign(c);
+	//FIXME
+    //assign(c);
     return *this;
 }
-
+//FIXME implement later
+/*
 void wxDOMEvent::assign(const wxDOMEvent& c)
 {
     m_data->setPtr(c.m_data->event_ptr.p);
 }
-
+*/
 // (METHOD) wxDOMEvent::IsOk
 // Description:
 //
@@ -5822,7 +5847,8 @@ wxDOMMouseEvent::wxDOMMouseEvent(const wxDOMEvent& evt) : wxDOMEvent(evt)
 
 wxDOMMouseEvent& wxDOMMouseEvent::operator=(const wxDOMEvent& c)
 {
-    assign(c);
+	//FIXME
+    //assign(c);
     return *this;
 }
 

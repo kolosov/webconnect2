@@ -101,10 +101,11 @@ public:
     
 public:
 
-    bool AddEventListener(const wxString& type,
+    //FIXME implement later
+    /*bool AddEventListener(const wxString& type,
                           wxEvtHandler* event_handler,
                           int event_id = -1,
-                          bool use_capture = false);
+                          bool use_capture = false);*/
 
 protected:
 
@@ -402,8 +403,9 @@ public:
     // doesn't normally have these calls
     
     wxString GetValue();
-    void SetValue(const wxString& value);
-    bool HasValueProperty() const;
+    //FIXME implemenet later
+    //void SetValue(const wxString& value);
+    //bool HasValueProperty() const;
 };
 
 
@@ -909,7 +911,8 @@ public:
     ~wxDOMEvent();
     wxDOMEvent(const wxDOMEvent& c);
     wxDOMEvent& operator=(const wxDOMEvent& c);
-    void assign(const wxDOMEvent& c);
+    //FIXME
+    //void assign(const wxDOMEvent& c);
 
     virtual bool IsOk() const;
 

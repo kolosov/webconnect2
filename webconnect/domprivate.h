@@ -18,7 +18,9 @@ struct wxDOMNodeData
 {
     void setNode(nsISupports* ptr)
     {
-        ns_smartptr<nsISupports> supports = ptr;
+    	//FIXME implement later
+    	/*
+        nsCOMPtr<nsISupports> supports = ptr;
         node_ptr = supports;
         attr_ptr = supports;
         text_ptr = supports;
@@ -33,34 +35,35 @@ struct wxDOMNodeData
         param_ptr = supports;
         select_ptr = supports;
         textarea_ptr = supports;
+        */
     }
     
-    ns_smartptr<nsIDOMNode> node_ptr;
-    ns_smartptr<nsIDOMAttr> attr_ptr;
-    ns_smartptr<nsIDOMText> text_ptr;
-    ns_smartptr<nsIDOMElement> element_ptr;
-    ns_smartptr<nsIDOMDocument> doc_ptr;
-    ns_smartptr<nsIDOMHTMLElement> htmlelement_ptr;
-    ns_smartptr<nsIDOMHTMLAnchorElement> anchor_ptr;
-    ns_smartptr<nsIDOMHTMLButtonElement> button_ptr;
-    ns_smartptr<nsIDOMHTMLInputElement> input_ptr;
-    ns_smartptr<nsIDOMHTMLLinkElement> link_ptr;
-    ns_smartptr<nsIDOMHTMLOptionElement> option_ptr;
-    ns_smartptr<nsIDOMHTMLParamElement> param_ptr;
-    ns_smartptr<nsIDOMHTMLSelectElement> select_ptr;
-    ns_smartptr<nsIDOMHTMLTextAreaElement> textarea_ptr;
+    nsCOMPtr<nsIDOMNode> node_ptr;
+    nsCOMPtr<nsIDOMAttr> attr_ptr;
+    nsCOMPtr<nsIDOMText> text_ptr;
+    nsCOMPtr<nsIDOMElement> element_ptr;
+    nsCOMPtr<nsIDOMDocument> doc_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> htmlelement_ptr;
+    nsCOMPtr<nsIDOMHTMLAnchorElement> anchor_ptr;
+    nsCOMPtr<nsIDOMHTMLButtonElement> button_ptr;
+    nsCOMPtr<nsIDOMHTMLInputElement> input_ptr;
+    nsCOMPtr<nsIDOMHTMLLinkElement> link_ptr;
+    nsCOMPtr<nsIDOMHTMLOptionElement> option_ptr;
+    nsCOMPtr<nsIDOMHTMLParamElement> param_ptr;
+    nsCOMPtr<nsIDOMHTMLSelectElement> select_ptr;
+    nsCOMPtr<nsIDOMHTMLTextAreaElement> textarea_ptr;
 };
 
 
 struct wxDOMNodeListData
 {
-    ns_smartptr<nsIDOMNodeList> ptr;
+    nsCOMPtr<nsIDOMNodeList> ptr;
 };
 
 
 struct wxDOMNamedNodeMapData
 {
-    ns_smartptr<nsIDOMNamedNodeMap> ptr;
+    nsCOMPtr<nsIDOMNamedNodeMap> ptr;
 };
 
 
@@ -68,13 +71,16 @@ struct wxDOMEventData
 {
     void setPtr(nsISupports* ptr)
     {
-        ns_smartptr<nsISupports> supports = ptr;
+        nsCOMPtr<nsISupports> supports = ptr;
+        //FIXME implement later
+        /*
         event_ptr = supports;
         mouseevent_ptr = supports;
+        */
     }
     
-    ns_smartptr<nsIDOMNode> event_ptr;
-    ns_smartptr<nsIDOMAttr> mouseevent_ptr;
+    nsCOMPtr<nsIDOMNode> event_ptr;
+    nsCOMPtr<nsIDOMAttr> mouseevent_ptr;
 };
 
 

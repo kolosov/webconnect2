@@ -28,17 +28,17 @@ wxWebControl* GetWebControlFromBrowserChrome(nsIWebBrowserChrome* chrome);
 
 wxWebControl* GetWebControlFromDOMWindow(nsIDOMWindow* window)
 {
-    ns_smartptr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
-    ns_smartptr<nsIWebBrowserChrome> chrome;
+    nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
+    nsCOMPtr<nsIWebBrowserChrome> chrome;
     
-    if (window == NULL || window_watcher.empty())
+    if (window == NULL || window_watcher == NULL)//FIXME?
     {
         // we don't have either a dom window pointer or
         // access to the window watcher service.  return error
         return NULL;
     }
     
-    window_watcher->GetChromeForWindow(window, &chrome.p);
+    window_watcher->GetChromeForWindow(window, getter_AddRefs(chrome));
     
     return GetWebControlFromBrowserChrome(chrome);
 }
@@ -785,16 +785,17 @@ void PromptService::onBadCertificate(const wxString& message, nsIDOMWindow* dom_
     if (!ctrl)
         return;
 
-    ns_smartptr<nsIURIFixup> uri_fixup = nsGetService("@mozilla.org/docshell/urifixup;1");
+    //nsCOMPtr<nsIURIFixup> uri_fixup = nsGetService("@mozilla.org/docshell/urifixup;1");
+    nsCOMPtr<nsIURIFixup> uri_fixup(do_GetService("@mozilla.org/docshell/urifixup;1"));
     if (!uri_fixup)
         return;
     
     wxString load_uri = ctrl->GetCurrentLoadURI();
     
-    ns_smartptr<nsIURI> uri;
+    nsCOMPtr<nsIURI> uri;
     nsEmbedCString load_uri_text;
     wx2ns(load_uri, load_uri_text);
-    uri_fixup->CreateFixupURI(load_uri_text, 0, &uri.p);
+    uri_fixup->CreateFixupURI(load_uri_text, 0, getter_AddRefs(uri));
 
     if (!uri)
         return;
@@ -806,7 +807,8 @@ void PromptService::onBadCertificate(const wxString& message, nsIDOMWindow* dom_
     if (ns_port <= 0)
         ns_port = 443;
     
-    ns_smartptr<nsIRecentBadCertsService> bad_certs = nsGetService("@mozilla.org/security/recentbadcerts;1");
+    //nsCOMPtr<nsIRecentBadCertsService> bad_certs = nsGetService("@mozilla.org/security/recentbadcerts;1");
+    nsCOMPtr<nsIRecentBadCertsService> bad_certs(do_GetService(NS_RECENTBADCERTS_CONTRACTID));
     if (bad_certs)
     {
         wxString wx_host_port = ns2wx(ns_host);
@@ -815,15 +817,16 @@ void PromptService::onBadCertificate(const wxString& message, nsIDOMWindow* dom_
         nsEmbedString ns_host_port;
         wx2ns(wx_host_port, ns_host_port);
             
-        ns_smartptr<nsISSLStatus> status;
-        bad_certs->GetRecentBadCert(ns_host_port, &status.p);
+        nsCOMPtr<nsISSLStatus> status;
+        bad_certs->GetRecentBadCert(ns_host_port, getter_AddRefs(status));
         if (status)
         {
-            ns_smartptr<nsICertOverrideService> cert_override = nsGetService("@mozilla.org/security/certoverride;1");
+            //nsCOMPtr<nsICertOverrideService> cert_override = nsGetService("@mozilla.org/security/certoverride;1");
+            nsCOMPtr<nsICertOverrideService> cert_override (do_GetService("@mozilla.org/security/certoverride;1"));
             if (cert_override)
             {
-                ns_smartptr<nsIX509Cert> cert;
-                status->GetServerCert(&cert.p);
+                nsCOMPtr<nsIX509Cert> cert;
+                status->GetServerCert(getter_AddRefs(cert));
                 
                 if (cert)
                 {
@@ -1194,7 +1197,6 @@ void CreateTransferFactory(nsIFactory** result)
 //  UnknownContentTypeHandler class implementation
 ///////////////////////////////////////////////////////////////////////////////
 
-
 class UnknownContentTypeHandler :
 	public nsIHelperAppLauncherDialog
 #if MOZILLA_VERSION_1 < 1
@@ -1210,8 +1212,12 @@ public:
                     nsISupports* _context,
                     PRUint32 reason)
     {     
-        ns_smartptr<nsISupports> context = _context;
-        ns_smartptr<nsIDOMWindow> parent = nsRequestInterface(context);
+        nsCOMPtr<nsISupports> context = _context;
+        //FIXME implement later
+        //nsCOMPtr<nsIDOMWindow> parent = nsRequestInterface(context);
+        //nsCOMPtr<nsIDOMWindow> parent = do_QueryInterface(context);
+        nsCOMPtr<nsIDOMWindow> parent = do_GetInterface(context);
+        //nsCOMPtr<nsIDOMWindow> parent;
         wxWebControl* ctrl = GetWebControlFromDOMWindow(parent);
         if (!ctrl)
         {
@@ -1225,8 +1231,8 @@ public:
         
         
         wxString url;
-        ns_smartptr<nsIURI> uri;
-        launcher->GetSource(&uri.p);
+        nsCOMPtr<nsIURI> uri;
+        launcher->GetSource(getter_AddRefs(uri));
         if (uri)
         {
             nsEmbedCString ns_spec;
@@ -1243,19 +1249,21 @@ public:
         
         // fetch mime type
         nsEmbedCString ns_mimetype;
-        ns_smartptr<nsISupports> mime_info_supports;
-        launcher->GetMIMEInfo((nsIMIMEInfo**)&mime_info_supports.p);
+        //nsCOMPtr<nsISupports> mime_info_supports;
+        nsCOMPtr<nsIMIMEInfo > mime_info_supports;
+        //launcher->GetMIMEInfo((nsIMIMEInfo**)getter_AddRefs(mime_info_supports));
+        launcher->GetMIMEInfo(getter_AddRefs(mime_info_supports));
         wxString mime_type;
 
 #if MOZILLA_VERSION_1 < 1
-        ns_smartptr<nsIMIMEInfo18> mime_info18 = mime_info_supports;
+        nsCOMPtr<nsIMIMEInfo18> mime_info18 = mime_info_supports;
         if (mime_info18)
         {
             mime_info18->GetMIMEType(ns_mimetype);
             mime_type = ns2wx(ns_mimetype);
         }
 #endif
-        ns_smartptr<nsIMIMEInfo> mime_info = mime_info_supports;
+        nsCOMPtr<nsIMIMEInfo> mime_info = mime_info_supports;
         if (mime_info)
         {
             mime_info->GetMIMEType(ns_mimetype);
@@ -1284,7 +1292,7 @@ public:
                     if (evt.m_download_action_path.IsEmpty())
                     {
                         // no filename specified
-                        launcher->Cancel(0x804b0002 /* = NS_BINDING_ABORTED */ );
+                        launcher->Cancel(0x804b0002 ); // = NS_BINDING_ABORTED
                         return NS_OK;
                     }
                      else
@@ -1304,7 +1312,7 @@ public:
                     launcher->LaunchWithApplication(NULL, PR_FALSE);
                     break;
                 case wxWEB_DOWNLOAD_CANCEL:
-                    launcher->Cancel(0x804b0002 /* = NS_BINDING_ABORTED */ );
+                    launcher->Cancel(0x804b0002  ); // = NS_BINDING_ABORTED
                     break;
             }
             
@@ -1365,9 +1373,10 @@ public:
                                    PRBool force_prompt,
                                    nsILocalFile** new_file)
     {
-        ns_smartptr<nsISupports> context = window_context;
-        ns_smartptr<nsIDOMWindow> parent = nsRequestInterface(context);
-        
+        nsCOMPtr<nsISupports> context = window_context;
+        //FIXME later
+        //nsCOMPtr<nsIDOMWindow> parent = nsRequestInterface(context);
+        nsCOMPtr<nsIDOMWindow> parent;
         wxString default_filename = ns2wx(default_file);
         
         wxString filter;

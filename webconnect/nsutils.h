@@ -24,18 +24,18 @@ PRUnichar* wxToUnichar(const wxString& wxstr);
 void freeUnichar(PRUnichar* p);
 
 
-ns_smartptr<nsIWindowWatcher> nsGetWindowWatcherService();
+nsCOMPtr<nsIWindowWatcher> nsGetWindowWatcherService();
 #if MOZILLA_VERSION_1 < 2
-ns_smartptr<nsIPref> nsGetPrefService();
+nsCOMPtr<nsIPref> nsGetPrefService();
 #else
-ns_smartptr<nsIPrefBranch> nsGetPrefService();
+nsCOMPtr<nsIPrefBranch> nsGetPrefService();
 #endif
-ns_smartptr<nsIProperties> nsGetDirectoryService();
-ns_smartptr<nsISupports> nsGetService(const char* contract_id);
-ns_smartptr<nsISupports> nsCreateInstance(const char* contract_id);
-ns_smartptr<nsISupports> nsCreateInstance(const nsCID& cid);
-ns_smartptr<nsILocalFile> nsNewLocalFile(const wxString& filename);
-ns_smartptr<nsIURI> nsNewURI(const wxString& spec);
+nsCOMPtr<nsIProperties> nsGetDirectoryService();
+nsCOMPtr<nsISupports> nsGetService(const char* contract_id);
+nsCOMPtr<nsISupports> nsCreateInstance(const char* contract_id);
+nsCOMPtr<nsISupports> nsCreateInstance(const nsCID& cid);
+nsCOMPtr<nsILocalFile> nsNewLocalFile(const wxString& filename);
+nsCOMPtr<nsIURI> nsNewURI(const wxString& spec);
 
 
 
