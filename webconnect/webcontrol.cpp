@@ -823,7 +823,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
         nsCOMPtr<nsIDOMDocument> dom_doc;
         element->GetOwnerDocument(getter_AddRefs(dom_doc));
 #if MOZILLA_VERSION_1 < 5
-        nsCOMPtr<nsIDOM3Document> dom3_doc = dom_doc;
+        nsCOMPtr<nsIDOM3Document> dom3_doc = do_QueryInterface(dom_doc);
 #else
         nsCOMPtr<nsIDOMDocument> dom3_doc = dom_doc;
 #endif
@@ -1696,8 +1696,12 @@ bool GeckoEngine::Init()
     
     
     // create an app shell
-    const nsCID appshell_cid = NS_APPSHELL_CID;
+    //const nsCID appshell_cid = NS_APPSHELL_CID;
     //m_appshell = nsCreateInstance(appshell_cid);
+    //NS_DEFINE_CID(kAppShellCID, NS_APPSHELL_CID);
+
+    //m_appshell = do_GetService(NS_IAPPSHELL_IID);
+    //		m_appshell = do_CreateInstance
     /*FIXME if (m_appshell)
     {
         m_appshell->Create(0, nsnull);
@@ -1782,19 +1786,24 @@ bool GeckoEngine::Init()
     // required for downloads to work properly, even if we
     // don't store any history entries)
 
-    /* FIXME implement later
-    nsCOMPtr<nsIDirectoryService> dir_service = nsGetDirectoryService();
-    nsCOMPtr<nsIProperties> dir_service_props = dir_service;
+    //nsCOMPtr<nsIDirectoryService> dir_service = nsGetDirectoryService();
+    nsCOMPtr<nsIProperties> dir_service_props = nsGetDirectoryService();
     
     nsCOMPtr<nsILocalFile> history_file;
+
     res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_history_filename.mbc_str()), PR_TRUE, getter_AddRefs(history_file));
     if (NS_FAILED(res))
         return false;
-        
-    res = dir_service_props->Set("UHist", getter_AddRefs(history_file));
+
+/* FIXME
+    nsCOMPtr<nsILocalFile> fromFile;
+    nsCOMPtr<nsIProperties> directoryService(do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &res));
+    res = directoryService->Get((const char*)"UHist", NS_GET_IID(nsILocalFile),getter_AddRefs(fromFile));
+
+    res = dir_service_props->Set((const char*)"UHist", history_file);
     if (NS_FAILED(res))
-        return false;*/
-    
+        return false;
+*/
     // set up a profile directory, which is necessary for many
     // parts of the gecko engine, including ssl on linux
 
@@ -1824,7 +1833,7 @@ bool GeckoEngine::Init()
     */
 
     // set up preferences
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     nsCOMPtr<nsIPref> prefs = nsGetPrefService();
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
@@ -1840,7 +1849,7 @@ bool GeckoEngine::Init()
     prefs->SetIntPref("browser.history_expire_days", 0);
     
     // set path for our cache directory
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     PRUnichar* temps = wxToUnichar(m_storage_path);
     prefs->SetUnicharPref("browser.cache.disk.parent_directory", temps);
     freeUnichar(temps);
@@ -1850,7 +1859,7 @@ bool GeckoEngine::Init()
 
     m_ok = true;
     
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     m_is18 = m_appshell.empty() ? false : true;
     
     
@@ -2251,7 +2260,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     res = m_ptrs->m_web_browser->SetParentURIContentListener(static_cast<nsIURIContentListener*>(m_main_uri_listener));
 
     // get the event target
-    
+
     nsCOMPtr<nsIDOMWindow> dom_window;
     res = m_ptrs->m_web_browser->GetContentDOMWindow(getter_AddRefs(dom_window));
     if (!dom_window)
@@ -2261,7 +2270,11 @@ wxWebControl::wxWebControl(wxWindow* parent,
     }
     
 #if MOZILLA_VERSION_1 < 7
-    nsCOMPtr<nsIDOMWindow2> dom_window2(dom_window);
+    //nsCOMPtr<nsIDOMWindow2> dom_window2 = static_cast<nsIDOMWindow2>(dom_window);
+    //nsCOMPtr<nsIDOMWindow2> dom_window2;
+    //res = dom_window->GetParent(getter_AddRefs(dom_window2));
+    nsCOMPtr<nsIDOMWindow2> dom_window2 = do_QueryInterface(dom_window);
+
 #else
     nsCOMPtr<nsIDOMWindow> dom_window2(dom_window);
 #endif

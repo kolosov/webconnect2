@@ -14,7 +14,7 @@
 #define __WXWEBCONNECT_PROMPTSERVICE_H
 
 
-#define NS_APPSHELL_CID \
+//#define NS_APPSHELL_CID \
  {0x2d96b3df, 0xc051, 0x11d1, {0xa8, 0x27, 0x00, 0x40, 0x95, 0x9a, 0x28, 0xc9}}
     
 #define NS_PROMPTSERVICE_CID \

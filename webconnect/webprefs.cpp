@@ -28,7 +28,7 @@ wxWebPreferences::wxWebPreferences()
 
 bool wxWebPreferences::GetBoolPref(const wxString& name)
 {
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     nsCOMPtr<nsIPref> prefs = nsGetPrefService();
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
@@ -47,7 +47,7 @@ bool wxWebPreferences::GetBoolPref(const wxString& name)
 wxString wxWebPreferences::GetStringPref(const wxString& name)
 {
     wxString val;
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     nsCOMPtr<nsIPref> prefs = nsGetPrefService();
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
@@ -72,7 +72,7 @@ wxString wxWebPreferences::GetStringPref(const wxString& name)
 
 int wxWebPreferences::GetIntPref(const wxString& name)
 {
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     nsCOMPtr<nsIPref> prefs = nsGetPrefService();
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
@@ -91,7 +91,7 @@ int wxWebPreferences::GetIntPref(const wxString& name)
 
 void wxWebPreferences::SetIntPref(const wxString& name, int value)
 {
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     nsCOMPtr<nsIPref> prefs = nsGetPrefService();
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
@@ -104,7 +104,7 @@ void wxWebPreferences::SetIntPref(const wxString& name, int value)
 
 void wxWebPreferences::SetStringPref(const wxString& name, const wxString& value)
 {
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     nsCOMPtr<nsIPref> prefs = nsGetPrefService();
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
@@ -117,7 +117,7 @@ void wxWebPreferences::SetStringPref(const wxString& name, const wxString& value
 
 void wxWebPreferences::SetBoolPref(const wxString& name, bool value)
 {
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
     nsCOMPtr<nsIPref> prefs = nsGetPrefService();
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();

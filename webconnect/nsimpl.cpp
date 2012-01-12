@@ -513,7 +513,7 @@ nsCOMPtr<nsIWindowWatcher> nsGetWindowWatcherService()
     
     return result;
 }
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
 nsCOMPtr<nsIPref> nsGetPrefService()
 {
     nsCOMPtr<nsIServiceManager> service_mgr;

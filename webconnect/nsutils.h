@@ -25,7 +25,7 @@ void freeUnichar(PRUnichar* p);
 
 
 nsCOMPtr<nsIWindowWatcher> nsGetWindowWatcherService();
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 1
 nsCOMPtr<nsIPref> nsGetPrefService();
 #else
 nsCOMPtr<nsIPrefBranch> nsGetPrefService();
