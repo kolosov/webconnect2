@@ -4945,9 +4945,17 @@ void wxDOMHTMLSelectElement::Add(const wxDOMHTMLElement& element,
 {
     if (!IsOk())
         return;
-        
+#if MOZILLA_VERSION_1 < 8
     m_data->select_ptr->Add(element.m_data->htmlelement_ptr,
                             before.m_data->htmlelement_ptr);
+#else
+    //FIXME
+    //nsCOMPtr<nsIVariant> lvariant;
+
+    //m_data->select_ptr->Add(element.m_data->htmlelement_ptr,
+    //                            before.m_data->htmlelement_ptr);
+    return;
+#endif
 }
 
 // (METHOD) wxDOMHTMLSelectElement::Remove
