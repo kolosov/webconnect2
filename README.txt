@@ -11,6 +11,7 @@ Steps for windows buildung:
 -DGECKO_SDK_PATH=c:/dev/xulrunner-sdk_7 -DwxWidgets_ROOT_DIR=c:/wxmsw-2.8
 4) open webconnect2.sln by Visual Studio
 5) Select testapp properies and switch Configuration properties/Linker/System/SubSystem from "Console" to "Windows"
-6) Put to directory gecko runtime to directory build_w2/Debug/xr
+6) Put to directory gecko runtime (you can get gecko runtime by gecko sdk from bin/ directory)
+ to directory build_w2/Debug/xr
 7) Run testapp.exe
 
