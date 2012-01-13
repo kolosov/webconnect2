@@ -1931,7 +1931,8 @@ static wxString urlEscape(const wxString& input)
 
     while ((c = *ch))
     {
-        if (c >= 128)
+		//FIXME
+        /*if (c >= 128)
         {
             // we need to utf-8 encode this character per RFC-3986
             u.SetChar(0, *ch);
@@ -1945,7 +1946,7 @@ static wxString urlEscape(const wxString& input)
             
             ch++;
             continue;
-        }
+        }*/
         
         if (c <= 0x1f ||
             c == '%' || c == ' ' || c == '&' || c == '=' ||
@@ -2343,14 +2344,17 @@ wxWebControl::wxWebControl(wxWindow* parent,
     // to return true)
     m_ok = true;
     
-    
-    PRUnichar* ns_uri = wxToUnichar(L"about:blank");
-    m_ptrs->m_web_navigation->LoadURI(ns_uri,
+    //FIXME
+    //PRUnichar* ns_uri = wxToUnichar(L"about:blank");
+	const char *ns_uri = "about:blank";
+	
+    //m_ptrs->m_web_navigation->LoadURI(ns_uri,
+	m_ptrs->m_web_navigation->LoadURI(NS_ConvertUTF8toUTF16(ns_uri).get(),
                                       nsIWebNavigation::LOAD_FLAGS_NONE,
                                       0,
                                       0,
                                       0);
-    freeUnichar(ns_uri);
+    //freeUnichar(ns_uri);
     
     // show the browser component
     res = m_ptrs->m_base_window->SetVisibility(PR_TRUE);
@@ -2545,6 +2549,7 @@ bool wxWebControl::SaveRequest(const wxString& uri_str,
 //	nsresult rv;
     // make uri object out of the request uri
     nsCOMPtr<nsIURI> uri = nsNewURI(uri_str);
+	return false;
     if (!uri)
         return false;
     //FIXME

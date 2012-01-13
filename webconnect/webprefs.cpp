@@ -33,7 +33,7 @@ bool wxWebPreferences::GetBoolPref(const wxString& name)
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
 #endif
-    wxASSERT(!prefs.empty());
+    //wxASSERT(!prefs.empty());
     if (!prefs)
         return false;
         
@@ -52,7 +52,7 @@ wxString wxWebPreferences::GetStringPref(const wxString& name)
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
 #endif
-    wxASSERT(!prefs.empty());
+//    wxASSERT(!prefs.empty());
     if (!prefs)
         return val;
 
@@ -77,7 +77,7 @@ int wxWebPreferences::GetIntPref(const wxString& name)
 #else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
 #endif
-    wxASSERT(!prefs.empty());
+//    wxASSERT(!prefs.empty());
     if (!prefs)
         return 0;
     
