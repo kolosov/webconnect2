@@ -3899,8 +3899,11 @@ bool wxWebControl::Execute(const wxString& js_code)
     
     nsEmbedString str;
     wx2ns(js_code, str);
-
+#if MOZILLA_VERSION_1 < 9
     jsval out;
+#else
+	void* out;
+#endif
     rv = ctx->EvaluateStringWithValue(
         str,
         sgo->GetGlobalJSObject(),
