@@ -1,30 +1,16 @@
-Welcome to wxWebConnect 1.1
+It is webconnect2 based on webconnect 1.1 project(please read readme_1.1.txt)
 
+webconnect2 ask gecko sdk for compilation and uses cmake based build system.
+It is works both under linux and windows. Under windows I use wxwidget compiled 
+without UNICODE support because there are some promlem seems linked with WCHAR.
+Steps for windows buildung:
 
-Overview
-------------
-
-wxWebConnect is a library that brings web browser functionality to wxWidgets.
-It wraps the functionality exposed by the Mozilla.org's xulrunner engine into
-a set of user-friendly classes.
-
-
-Features
-------------
-
-
-    * A thorough treatment of web browser funcionality
-    * Custom content type handlers possible
-    * Many DOM interfaces are exposed, allowing DOM document writing
-    * DOM event handling
-    * Direct POST calls possible
-    * Support for both XULRunner 1.9.x and the older 1.8
-
-
-Requirements
-------------
-
-wxWebConnect uses the open-source XULrunner engine as provided by the Mozilla Foundation.  The XULrunner engine is licensed separately under the MPL/LGPL/GPL and can be found at http://www.mozilla.org/MPL/.
-
-For convenience, an unmodified binary of XULrunner version 1.9.2 is included with these files; it is also available at http://www.mozilla.org.
+1) mkdir build_w2
+2) cd build_w2
+3) cmake ../webconnect2 -G "Visual Studio 9 2008" \ 
+-DGECKO_SDK_PATH=c:/dev/xulrunner-sdk_7 -DwxWidgets_ROOT_DIR=c:/wxmsw-2.8
+4) open webconnect2.sln by Visual Studio
+5) Select testapp properies and switch Configuration properties/Linker/System/SubSystem from "Console" to "Windows"
+6) Put to directory gecko runtime to directory build_w2/Debug/xr
+7) Run testapp.exe
 
