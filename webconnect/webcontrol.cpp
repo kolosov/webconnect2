@@ -716,13 +716,10 @@ NS_IMETHODIMP BrowserChrome::OnShowContextMenu(PRUint32 context_flags,
         // the href; this happens, for example, when portions of the text in a
         // hyperlink are bold
 
-        //FIXME later
         nsCOMPtr<nsIDOMNode> node = do_QueryInterface(target);
         node = GetAnchor(node);
-        //node.p = GetAnchor(node.p);
         
         nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(node);
-        //anchor = node;
 
         if (anchor)
         {
@@ -801,9 +798,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
             
         // let main control know that we should have a favicon
         // by now.  If we don't, load a default /favicon.ico
-        //FIXME implement later
-        //m_wnd->FetchFavIcon((void*)uri2.p);
-        //m_wnd->FetchFavIcon(getter_AddRefs(uri2));
+        m_wnd->FetchFavIcon((void*)uri2);
         
     }
     
@@ -863,8 +858,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
         
         wxString favicon_url = ns2wx(cvalue);
         nsCOMPtr<nsIURI> result_uri = nsNewURI(favicon_url);
-        //FIXME implement later
-        //m_wnd->FetchFavIcon((void*)result_uri.p);
+        m_wnd->FetchFavIcon((void*)result_uri);
         return NS_OK;
     }
     
@@ -934,8 +928,6 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
         // for example, when portions of the text in a hyperlink are bold
         //node = target;
         nsCOMPtr<nsIDOMNode> node = do_QueryInterface(target);
-        //FIXME later
-        //node.p = GetAnchor(node.p);
         node = GetAnchor(node);
 
         nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(node);
@@ -1106,7 +1098,6 @@ public:
     NS_IMETHODIMP OnStartRequest(nsIRequest* request, nsISupports* context)
     {
         nsCOMPtr<nsIRequest> sp = request;
-        //nsCOMPtr<nsIChannel> channel = sp;  FIXME
         nsCOMPtr<nsIChannel> channel = do_QueryInterface(sp);
         nsCOMPtr<nsIURI> uri;
         channel->GetURI(getter_AddRefs(uri));
@@ -2314,7 +2305,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     res = m_ptrs->m_web_browser->SetContainerWindow(static_cast<nsIWebBrowserChrome*>(m_chrome));
 
     // set the type to contentWrapper
-    //FIXME nsCOMPtr<nsIDocShellTreeItem> dsti = m_ptrs->m_web_browser;
     nsCOMPtr<nsIDocShellTreeItem> dsti = do_QueryInterface(m_ptrs->m_web_browser);
     if (dsti)
     {
@@ -2426,7 +2416,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
 
 
     // get the nsIClipboardCommands interface
-    //FIXME
     m_ptrs->m_clipboard_commands = do_GetInterface(m_ptrs->m_web_browser);
     if (!m_ptrs->m_clipboard_commands)
     {
@@ -2435,7 +2424,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     }
 
     // get the nsIWebBrowserFind interface
-    // FIXME
     m_ptrs->m_web_browser_find = do_GetInterface(m_ptrs->m_web_browser);
     if (!m_ptrs->m_web_browser_find)
     {
@@ -2852,7 +2840,6 @@ bool wxWebControl::ClearCache()
 }
 
 //FIXME implement later
-/*
 void wxWebControl::FetchFavIcon(void* _uri)
 {
     if (m_favicon_fetched)
@@ -2867,11 +2854,13 @@ void wxWebControl::FetchFavIcon(void* _uri)
     uri->GetSpec(ns_spec);
     spec = ns2wx(ns_spec);
     
-    nsCOMPtr<nsIWebBrowserPersist> persist = nsCreateInstance("@mozilla.org/embedding/browser/nsWebBrowserPersist;1");
+    //nsresult rv;
+    //m_ptrs->m_web_browser = do_CreateInstance(NS_WEBBROWSER_CONTRACTID, &rv);
+    nsCOMPtr<nsIWebBrowserPersist> persist = do_CreateInstance("@mozilla.org/embedding/browser/nsWebBrowserPersist;1");
+    //nsCOMPtr<nsIWebBrowserPersist> persist = nsCreateInstance("@mozilla.org/embedding/browser/nsWebBrowserPersist;1");
 
     if (!persist)
         return;
-
 
     wxString extension = spec.AfterLast(L'.');
     extension = extension.Left(4);
@@ -2883,7 +2872,6 @@ void wxWebControl::FetchFavIcon(void* _uri)
     filename += wxT(".");
     filename += extension;
     nsCOMPtr<nsILocalFile> file = nsNewLocalFile(filename);
-    
 
     m_favicon_progress->SetFilename(filename);
     nsIWebProgressListener* la = CreateProgressListenerAdaptor(m_favicon_progress);
@@ -2900,7 +2888,7 @@ void wxWebControl::FetchFavIcon(void* _uri)
         return;
     }
 }
-*/
+
 
 void wxWebControl::ResetFavicon()
 {

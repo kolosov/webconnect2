@@ -451,7 +451,7 @@ private:
     wxString GetCurrentLoadURI();
     
     void ResetFavicon();
-    //void FetchFavIcon(void* uri);
+    void FetchFavIcon(void* uri);
     void OnFavIconFetched(const wxString& filename);
     void OnDOMContentLoaded();
     

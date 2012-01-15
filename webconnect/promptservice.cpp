@@ -1322,7 +1322,6 @@ public:
         //nsCOMPtr<nsIDOMWindow> parent = nsRequestInterface(context);
         //nsCOMPtr<nsIDOMWindow> parent = do_QueryInterface(context);
         nsCOMPtr<nsIDOMWindow> parent = do_GetInterface(context);
-        //nsCOMPtr<nsIDOMWindow> parent;
         wxWebControl* ctrl = GetWebControlFromDOMWindow(parent);
         if (!ctrl)
         {
