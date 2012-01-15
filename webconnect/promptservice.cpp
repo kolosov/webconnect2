@@ -1318,9 +1318,7 @@ public:
                     PRUint32 reason)
     {     
         nsCOMPtr<nsISupports> context = _context;
-        //FIXME implement later
-        //nsCOMPtr<nsIDOMWindow> parent = nsRequestInterface(context);
-        //nsCOMPtr<nsIDOMWindow> parent = do_QueryInterface(context);
+
         nsCOMPtr<nsIDOMWindow> parent = do_GetInterface(context);
         wxWebControl* ctrl = GetWebControlFromDOMWindow(parent);
         if (!ctrl)

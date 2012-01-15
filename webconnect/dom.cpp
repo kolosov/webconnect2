@@ -52,10 +52,7 @@ wxDOMNode& wxDOMNode::operator=(const wxDOMNode& c)
 
 void wxDOMNode::assign(const wxDOMNode& c)
 {
-	//FIXME implement later
-	/*
-    m_data->setNode(c.m_data->node_ptr.p);
-    */
+	m_data->setNode(c.m_data->node_ptr);
 }
 
 // (METHOD) wxDOMNode::IsOk
@@ -69,9 +66,7 @@ void wxDOMNode::assign(const wxDOMNode& c)
 
 bool wxDOMNode::IsOk() const
 {
-	//FIXME implement later
 	return (m_data->node_ptr ? true : false);
-	return true;
 }
 
 // (METHOD) wxDOMNode::GetOwnerDocument
@@ -757,7 +752,7 @@ NS_IMPL_ISUPPORTS1(wxDOMEventAdaptor, nsIDOMEventListener)
 //
 // Returns:
 //FIXME implement later
-/*
+
 bool wxDOMNode::AddEventListener(const wxString& type,
                                  wxEvtHandler* event_handler,
                                  int event_id,
@@ -766,7 +761,7 @@ bool wxDOMNode::AddEventListener(const wxString& type,
     if (!IsOk())
         return false;
         
-    nsCOMPtr<nsIDOMEventTarget> evt_target = m_data->node_ptr;
+    nsCOMPtr<nsIDOMEventTarget> evt_target = do_QueryInterface(m_data->node_ptr);
     if (!evt_target)
         return false;
     
@@ -781,14 +776,18 @@ bool wxDOMNode::AddEventListener(const wxString& type,
     
     if (NS_SUCCEEDED(evt_target->AddEventListener(nstype,
                                              listener_adaptor,
+#if MOZILLA_VERSION_1 >= 10
+                                             use_capture ? true : false)))
+#else
                                              use_capture ? PR_TRUE : PR_FALSE)))
+#endif
     {
         return true;
     }
 
     return false;
 }
-*/
+
 
 
 
@@ -1919,8 +1918,7 @@ wxString wxDOMHTMLElement::GetId()
         return wxEmptyString;
 
     nsEmbedString ns;
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
     
     if (e)
     {
@@ -1948,8 +1946,7 @@ void wxDOMHTMLElement::SetId(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
     
     if (e)
     {
@@ -1972,8 +1969,8 @@ wxString wxDOMHTMLElement::GetTitle()
         return wxEmptyString;
 
     nsEmbedString ns;
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
+
     
     if (e)
     {
@@ -2001,8 +1998,7 @@ void wxDOMHTMLElement::SetTitle(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
     
     if (e)
     {
@@ -2025,9 +2021,8 @@ wxString wxDOMHTMLElement::GetLang()
         return wxEmptyString;
 
     nsEmbedString ns;
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
-    
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
+
     if (e)
     {
         e->GetLang(ns);
@@ -2054,9 +2049,8 @@ void wxDOMHTMLElement::SetLang(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
-    
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
+
     if (e)
     {
         e->SetLang(nsvalue);
@@ -2078,8 +2072,7 @@ wxString wxDOMHTMLElement::GetDir()
         return wxEmptyString;
 
     nsEmbedString ns;
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
     
     if (e)
     {
@@ -2107,8 +2100,7 @@ void wxDOMHTMLElement::SetDir(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
     
     if (e)
     {
@@ -2131,9 +2123,8 @@ wxString wxDOMHTMLElement::GetClassName()
         return wxEmptyString;
 
     nsEmbedString ns;
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
-    
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
+
     if (e)
     {
         e->GetClassName(ns);
@@ -2160,9 +2151,8 @@ void wxDOMHTMLElement::SetClassName(const wxString& value)
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
 
-    //nsCOMPtr<nsIDOMHTMLElement> e = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLElement> e = m_data->htmlelement_ptr;
-    
+    nsCOMPtr<nsIDOMHTMLElement> e = do_QueryInterface(m_data->element_ptr);
+
     if (e)
     {
         e->SetClassName(nsvalue);
@@ -2177,18 +2167,17 @@ void wxDOMHTMLElement::SetClassName(const wxString& value)
 // Remarks:
 //
 // Returns:
-//FIXME implement later
-/*
+
 void wxDOMHTMLElement::SetValue(const wxString& value)
 {
     nsEmbedString nsvalue;
     wx2ns(value, nsvalue);
     
-    nsCOMPtr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLInputElement> e1 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = do_QueryInterface(m_data->element_ptr);
     
     if (e1)
     {
@@ -2223,7 +2212,7 @@ void wxDOMHTMLElement::SetValue(const wxString& value)
     wxDOMElement e6 = *this;
     e6.SetAttribute(wxT("value"), value);
 }
-*/
+
 
 // (METHOD) wxDOMHTMLElement::GetValue
 // Description:
@@ -2233,15 +2222,14 @@ void wxDOMHTMLElement::SetValue(const wxString& value)
 // Remarks:
 //
 // Returns:
-//FIXME implement later
-/*
+
 wxString wxDOMHTMLElement::GetValue()
 {
-    nsCOMPtr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLInputElement> e1 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = do_QueryInterface(m_data->element_ptr);
     
     nsEmbedString nsvalue;
     
@@ -2278,7 +2266,7 @@ wxString wxDOMHTMLElement::GetValue()
     wxDOMElement e6 = *this;
     return e6.GetAttribute(wxT("value"));
 }
-*/
+
 // (METHOD) wxDOMHTMLElement::HasValueProperty
 // Description:
 //
@@ -2287,17 +2275,17 @@ wxString wxDOMHTMLElement::GetValue()
 // Remarks:
 //
 // Returns:
-//FIXME implement later
-/*bool wxDOMHTMLElement::HasValueProperty() const
+
+bool wxDOMHTMLElement::HasValueProperty() const
 {
     if (!IsOk())
         return false;
         
-    nsCOMPtr<nsIDOMHTMLInputElement> e1 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = m_data->element_ptr;
-    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = m_data->element_ptr;
+    nsCOMPtr<nsIDOMHTMLInputElement> e1 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLTextAreaElement> e2 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLSelectElement> e3 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLButtonElement> e4 = do_QueryInterface(m_data->element_ptr);
+    nsCOMPtr<nsIDOMHTMLOptionElement> e5 = do_QueryInterface(m_data->element_ptr);
 
     if (e1) return true;
     if (e2) return true;
@@ -2306,9 +2294,7 @@ wxString wxDOMHTMLElement::GetValue()
     if (e5) return true;
     
     return false;
-}*/
-
-
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -5882,23 +5868,21 @@ wxDOMEvent::~wxDOMEvent()
 wxDOMEvent::wxDOMEvent(const wxDOMEvent& c)
 {
     m_data = new wxDOMEventData;
-    //FIXME
-    //assign(c);
+    assign(c);
 }
 
 wxDOMEvent& wxDOMEvent::operator=(const wxDOMEvent& c)
 {
-	//FIXME
-    //assign(c);
+	assign(c);
     return *this;
 }
 //FIXME implement later
-/*
+
 void wxDOMEvent::assign(const wxDOMEvent& c)
 {
-    m_data->setPtr(c.m_data->event_ptr.p);
+    m_data->setPtr(c.m_data->event_ptr);
 }
-*/
+
 // (METHOD) wxDOMEvent::IsOk
 // Description:
 //
@@ -5957,8 +5941,7 @@ wxDOMMouseEvent::wxDOMMouseEvent(const wxDOMEvent& evt) : wxDOMEvent(evt)
 
 wxDOMMouseEvent& wxDOMMouseEvent::operator=(const wxDOMEvent& c)
 {
-	//FIXME
-    //assign(c);
+    assign(c);
     return *this;
 }
 

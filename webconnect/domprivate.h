@@ -18,24 +18,22 @@ struct wxDOMNodeData
 {
     void setNode(nsISupports* ptr)
     {
-    	//FIXME implement later
-    	/*
-        nsCOMPtr<nsISupports> supports = ptr;
-        node_ptr = supports;
-        attr_ptr = supports;
-        text_ptr = supports;
-        element_ptr = supports;
-        doc_ptr = supports;
-        htmlelement_ptr = supports;
-        anchor_ptr = supports;
-        button_ptr = supports;
-        input_ptr = supports;
-        link_ptr = supports;
-        option_ptr = supports;
-        param_ptr = supports;
-        select_ptr = supports;
-        textarea_ptr = supports;
-        */
+    	nsCOMPtr<nsISupports> supports = ptr;
+        node_ptr = do_QueryInterface(supports);
+        attr_ptr = do_QueryInterface(supports);
+        text_ptr = do_QueryInterface(supports);
+        element_ptr = do_QueryInterface(supports);
+        doc_ptr = do_QueryInterface(supports);
+        htmlelement_ptr = do_QueryInterface(supports);
+        anchor_ptr = do_QueryInterface(supports);
+        button_ptr = do_QueryInterface(supports);
+        input_ptr = do_QueryInterface(supports);
+        link_ptr = do_QueryInterface(supports);
+        option_ptr = do_QueryInterface(supports);
+        param_ptr = do_QueryInterface(supports);
+        select_ptr = do_QueryInterface(supports);
+        textarea_ptr = do_QueryInterface(supports);
+
     }
     
     nsCOMPtr<nsIDOMNode> node_ptr;
@@ -72,11 +70,9 @@ struct wxDOMEventData
     void setPtr(nsISupports* ptr)
     {
         nsCOMPtr<nsISupports> supports = ptr;
-        //FIXME implement later
-        /*
-        event_ptr = supports;
-        mouseevent_ptr = supports;
-        */
+        event_ptr = do_QueryInterface(supports);
+        mouseevent_ptr = do_QueryInterface(supports);
+
     }
     
     nsCOMPtr<nsIDOMNode> event_ptr;

@@ -262,33 +262,57 @@ void BrowserChrome::ChromeInit()
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("mousedown"),
                                             this,
+#if MOZILLA_VERSION_1 >= 10
+                                            true);
+#else
                                             PR_TRUE);
+#endif
 
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("mouseup"),
                                             this,
+#if MOZILLA_VERSION_1 >= 10
+                                            true);
+#else
                                             PR_TRUE);
+#endif
                                                    
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("dblclick"),
                                             this,
+#if MOZILLA_VERSION_1 >= 10
+                                            true);
+#else
                                             PR_TRUE);
+#endif
 
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("dragdrop"),
                                             this,
-                                            PR_FALSE);
+#if MOZILLA_VERSION_1 >= 10
+                                            true);
+#else
+                                            PR_TRUE);
+#endif
                                  
     // these two event types are used to capture favicon information
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("DOMLinkAdded"),
                                             this,
-                                            PR_FALSE);
+#if MOZILLA_VERSION_1 >= 10
+                                            true);
+#else
+                                            PR_TRUE);
+#endif
                                             
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("DOMContentLoaded"),
                                             this,
-                                            PR_FALSE);
+#if MOZILLA_VERSION_1 >= 10
+                                            true);
+#else
+                                            PR_TRUE);
+#endif
 }
 
 void BrowserChrome::ChromeUninit()
@@ -959,6 +983,7 @@ wxWebControl* GetWebControlFromBrowserChrome(nsIWebBrowserChrome* chrome)
 {
     if (!chrome)
         return NULL;
+
 
     BrowserChrome* chrome_browser = static_cast <BrowserChrome*>(chrome);
     //TODO do it by do_QueryInterface
@@ -2567,7 +2592,7 @@ bool wxWebControl::AddContentHandler(wxWebContentHandler* handler,
         return false;
     
     //FIXME
-    /*nsCOMPtr<nsISupports> uri_loader;
+    nsCOMPtr<nsISupports> uri_loader;
     
     
     nsIID iid = NS_ISUPPORTS_IID;
@@ -2577,7 +2602,7 @@ bool wxWebControl::AddContentHandler(wxWebContentHandler* handler,
                                         
     if (!uri_loader)
         return false;
-
+    /*
     nsCOMPtr<nsIURILoader> uri_loader19 = do_QueryInterface(uri_loader);
     if (uri_loader19)
     {
@@ -2663,7 +2688,7 @@ bool wxWebControl::SaveRequest(const wxString& uri_str,
     if (!uri)
         return false;
     //FIXME
-    /*nsCOMPtr<nsIWebBrowserPersist> persist = nsCreateInstance("@mozilla.org/embedding/browser/nsWebBrowserPersist;1");
+ /*   nsCOMPtr<nsIWebBrowserPersist> persist = do_CreateInstance("@mozilla.org/embedding/browser/nsWebBrowserPersist;1");
     if (!persist)
         return false;
 
@@ -2987,7 +3012,7 @@ void wxWebControl::OpenURI(const wxString& uri,
     m_content_loaded = false;
     
     unsigned int ns_load_flags = nsIWebNavigation::LOAD_FLAGS_NONE;
-    /*
+
     if (load_flags & wxWEB_LOAD_LINKCLICK)
         ns_load_flags |= nsIWebNavigation::LOAD_FLAGS_IS_LINK;
         
@@ -2995,7 +3020,8 @@ void wxWebControl::OpenURI(const wxString& uri,
     nsCOMPtr<nsIInputStream> sp_post_data;
     if (post_data)
     {
-        nsCOMPtr<nsIStringInputStream> strs = nsCreateInstance("@mozilla.org/io/string-input-stream;1");
+        nsCOMPtr<nsIStringInputStream> strs;
+        strs = do_CreateInstance("@mozilla.org/io/string-input-stream;1");
         wxASSERT(strs.p);
         
         if (strs)
@@ -3005,8 +3031,8 @@ void wxWebControl::OpenURI(const wxString& uri,
             sp_post_data = strs;
         }
     }
-    */
     
+
 
     PRUnichar* ns_uri = wxToUnichar(uri);
 
@@ -3843,7 +3869,7 @@ void wxWebControl::OnSize(wxSizeEvent& evt)
 { 0xd326a211, 0xdc31, 0x45c6, \
  { 0x98, 0x97, 0x22, 0x11, 0xea, 0xbc, 0xd0, 0x1c } }
 */
-
+/*
 class nsIScriptContext;
 class nsIArray;
 class nsScriptErrorEvent;
@@ -3852,7 +3878,7 @@ class nsIScriptGlobalObjectOwner;
 class nsPresContext;
 class nsEvent;
 class nsIDocShell;
-class nsIDOMWindowInternal;
+class nsIDOMWindowInternal;*/
 
 /*
 class nsIScriptGlobalObject : public nsISupports
