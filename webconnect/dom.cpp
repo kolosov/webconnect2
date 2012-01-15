@@ -548,13 +548,21 @@ bool wxDOMNode::IsSupported(const wxString& feature,
     wx2ns(feature, nsfeature);
     wx2ns(version, nsversion);
 
+
+#if MOZILLA_VERSION_1 >= 10
+    bool result = false;
+    m_data->node_ptr->IsSupported(nsfeature, nsversion, &result);
+    return result;
+
+#else
     PRBool result = PR_FALSE;
     m_data->node_ptr->IsSupported(nsfeature, nsversion, &result);
 
     if (result == PR_TRUE)
         return true;
-
     return false;
+#endif
+
 }
 
 // (METHOD) wxDOMNode::HasChildNodes
@@ -571,6 +579,11 @@ bool wxDOMNode::HasChildNodes()
     if (!IsOk())
         return false;
         
+#if MOZILLA_VERSION_1 >= 10
+    bool result = false;
+    m_data->node_ptr->HasChildNodes(&result);
+    return result;
+#else
     PRBool result = PR_FALSE;
     m_data->node_ptr->HasChildNodes(&result);
 
@@ -578,6 +591,7 @@ bool wxDOMNode::HasChildNodes()
         return true;
 
     return false;
+#endif
 }
 
 // (METHOD) wxDOMNode::HasAttributes
@@ -593,7 +607,12 @@ bool wxDOMNode::HasAttributes()
 {
     if (!IsOk())
         return false;
-        
+
+#if MOZILLA_VERSION_1 >= 10
+    bool result = false;
+    m_data->node_ptr->HasAttributes(&result);
+    return result;
+#else
     PRBool result = PR_FALSE;
     m_data->node_ptr->HasAttributes(&result);
 
@@ -601,6 +620,7 @@ bool wxDOMNode::HasAttributes()
         return true;
 
     return false;
+#endif
 }
 
 // (METHOD) wxDOMNode::GetPrefix
@@ -848,11 +868,16 @@ bool wxDOMAttr::GetSpecified()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >= 10
+    bool b = false;
+    m_data->attr_ptr->GetSpecified(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->attr_ptr->GetSpecified(&b);
     
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMAttr::GetValue
@@ -1334,14 +1359,18 @@ bool wxDOMElement::HasAttribute(const wxString& name)
 
     nsEmbedString nsname;
     wx2ns(name, nsname);
-
+#if MOZILLA_VERSION_1 >= 10
+    bool result = false;
+    m_data->element_ptr->HasAttribute(nsname, &result);
+    return result;
+#else
     PRBool result = PR_FALSE;
     m_data->element_ptr->HasAttribute(nsname, &result);
 
     if (result == PR_TRUE)
         return true;
-
     return false;
+#endif
 }
 
 // (METHOD) wxDOMElement::HasAttributeNS
@@ -1363,7 +1392,13 @@ bool wxDOMElement::HasAttributeNS(const wxString& namespace_uri,
     nsEmbedString nsnamespace_uri, nslocal_name;
     wx2ns(namespace_uri, nsnamespace_uri);
     wx2ns(local_name, nslocal_name);
-
+#if MOZILLA_VERSION_1 >= 10
+    bool result = false;
+    m_data->element_ptr->HasAttributeNS(nsnamespace_uri,
+                                            nslocal_name,
+                                            &result);
+    return result;
+#else
     PRBool result = PR_FALSE;
     m_data->element_ptr->HasAttributeNS(nsnamespace_uri,
                                         nslocal_name,
@@ -1371,8 +1406,8 @@ bool wxDOMElement::HasAttributeNS(const wxString& namespace_uri,
 
     if (result == PR_TRUE)
         return true;
-
     return false;
+#endif
 }
 
 
@@ -1670,13 +1705,20 @@ wxDOMNode wxDOMDocument::ImportNode(wxDOMNode& arg,
         return node;
 
     nsIDOMNode* result;
+#if MOZILLA_VERSION_1 >= 10
+    PRUint8 aargc =1; //FIXME if aargc ==0 then deep==true
+    m_data->doc_ptr->ImportNode(arg.m_data->node_ptr,
+                                    deep,
+                                    aargc,
+                                    &result);
+#else
     m_data->doc_ptr->ImportNode(arg.m_data->node_ptr,
                                 (deep ? PR_TRUE : PR_FALSE),
                                 &result);
-
+#endif
     if (!result)
         return node;
-        
+
     node.m_data->setNode(result);
     result->Release();
 
@@ -2928,11 +2970,15 @@ bool wxDOMHTMLButtonElement::GetDisabled()
 {
     if (!IsOk())
         return false;
-
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->button_ptr->GetDisabled(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->button_ptr->GetDisabled(&b);
-
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLButtonElement::SetDisabled
@@ -2948,8 +2994,11 @@ void wxDOMHTMLButtonElement::SetDisabled(bool value)
 {
     if (!IsOk())
         return;
-
+#if MOZILLA_VERSION_1 >=10
+    m_data->button_ptr->SetDisabled(value);
+#else
     m_data->button_ptr->SetDisabled(value ? PR_TRUE : PR_FALSE);
+#endif
 }
 
 // (METHOD) wxDOMHTMLButtonElement::GetName
@@ -3151,11 +3200,15 @@ bool wxDOMHTMLInputElement::GetDefaultChecked()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->input_ptr->GetDefaultChecked(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->input_ptr->GetDefaultChecked(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLInputElement::SetDefaultChecked
@@ -3348,11 +3401,15 @@ bool wxDOMHTMLInputElement::GetChecked()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->input_ptr->GetChecked(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->input_ptr->GetChecked(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLInputElement::SetChecked
@@ -3368,8 +3425,11 @@ void wxDOMHTMLInputElement::SetChecked(bool value)
 {
     if (!IsOk())
         return;
-
+#if MOZILLA_VERSION_1 >=10
+    m_data->input_ptr->SetChecked(value);
+#else
     m_data->input_ptr->SetChecked(value ? PR_TRUE : PR_FALSE);
+#endif
 }
 
 // (METHOD) wxDOMHTMLInputElement::GetDisabled
@@ -3385,11 +3445,15 @@ bool wxDOMHTMLInputElement::GetDisabled()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->input_ptr->GetDisabled(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->input_ptr->GetDisabled(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLInputElement::SetDisabled
@@ -3499,11 +3563,15 @@ bool wxDOMHTMLInputElement::GetReadOnly()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->input_ptr->GetReadOnly(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->input_ptr->GetReadOnly(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLInputElement::SetReadOnly
@@ -3847,11 +3915,16 @@ bool wxDOMHTMLLinkElement::GetDisabled()
 {
     if (!IsOk())
         return false;
-        
+
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->link_ptr->GetDisabled(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->link_ptr->GetDisabled(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLLinkElement::SetDisabled
@@ -4253,11 +4326,15 @@ bool wxDOMHTMLOptionElement::GetDefaultSelected()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->option_ptr->GetDefaultSelected(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->option_ptr->GetDefaultSelected(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLOptionElement::SetDefaultSelected
@@ -4329,11 +4406,16 @@ bool wxDOMHTMLOptionElement::GetDisabled()
 {
     if (!IsOk())
         return false;
-        
+
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->option_ptr->GetDisabled(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->option_ptr->GetDisabled(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLOptionElement::SetDisabled
@@ -4406,11 +4488,15 @@ bool wxDOMHTMLOptionElement::GetSelected()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->option_ptr->GetSelected(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->option_ptr->GetSelected(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLOptionElement::SetSelected
@@ -4755,11 +4841,15 @@ bool wxDOMHTMLSelectElement::GetDisabled()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->select_ptr->GetDisabled(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->select_ptr->GetDisabled(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLSelectElement::SetDisabled
@@ -4792,11 +4882,15 @@ bool wxDOMHTMLSelectElement::GetMultiple()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->select_ptr->GetMultiple(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->select_ptr->GetMultiple(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLSelectElement::SetMultiple
@@ -5194,11 +5288,15 @@ bool wxDOMHTMLTextAreaElement::GetDisabled()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->textarea_ptr->GetDisabled(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->textarea_ptr->GetDisabled(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLTextAreaElement::SetDisabled
@@ -5271,11 +5369,15 @@ bool wxDOMHTMLTextAreaElement::GetReadOnly()
 {
     if (!IsOk())
         return false;
-        
+#if MOZILLA_VERSION_1 >=10
+    bool b = false;
+    m_data->textarea_ptr->GetReadOnly(&b);
+    return b;
+#else
     PRBool b = PR_FALSE;
     m_data->textarea_ptr->GetReadOnly(&b);
-    
     return (b == PR_TRUE ? true : false);
+#endif
 }
 
 // (METHOD) wxDOMHTMLTextAreaElement::SetReadOnly

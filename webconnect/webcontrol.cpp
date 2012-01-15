@@ -214,9 +214,7 @@ static nsIDOMNode* GetAnchor(nsIDOMNode* node)
         return node;
 
     nsCOMPtr<nsIDOMNode> n = node;
-    nsCOMPtr<nsIDOMHTMLAnchorElement> anchor;
-    //FIXME later
-    //anchor = n;
+    nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(n);
 
     if (anchor)
         return node;
@@ -401,11 +399,20 @@ NS_IMETHODIMP BrowserChrome::ShowAsModal()
     return m_dialog_retval;
 }
 
+#if MOZILLA_VERSION_1 >=10
+NS_IMETHODIMP BrowserChrome::IsWindowModal(bool* retval)
+{
+    *retval = m_dialog ? true : false;
+    return NS_OK;
+}
+#else
 NS_IMETHODIMP BrowserChrome::IsWindowModal(PRBool* retval)
+
 {
     *retval = m_dialog ? PR_TRUE : PR_FALSE;
     return NS_OK;
 }
+#endif
 
 NS_IMETHODIMP BrowserChrome::ExitModalEventLoop(nsresult status)
 {
@@ -448,14 +455,25 @@ NS_IMETHODIMP BrowserChrome::SetTitle(const PRUnichar* title)
     
     return NS_OK;
 }
-
+#if MOZILLA_VERSION_1 >=10
+NS_IMETHODIMP BrowserChrome::GetVisibility(bool* visibility)
+{
+    *visibility = true;
+    return NS_OK;
+}
+#else
 NS_IMETHODIMP BrowserChrome::GetVisibility(PRBool* visibility)
 {
     *visibility = PR_TRUE;
     return NS_OK;
 }
+#endif
 
+#if MOZILLA_VERSION_1 >=10
+NS_IMETHODIMP BrowserChrome::SetVisibility(bool visibility)
+#else
 NS_IMETHODIMP BrowserChrome::SetVisibility(PRBool visibility)
+#endif
 {
     return NS_OK;
 }
@@ -697,12 +715,13 @@ NS_IMETHODIMP BrowserChrome::OnShowContextMenu(PRUint32 context_flags,
         // actual href is specified, and as a result, may not itself contain
         // the href; this happens, for example, when portions of the text in a
         // hyperlink are bold
-        nsCOMPtr<nsIDOMNode> node;
+
         //FIXME later
-        //node = target;
+        nsCOMPtr<nsIDOMNode> node = do_QueryInterface(target);
+        node = GetAnchor(node);
         //node.p = GetAnchor(node.p);
         
-        nsCOMPtr<nsIDOMHTMLAnchorElement> anchor;
+        nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(node);
         //anchor = node;
 
         if (anchor)
@@ -761,7 +780,11 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
             return NS_OK;
     
         // skip https
+#if MOZILLA_VERSION_1 >=10
+        bool b = false;
+#else
         PRBool b = PR_FALSE;
+#endif
         uri->SchemeIs("https", &b);
         if (b)
             return NS_OK;
@@ -788,14 +811,13 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
     {
         nsCOMPtr<nsIDOMEventTarget> target;
         evt->GetTarget(getter_AddRefs(target));
-        
-        //nsCOMPtr<nsIDOMElement> element = target; FIXME
-        nsCOMPtr<nsIDOMElement> element;
+
+        nsCOMPtr<nsIDOMElement> element = do_QueryInterface(target);
         if (!element)
             return NS_OK;
         
         // make sure we're dealing with a link tag
-        nsEmbedString value;
+        nsString value;
         wxString tagname, rel, href, spec;
         
         element->GetTagName(value);
@@ -861,8 +883,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
         nsCOMPtr<nsIDOMEventTarget> target;
         evt->GetTarget(getter_AddRefs(target));
         
-        //nsCOMPtr<nsIDOMMouseEvent> mouse_evt = nsToSmart(evt); FIXME
-        nsCOMPtr<nsIDOMMouseEvent> mouse_evt;
+        nsCOMPtr<nsIDOMMouseEvent> mouse_evt = do_QueryInterface(evt);
         if (!mouse_evt)
             return NS_ERROR_NOT_IMPLEMENTED;
         
@@ -911,14 +932,13 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
         // be a child node of the element where the actual href is specified,
         // and as a result, may not itself contain the href; this happens,
         // for example, when portions of the text in a hyperlink are bold
-        nsCOMPtr<nsIDOMNode> node;
-        //FIXME later
         //node = target;
-        //node.p = GetAnchor(node.p);
-        
-        nsCOMPtr<nsIDOMHTMLAnchorElement> anchor;
+        nsCOMPtr<nsIDOMNode> node = do_QueryInterface(target);
         //FIXME later
-        //anchor = node;
+        //node.p = GetAnchor(node.p);
+        node = GetAnchor(node);
+
+        nsCOMPtr<nsIDOMHTMLAnchorElement> anchor = do_QueryInterface(node);
 
         // fill out and send a mouse event
         wxWebEvent evt(evtid, m_wnd->GetId());
@@ -949,6 +969,7 @@ wxWebControl* GetWebControlFromBrowserChrome(nsIWebBrowserChrome* chrome)
         return NULL;
 
     BrowserChrome* chrome_browser = static_cast <BrowserChrome*>(chrome);
+    //TODO do it by do_QueryInterface
 
     return chrome_browser->GetWebControl();
 }
@@ -985,7 +1006,11 @@ public:
     }
     
     NS_IMETHODIMP OnStartURIOpen(nsIURI* uri,
+#if MOZILLA_VERSION_1 >= 10
+    							bool* abort)
+#else
                                  PRBool* abort)
+#endif
     {
         nsEmbedCString spec;
         nsresult res = uri->GetSpec(spec);
@@ -999,12 +1024,22 @@ public:
     }
 
     NS_IMETHODIMP DoContent(const char* content_type,
+#if MOZILLA_VERSION_1 >= 10
+    		bool is_content_preferred,
+#else
                             PRBool is_content_preferred,
+#endif
                             nsIRequest* request,
                             nsIStreamListener** content_handler,
+#if MOZILLA_VERSION_1 >= 10
+                            bool* retval)
+    {
+            *retval = false;
+#else
                             PRBool* retval)
     {
         *retval = PR_FALSE;
+#endif
         *content_handler = static_cast<nsIStreamListener*>(this);
         (*content_handler)->AddRef();
         return NS_OK;
@@ -1012,21 +1047,37 @@ public:
 
     NS_IMETHODIMP IsPreferred(const char* content_type,
                               char** desired_content_type,
+#if MOZILLA_VERSION_1 >= 10
+                              bool* retval)
+    {
+        return CanHandleContent(content_type, true, desired_content_type, retval);
+    }
+#else
                               PRBool* retval)
     {
         return CanHandleContent(content_type, PR_TRUE, desired_content_type, retval);
     }
+#endif
 
 
     NS_IMETHODIMP CanHandleContent(const char* _content_type,
-                                   PRBool is_content_preferred,
-                                   char** desired_content_type,
-                                   PRBool* retval)
+#if MOZILLA_VERSION_1 >= 10
+    		bool is_content_preferred,
+    		char** desired_content_type,
+    		bool* retval)
+#else
+            PRBool is_content_preferred,
+            char** desired_content_type,
+            PRBool* retval)
+#endif
     {
         wxString content_type = wxString::FromAscii(_content_type);
         content_type.MakeLower();
-        
+#if MOZILLA_VERSION_1 >= 10
+        *retval = m_handler->CanHandleContent(m_current_uri, content_type) ? true : false;
+#else
         *retval = m_handler->CanHandleContent(m_current_uri, content_type) ? PR_TRUE : PR_FALSE;
+#endif
         return NS_OK;
      }
 
@@ -1056,7 +1107,7 @@ public:
     {
         nsCOMPtr<nsIRequest> sp = request;
         //nsCOMPtr<nsIChannel> channel = sp;  FIXME
-        nsCOMPtr<nsIChannel> channel;
+        nsCOMPtr<nsIChannel> channel = do_QueryInterface(sp);
         nsCOMPtr<nsIURI> uri;
         channel->GetURI(getter_AddRefs(uri));
         
@@ -1141,7 +1192,11 @@ public:
     }
     
     NS_IMETHODIMP OnStartURIOpen(nsIURI* uri,
+#if MOZILLA_VERSION_1 >=10
+                                 bool* abort)
+#else
                                  PRBool* abort)
+#endif
     {
         if (!m_wnd)
             return NS_OK;
@@ -1150,7 +1205,11 @@ public:
         wxASSERT(abort);
         
         // set default behavior
+#if MOZILLA_VERSION_1 >=10
+        *abort = false;
+#else
         *abort = PR_FALSE;
+#endif
         
         nsresult res;
         
@@ -1172,7 +1231,11 @@ public:
         {
             if (!evt.IsAllowed())
             {
+#if MOZILLA_VERSION_1 >= 10
+            	*abort = true;
+#else
                 *abort = PR_TRUE;
+#endif
                 return NS_OK;
             }
         }
@@ -1193,30 +1256,55 @@ public:
     }
 
     NS_IMETHODIMP DoContent(const char* content_type,
+#if MOZILLA_VERSION_1 >= 10
+    		                bool is_content_preferred,
+    		                nsIRequest* request,
+    		                nsIStreamListener** content_handler,
+    		                bool* retval)
+#else
                             PRBool is_content_preferred,
                             nsIRequest* request,
                             nsIStreamListener** content_handler,
                             PRBool* retval)
+#endif
     {
         return NS_ERROR_NOT_IMPLEMENTED;
     }
-
+#if MOZILLA_VERSION_1 >= 10
+    NS_IMETHODIMP IsPreferred(const char* content_type,
+                                  char** desired_content_type,
+                                  bool* retval)
+     {
+      return CanHandleContent(content_type, true, desired_content_type, retval);
+     }
+#else
     NS_IMETHODIMP IsPreferred(const char* content_type,
                               char** desired_content_type,
                               PRBool* retval)
     {
      return CanHandleContent(content_type, PR_TRUE, desired_content_type, retval);
     }
+#endif
 
     NS_IMETHODIMP CanHandleContent(const char* _content_type,
+#if MOZILLA_VERSION_1 >= 10
+    		bool is_content_preferred,
+    		char** desired_content_type,
+    		bool* retval)
+#else
                                    PRBool is_content_preferred,
                                    char** desired_content_type,
                                    PRBool* retval)
+#endif
     {
         if (!m_wnd)
         {
             // no window, so return false (can't handle content)
+#if MOZILLA_VERSION_1 >= 10
+        	*retval = false;
+#else
             *retval = PR_FALSE;
+#endif
             return NS_OK;
         }
 
@@ -1239,7 +1327,11 @@ public:
         {
             if (!evt.GetSkipped())
             {
+#if MOZILLA_VERSION_1 >=10
+            	*retval = evt.m_should_handle;
+#else
                 *retval = evt.m_should_handle ? PR_TRUE : PR_FALSE;
+#endif
                 wxString output_content_type = evt.m_output_content_type;
                 output_content_type.MakeLower();
                 if (output_content_type.Length() > 0 &&
@@ -1408,7 +1500,20 @@ public:
     virtual ~PluginEnumerator()
     {
     }
-    
+#if MOZILLA_VERSION_1 >= 10
+    NS_IMETHODIMP HasMoreElements(bool* retval)
+        {
+            if (!retval)
+                return NS_ERROR_NULL_POINTER;
+
+            if (m_cur_item >= m_paths.GetCount())
+                *retval = false;
+                 else
+                *retval = true;
+
+            return NS_OK;
+        }
+#else
     NS_IMETHODIMP HasMoreElements(PRBool* retval)
     {
         if (!retval)
@@ -1421,6 +1526,7 @@ public:
             
         return NS_OK;
     }
+#endif
 
     NS_IMETHODIMP GetNext(nsISupports** retval)
     {
@@ -1481,7 +1587,11 @@ public:
     
     void AddPaths(nsISimpleEnumerator* paths)
     {
+#if MOZILLA_VERSION_1 >=10
+    	bool more = false;
+#else
         PRBool more = PR_FALSE;
+#endif
         
         while (1)
         {
@@ -1515,8 +1625,11 @@ public:
     {
         m_paths.Add(path);
     }
-
+#if MOZILLA_VERSION_1 >= 10
+    NS_IMETHODIMP GetFile(const char* prop, bool* persistant, nsIFile** retval)
+#else
     NS_IMETHODIMP GetFile(const char* prop, PRBool* persistant, nsIFile** retval)
+#endif
     {
         if (!retval)
             return NS_ERROR_NULL_POINTER;
@@ -2422,18 +2535,27 @@ bool wxWebControl::Find(const wxString& text,
     PRUnichar* find_text = wxToUnichar(text);
     m_ptrs->m_web_browser_find->SetSearchString(find_text);
     freeUnichar(find_text);
-        
+#if MOZILLA_VERSION_1 >=10
+    m_ptrs->m_web_browser_find->SetFindBackwards((flags & wxWEB_FIND_BACKWARDS) != 0 ? true : false);
+    m_ptrs->m_web_browser_find->SetWrapFind((flags & wxWEB_FIND_WRAP) != 0 ? true : false);
+    m_ptrs->m_web_browser_find->SetEntireWord((flags & wxWEB_FIND_ENTIRE_WORD) != 0 ? true : false);
+    m_ptrs->m_web_browser_find->SetMatchCase((flags & wxWEB_FIND_MATCH_CASE) != 0 ? true : false);
+    m_ptrs->m_web_browser_find->SetSearchFrames((flags & wxWEB_FIND_SEARCH_FRAMES) != 0 ? true : false);
+
+    bool retval = false;
+    m_ptrs->m_web_browser_find->FindNext(&retval);
+    return retval;
+#else
     m_ptrs->m_web_browser_find->SetFindBackwards((flags & wxWEB_FIND_BACKWARDS) != 0 ? PR_TRUE : PR_FALSE);
     m_ptrs->m_web_browser_find->SetWrapFind((flags & wxWEB_FIND_WRAP) != 0 ? PR_TRUE : PR_FALSE);
     m_ptrs->m_web_browser_find->SetEntireWord((flags & wxWEB_FIND_ENTIRE_WORD) != 0 ? PR_TRUE : PR_FALSE);
     m_ptrs->m_web_browser_find->SetMatchCase((flags & wxWEB_FIND_MATCH_CASE) != 0 ? PR_TRUE : PR_FALSE);
     m_ptrs->m_web_browser_find->SetSearchFrames((flags & wxWEB_FIND_SEARCH_FRAMES) != 0 ? PR_TRUE : PR_FALSE);
-    
-    
+
     PRBool retval = PR_FALSE;
     m_ptrs->m_web_browser_find->FindNext(&retval);
-    
     return retval ? true : false;
+#endif
 }
 
 // (METHOD) wxWebControl::AddContentHandler
@@ -3430,10 +3552,15 @@ bool wxWebControl::CanCutSelection()
 {
     if (!IsOk())
         return false;
-    
+#if MOZILLA_VERSION_1 >=10
+    bool retval;
+    m_ptrs->m_clipboard_commands->CanCutSelection(&retval);
+    return retval;
+#else
     PRBool retval;
     m_ptrs->m_clipboard_commands->CanCutSelection(&retval);
     return retval ? true : false;
+#endif
 }
 
 // (METHOD) wxWebControl::CanCopySelection
@@ -3449,10 +3576,15 @@ bool wxWebControl::CanCopySelection()
 {
     if (!IsOk())
         return false;
-
+#if MOZILLA_VERSION_1 >=10
+    bool retval;
+    m_ptrs->m_clipboard_commands->CanCopySelection(&retval);
+    return retval;
+#else
     PRBool retval;
     m_ptrs->m_clipboard_commands->CanCopySelection(&retval);
     return retval ? true : false;
+#endif
 }
 
 // (METHOD) wxWebControl::CanCopyLinkLocation
@@ -3468,10 +3600,15 @@ bool wxWebControl::CanCopyLinkLocation()
 {
     if (!IsOk())
         return false;
-
+#if MOZILLA_VERSION_1 >=10
+    bool retval;
+    m_ptrs->m_clipboard_commands->CanCopyLinkLocation(&retval);
+    return retval;
+#else
     PRBool retval;
     m_ptrs->m_clipboard_commands->CanCopyLinkLocation(&retval);
     return retval ? true : false;
+#endif
 }
 
 // (METHOD) wxWebControl::CanCopyImageLocation
@@ -3487,10 +3624,15 @@ bool wxWebControl::CanCopyImageLocation()
 {
     if (!IsOk())
         return false;
-
+#if MOZILLA_VERSION_1 >=10
+    bool retval;
+    m_ptrs->m_clipboard_commands->CanCopyImageLocation(&retval);
+    return retval;
+#else
     PRBool retval;
     m_ptrs->m_clipboard_commands->CanCopyImageLocation(&retval);
     return retval ? true : false;
+#endif
 }
 
 // (METHOD) wxWebControl::CanCopyImageContents
@@ -3506,10 +3648,15 @@ bool wxWebControl::CanCopyImageContents()
 {
     if (!IsOk())
         return false;
-
+#if MOZILLA_VERSION_1 >=10
+    bool retval;
+    m_ptrs->m_clipboard_commands->CanCopyImageContents(&retval);
+    return retval;
+#else
     PRBool retval;
     m_ptrs->m_clipboard_commands->CanCopyImageContents(&retval);
     return retval ? true : false;
+#endif
 }
 
 // (METHOD) wxWebControl::CanPaste
@@ -3525,10 +3672,15 @@ bool wxWebControl::CanPaste()
 {
     if (!IsOk())
         return false;
-
+#if MOZILLA_VERSION_1 >=10
+    bool retval;
+    m_ptrs->m_clipboard_commands->CanPaste(&retval);
+    return retval;
+#else
     PRBool retval;
     m_ptrs->m_clipboard_commands->CanPaste(&retval);
     return retval ? true : false;
+#endif
 }
 
 // (METHOD) wxWebControl::CutSelection

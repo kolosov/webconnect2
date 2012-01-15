@@ -15,6 +15,7 @@
 
 #include "moz_config.h"
 
+//wxString ns2wx(nsString& str);
 wxString ns2wx(nsEmbedCString& str);
 wxString ns2wx(nsEmbedString& str);
 wxString ns2wx(const PRUnichar* str);
@@ -165,8 +166,13 @@ public:
                             nsIWebProgress* web_progress,
                             nsIURI* refresh_uri,
                             PRInt32 millis,
+#if MOZILLA_VERSION_1 >=10
+                            bool same_uri,
+                            bool *retval);
+#else
                             PRBool same_uri,
                             PRBool *retval);
+#endif
 
 public:
 

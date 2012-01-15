@@ -36,12 +36,17 @@ bool wxWebPreferences::GetBoolPref(const wxString& name)
     //wxASSERT(!prefs.empty());
     if (!prefs)
         return false;
-        
+#if MOZILLA_VERSION_1 >= 10
+    bool val;
+    if (NS_FAILED(prefs->GetBoolPref((const char*)name.mbc_str(), &val)))
+         return false;
+    return val;
+#else
     PRBool val;
     if (NS_FAILED(prefs->GetBoolPref((const char*)name.mbc_str(), &val)))
         return false;
-        
     return (val == PR_TRUE ? true : false);
+#endif
 }
 
 wxString wxWebPreferences::GetStringPref(const wxString& name)
@@ -124,7 +129,10 @@ void wxWebPreferences::SetBoolPref(const wxString& name, bool value)
 #endif
     if (!prefs)
         return;
-
+#if MOZILLA_VERSION_1 >= 10
+    prefs->SetBoolPref((const char*)name.mbc_str(), value);
+#else
     prefs->SetBoolPref((const char*)name.mbc_str(), value ? PR_TRUE : PR_FALSE);
+#endif
 }
 

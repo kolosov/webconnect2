@@ -426,6 +426,12 @@ PRUint32 NS_CStringGetData(const nsACString& str,
 //  utility functions
 ///////////////////////////////////////////////////////////////////////////////
 
+/*wxString ns2wx(nsString& str)
+{
+    wxString res;
+    //res = wxString::FromAscii(str.get());
+    return res;
+}*/
 
 wxString ns2wx(nsEmbedCString& str)
 {
@@ -920,8 +926,13 @@ NS_IMETHODIMP ProgressListenerAdaptor::OnRefreshAttempted(
                         nsIWebProgress* web_progress,
                         nsIURI* refresh_uri,
                         PRInt32 millis,
+#if MOZILLA_VERSION_1 >= 10
+                        bool same_uri,
+                        bool *retval)
+#else
                         PRBool same_uri,
                         PRBool *retval)
+#endif
 {
     return NS_OK;
 }

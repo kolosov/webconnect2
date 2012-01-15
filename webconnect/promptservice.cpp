@@ -454,7 +454,11 @@ NS_IMETHODIMP PromptService::AlertCheck(
                                     const PRUnichar* ns_dialog_title,
                                     const PRUnichar* ns_text,
                                     const PRUnichar* ns_check_msg,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool* checkValue)
+#else
                                     PRBool* checkValue)
+#endif
 {
     wxString dialog_title = ns2wx(ns_dialog_title);
     wxString text = ns2wx(ns_text);
@@ -467,7 +471,11 @@ NS_IMETHODIMP PromptService::Confirm(
                                     nsIDOMWindow* parent,
                                     const PRUnichar* ns_dialog_title,
                                     const PRUnichar* ns_text,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool* retval)
+#else
                                     PRBool* retval)
+#endif
 {
     wxString dialog_title = ns2wx(ns_dialog_title);
     wxString text = ns2wx(ns_text);
@@ -479,11 +487,17 @@ NS_IMETHODIMP PromptService::Confirm(
     
     if (!retval)
         return NS_ERROR_NULL_POINTER;
-    
+#if MOZILLA_VERSION_1 >= 10
+    if (res == wxYES)
+            *retval = true;
+             else
+            *retval = false;
+#else
     if (res == wxYES)
         *retval = PR_TRUE;
          else
         *retval = PR_FALSE;
+#endif
            
     return NS_OK;
 }
@@ -493,8 +507,13 @@ NS_IMETHODIMP PromptService::ConfirmCheck(
                                     const PRUnichar* dialog_title,
                                     const PRUnichar* text,
                                     const PRUnichar* check_msg,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool* check_value,
+                                    bool* retval)
+#else
                                     PRBool* check_value,
                                     PRBool* retval)
+#endif
 {
     return NS_OK;
 }
@@ -508,7 +527,11 @@ NS_IMETHODIMP PromptService::ConfirmEx(
                                     const PRUnichar* button1_title,
                                     const PRUnichar* button2_title,
                                     const PRUnichar* check_msg,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool* check_value,
+#else
                                     PRBool* check_value,
+#endif
                                     PRInt32* button_pressed)
 {
     return NS_OK;
@@ -520,8 +543,13 @@ NS_IMETHODIMP PromptService::Prompt(
                                     const PRUnichar* _text,
                                     PRUnichar** _value,
                                     const PRUnichar* check_msg,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool* check_value,
+                                    bool* retval)
+#else
                                     PRBool* check_value,
                                     PRBool* retval)
+#endif
 {
     // check message and check value aren't implemented yet
     
@@ -539,11 +567,19 @@ NS_IMETHODIMP PromptService::Prompt(
     if (res == wxID_OK)
     {
         *_value = wxToUnichar(dlg.GetValue());
+#if MOZILLA_VERSION_1 >= 10
+        *retval = true;
+#else
         *retval = PR_TRUE;
+#endif
     }
      else
     {
+#if MOZILLA_VERSION_1 >= 10
+    	 *retval = false;
+#else
         *retval = PR_FALSE;
+#endif
     }
 
     return NS_OK;
@@ -556,8 +592,13 @@ NS_IMETHODIMP PromptService::PromptUsernameAndPassword(
                                     PRUnichar** username,
                                     PRUnichar** password,
                                     const PRUnichar* check_msg,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool* check_value,
+                                    bool* retval)
+#else
                                     PRBool* check_value,
                                     PRBool* retval)
+#endif
 {
     // this version is used by xulrunner 1.8.x -- see below for the newer version
     wxWindow* wxparent = GetTopFrameFromDOMWindow(parent);
@@ -570,11 +611,19 @@ NS_IMETHODIMP PromptService::PromptUsernameAndPassword(
     {
         *username = wxToUnichar(dlg.GetUserName());
         *password = wxToUnichar(dlg.GetPassword());
+#if MOZILLA_VERSION_1 >= 10
+        *retval = true;
+#else
         *retval = PR_TRUE;
+#endif
     }
      else
     {
+#if MOZILLA_VERSION_1 >= 10
+    	 *retval = false;
+#else
         *retval = PR_FALSE;
+#endif
     }
     
     return NS_OK;
@@ -586,8 +635,13 @@ NS_IMETHODIMP PromptService::PromptPassword(
                                     const PRUnichar* text,
                                     PRUnichar** password,
                                     const PRUnichar* check_msg,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool* check_value,
+                                    bool* retval)
+#else
                                     PRBool* check_value,
                                     PRBool* retval)
+#endif
 {
     return NS_OK;
 }
@@ -598,9 +652,17 @@ NS_IMETHODIMP PromptService::Select(nsIDOMWindow* parent,
                                     PRUint32 count,
                                     const PRUnichar** select_list,
                                     PRInt32* out_selection,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool* retval)
+#else
                                     PRBool* retval)
+#endif
 {
+#if MOZILLA_VERSION_1 >= 10
+	*retval = true;
+#else
     *retval = PR_TRUE;
+#endif
     return NS_OK;
 }
 
@@ -641,8 +703,13 @@ NS_IMETHODIMP PromptService::PromptAuth(nsIDOMWindow* parent,
                                         PRUint32 level,
                                         nsIAuthInformation* auth_info,
                                         const PRUnichar* checkbox_label,
+#if MOZILLA_VERSION_1 >= 10
+                                        bool* check_value,
+                                        bool* retval)
+#else
                                         PRBool* check_value,
                                         PRBool* retval)
+#endif
 {
     // this version used by newer >= 1.9.1 versions of xulrunner
     wxWindow* wxparent = GetTopFrameFromDOMWindow(parent);
@@ -661,12 +728,19 @@ NS_IMETHODIMP PromptService::PromptAuth(nsIDOMWindow* parent,
         
         auth_info->SetUsername(ns_username);
         auth_info->SetPassword(ns_password);
-        
+#if MOZILLA_VERSION_1 >= 10
+        *retval = true;
+#else
         *retval = PR_TRUE;
+#endif
     }
      else
     {
+#if MOZILLA_VERSION_1 >= 10
+    	 *retval = false;
+#else
         *retval = PR_FALSE;
+#endif
     }
     
     return NS_OK;
@@ -679,7 +753,11 @@ NS_IMETHODIMP PromptService::AsyncPromptAuth(nsIDOMWindow* parent,
                                         PRUint32 level,
                                         nsIAuthInformation* auth_info,
                                         const PRUnichar* checkbox_label,
+#if MOZILLA_VERSION_1 >= 10
+                                        bool* check_value,
+#else
                                         PRBool* check_value,
+#endif
                                         nsICancelable** retval)
 {
     return NS_OK;
@@ -709,7 +787,7 @@ NS_IMETHODIMP PromptService::ConfirmMismatchDomain(
         *retval = PR_FALSE;
         return NS_OK;
     }
-    
+
     *retval = PR_TRUE;
     return NS_OK;
 }
@@ -754,15 +832,27 @@ NS_IMETHODIMP PromptService::NotifyCertProblem(
                                     nsIInterfaceRequestor *socket_info,
                                     nsISSLStatus *status,
                                     const nsACString& target_site,
+#if MOZILLA_VERSION_1 >= 10
+                                    bool *retval)
+#else
                                     PRBool *retval)
+#endif
 {
     if (wxWebControl::GetIgnoreCertErrors())
     {
+#if MOZILLA_VERSION_1 >= 10
+    	*retval = true;
+#else
         *retval = PR_TRUE;
+#endif
         return NS_OK;
     }
 
-    *retval = PR_TRUE;
+#if MOZILLA_VERSION_1 >= 10
+    	*retval = true;
+#else
+        *retval = PR_TRUE;
+#endif
     return NS_OK;
 }
 
@@ -830,7 +920,11 @@ void PromptService::onBadCertificate(const wxString& message, nsIDOMWindow* dom_
                 
                 if (cert)
                 {
+#if MOZILLA_VERSION_1 >= 10
+                	bool is_untrusted, is_domain_mismatch, is_not_valid_at_this_time;
+#else
                     PRBool is_untrusted, is_domain_mismatch, is_not_valid_at_this_time;
+#endif
                     
                     status->GetIsUntrusted(&is_untrusted);
                     status->GetIsDomainMismatch(&is_domain_mismatch);
@@ -892,8 +986,11 @@ public:
         
         return res;
     }
-    
+#if MOZILLA_VERSION_1 >= 10
+    NS_IMETHOD LockFactory(bool lock)
+#else
     NS_IMETHOD LockFactory(PRBool lock)
+#endif
     {
         return NS_OK;
     }
@@ -1102,8 +1199,13 @@ public:
                         nsIWebProgress* web_progress,
                         nsIURI* refresh_uri,
                         PRInt32 millis,
+#if MOZILLA_VERSION_1 >= 10
+                        bool same_uri,
+                        bool *retval)
+#else
                         PRBool same_uri,
                         PRBool *retval)
+#endif
     {
         return NS_OK;
     }
@@ -1173,8 +1275,11 @@ public:
         
         return res;
     }
-    
+#if MOZILLA_VERSION_1 >= 10
+    NS_IMETHOD LockFactory(bool lock)
+#else
     NS_IMETHOD LockFactory(PRBool lock)
+#endif
     {
         return NS_OK;
     }
@@ -1370,7 +1475,11 @@ public:
                                    nsISupports* window_context,
                                    const PRUnichar* default_file,
                                    const PRUnichar* suggested_file_extension,
+#if MOZILLA_VERSION_1 >= 10
+                                   bool force_prompt,
+#else
                                    PRBool force_prompt,
+#endif
                                    nsILocalFile** new_file)
     {
         nsCOMPtr<nsISupports> context = window_context;
@@ -1455,8 +1564,11 @@ public:
         
         return res;
     }
-    
+#if MOZILLA_VERSION_1 >=10
+    NS_IMETHOD LockFactory(bool lock)
+#else
     NS_IMETHOD LockFactory(PRBool lock)
+#endif
     {
         return NS_OK;
     }
@@ -1491,7 +1603,11 @@ public:
     NS_IMETHOD RememberValidityOverride(const nsACString& host_name,
                                         PRInt32 port, nsIX509Cert* cert,
                                         PRUint32 override_bits,
+#if MOZILLA_VERSION_1 >= 10
+                                        bool temporary)
+#else
                                         PRBool temporary)
+#endif
     {
         return NS_ERROR_NOT_IMPLEMENTED;
     }
@@ -1500,11 +1616,20 @@ public:
                                    PRInt32 port,
                                    nsIX509Cert* cert,
                                    PRUint32* override_bits,
+#if MOZILLA_VERSION_1 >= 10
+                                   bool* is_temporary,
+                                   bool *_retval)
+#else
                                    PRBool* is_temporary,
                                    PRBool *_retval)
+#endif
     {
         *override_bits = 3;
+#if MOZILLA_VERSION_1 >= 10
+        *_retval = true;
+#else
         *_retval = PR_TRUE;
+#endif
         return NS_OK;
     }
 
@@ -1513,8 +1638,13 @@ public:
                                    nsACString& hash_alg,
                                    nsACString& fingerprint,
                                    PRUint32* override_bits,
+#if MOZILLA_VERSION_1 >= 10
+                                   bool* is_temporary,
+                                   bool* _retval)
+#else
                                    PRBool* is_temporary,
                                    PRBool* _retval)
+#endif
     {
         return NS_ERROR_NOT_IMPLEMENTED;
     }
@@ -1532,8 +1662,13 @@ public:
     }
 
     NS_IMETHOD IsCertUsedForOverrides(nsIX509Cert *cert,
+#if MOZILLA_VERSION_1 >= 10
+            bool check_temporaries,
+            bool check_permanents,
+#else
                                       PRBool check_temporaries,
                                       PRBool check_permanents,
+#endif
                                       PRUint32 *_retval)
     {
         return NS_ERROR_NOT_IMPLEMENTED;
@@ -1584,8 +1719,11 @@ public:
         
         return res;
     }
-    
+#if MOZILLA_VERSION_1 >=10
+    NS_IMETHOD LockFactory(bool lock)
+#else
     NS_IMETHOD LockFactory(PRBool lock)
+#endif
     {
         return NS_OK;
     }
