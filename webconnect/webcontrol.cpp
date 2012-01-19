@@ -3199,7 +3199,7 @@ void wxWebControl::FetchFavIcon(void* _uri)
 {
 
 	return; //FIXME implement later (BUG in calling create instance nsiwebbrowserpersist)
-	if (m_favicon_fetched)
+	/*if (m_favicon_fetched)
         return;
     m_favicon_fetched = true;
 
@@ -3243,7 +3243,7 @@ void wxWebControl::FetchFavIcon(void* _uri)
     {
         persist->SetProgressListener(nsnull);
         return;
-    }
+    }*/
 }
 
 

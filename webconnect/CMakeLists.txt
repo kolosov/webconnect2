@@ -11,7 +11,8 @@ endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES Windows)
 if ( ${MOZILLA_VERSION_1} VERSION_LESS "7") #FIXME cross check!
-#  add_definitions(/Zc:wchar_t-)
+add_definitions(/Zc:wchar_t-)
+#add_definitions(-DMOZILLA_STRICT_API)
 endif()
 add_definitions(-DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1)
 endif()
