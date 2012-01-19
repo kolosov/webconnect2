@@ -851,7 +851,7 @@ public:
     wxString GetAccessKey();
     void SetAccessKey(const wxString& value);
 
-#if MOZILLA_VERSION_1 < 7
+#if MOZILLA_VERSION_1 < 5
     int GetCols();
 #else
     unsigned int GetCols();
@@ -867,7 +867,7 @@ public:
 
     bool GetReadOnly();
     void SetReadOnly(bool value);
-#if MOZILLA_VERSION_1 < 7
+#if MOZILLA_VERSION_1 < 5
     int GetRows();
 #else
     unsigned int GetRows();
