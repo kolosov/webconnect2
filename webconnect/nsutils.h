@@ -32,9 +32,9 @@ nsCOMPtr<nsIPref> nsGetPrefService();
 nsCOMPtr<nsIPrefBranch> nsGetPrefService();
 #endif
 nsCOMPtr<nsIProperties> nsGetDirectoryService();
-nsCOMPtr<nsISupports> nsGetService(const char* contract_id);
+/*nsCOMPtr<nsISupports> nsGetService(const char* contract_id);
 nsCOMPtr<nsISupports> nsCreateInstance(const char* contract_id);
-nsCOMPtr<nsISupports> nsCreateInstance(const nsCID& cid);
+nsCOMPtr<nsISupports> nsCreateInstance(const nsCID& cid);*/
 nsCOMPtr<nsILocalFile> nsNewLocalFile(const wxString& filename);
 nsCOMPtr<nsIURI> nsNewURI(const wxString& spec);
 

@@ -59,6 +59,14 @@ DEFINE_EVENT_TYPE(wxEVT_WEB_DOMEVENT)
 IMPLEMENT_DYNAMIC_CLASS(wxWebEvent, wxNotifyEvent)
 
 
+#if MOZILLA_VERSION_1 <2
+XRE_InitEmbeddingType XRE_InitEmbedding = 0;
+#else
+XRE_InitEmbedding2Type XRE_InitEmbedding2 = 0;
+#endif
+XRE_TermEmbeddingType XRE_TermEmbedding = 0;
+XRE_NotifyProfileType XRE_NotifyProfile = 0;
+XRE_LockProfileDirectoryType XRE_LockProfileDirectory = 0;
 
 
 // the purpose of the EmbeddingPtrs structure is to allow us a way
@@ -101,6 +109,7 @@ public:
     void SetStoragePath(const wxString& path);
     
     bool Init();
+    bool Init2();//old way initialization
     bool IsOk() const;
     
     void AddContentListener(ContentListener* l);
@@ -1766,6 +1775,255 @@ private:
 // initialize the gecko engine; his is automatically called
 // when wxWebControl objects are created.
 
+bool GeckoEngine::Init2()
+{
+    nsresult res;
+
+    if (IsOk())
+        return true;
+
+    if (m_gecko_path.IsEmpty())
+        return false;
+
+    if (m_storage_path.IsEmpty())
+    {
+        wxLogNull log;
+
+        wxString default_storage_path = wxStandardPaths::Get().GetTempDir();
+        wxChar path_separator = wxFileName::GetPathSeparator();
+        if (default_storage_path.IsEmpty() || default_storage_path.Last() != path_separator)
+            default_storage_path += path_separator;
+        default_storage_path += wxT("kwkh01.tmp");
+
+#ifdef WIN32
+        ::wxMkDir(default_storage_path);
+#else
+        ::wxMkDir((const char*)default_storage_path.mbc_str(), 0700);
+#endif
+
+        m_storage_path = default_storage_path;
+    }
+
+    SetStoragePath(m_storage_path);
+
+
+    char path_separator = (char)wxFileName::GetPathSeparator();
+    std::string gecko_path = (const char*)m_gecko_path.mbc_str();
+    std::string xpcom_path = gecko_path;
+    if (xpcom_path.empty() || xpcom_path[xpcom_path.length()-1] != path_separator)
+        xpcom_path += path_separator;
+    #if defined __WXMSW__
+    xpcom_path += "xpcom.dll";
+    #elif defined __WXMAC__
+    xpcom_path += "libxpcom.dylib";
+    #else
+    xpcom_path += "libxpcom.so";
+    #endif
+
+
+    if (NS_FAILED(XPCOMGlueStartup(xpcom_path.c_str())))
+        return false;
+
+    nsCOMPtr<nsILocalFile> gre_dir;
+    res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), PR_TRUE, getter_AddRefs(gre_dir));
+    if (NS_FAILED(res))
+        return false;
+
+    if (NS_FAILED(NS_InitXPCOM2(nsnull, gre_dir, nsnull)))
+        return false;
+
+
+    // create an app shell
+    //const nsCID appshell_cid = NS_APPSHELL_CID;
+    //m_appshell = nsCreateInstance(appshell_cid);
+    //NS_DEFINE_CID(kAppShellCID, NS_APPSHELL_CID);
+
+    //m_appshell = do_GetService(NS_IAPPSHELL_IID);
+    //		m_appshell = do_CreateInstance
+    /*FIXME if (m_appshell)
+    {
+        m_appshell->Create(0, nsnull);
+        m_appshell->Spinup();
+    }*/
+
+    // set the window creator
+
+    nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
+    if (!window_watcher)
+        return false;
+
+    nsCOMPtr<nsIWindowCreator> wnd_creator = static_cast<nsIWindowCreator*>(new WindowCreator);
+    window_watcher->SetWindowCreator(wnd_creator);
+
+
+    // set up our own custom prompting service
+
+    nsCOMPtr<nsIComponentRegistrar> comp_reg;
+    res = NS_GetComponentRegistrar(getter_AddRefs(comp_reg));
+    if (NS_FAILED(res))
+        return false;
+
+    nsCOMPtr<nsIFactory> prompt_factory;
+    CreatePromptServiceFactory(getter_AddRefs(prompt_factory));
+
+    nsCID prompt_cid = NS_PROMPTSERVICE_CID;
+    res = comp_reg->RegisterFactory(prompt_cid,
+                                    "Prompt Service",
+                                    "@mozilla.org/embedcomp/prompt-service;1",
+                                    prompt_factory);
+
+    //prompt_factory.clear();
+    CreatePromptServiceFactory(getter_AddRefs(prompt_factory));
+
+    nsCID nssdialogs_cid = NS_NSSDIALOGS_CID;
+    res = comp_reg->RegisterFactory(nssdialogs_cid,
+                                    "PSM Dialog Impl",
+                                    "@mozilla.org/nsBadCertListener;1",
+                                    prompt_factory);
+
+    // set up our own download progress service
+
+    nsCOMPtr<nsIFactory> transfer_factory;
+    CreateTransferFactory(getter_AddRefs(transfer_factory));
+
+    nsCID download_cid = NS_DOWNLOAD_CID;
+    res = comp_reg->RegisterFactory(download_cid,
+                                    "Transfer",
+                                    "@mozilla.org/transfer;1",
+                                    transfer_factory);
+
+    res = comp_reg->RegisterFactory(download_cid,
+                                    "Transfer",
+                                    "@mozilla.org/download;1",
+                                    transfer_factory);
+
+
+    nsCOMPtr<nsIFactory> unknowncontenttype_factory;
+    CreateUnknownContentTypeHandlerFactory(getter_AddRefs(unknowncontenttype_factory));
+
+    nsCID unknowncontenthtypehandler_cid = NS_UNKNOWNCONTENTTYPEHANDLER_CID;
+    res = comp_reg->RegisterFactory(unknowncontenthtypehandler_cid,
+                                    "Helper App Launcher Dialog",
+                                    "@mozilla.org/helperapplauncherdialog;1",
+                                    unknowncontenttype_factory);
+
+/*
+    // set up cert override service
+
+    nsCOMPtr<nsIFactory> certoverride_factory;
+    CreateCertOverrideFactory(&certoverride_factory.p);
+
+    nsCID certoverride_cid = NS_CERTOVERRIDE_CID;
+    res = comp_reg->RegisterFactory(certoverride_cid,
+                                    "PSM Cert Override Settings Service",
+                                    "@mozilla.org/security/certoverride;1",
+                                    certoverride_factory);
+    */
+
+    // set up some history file (which appears to be
+    // required for downloads to work properly, even if we
+    // don't store any history entries)
+
+    //nsCOMPtr<nsIDirectoryService> dir_service = nsGetDirectoryService();
+    nsCOMPtr<nsIProperties> dir_service_props = nsGetDirectoryService();
+
+    nsCOMPtr<nsILocalFile> history_file;
+
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_history_filename.mbc_str()), PR_TRUE, getter_AddRefs(history_file));
+    if (NS_FAILED(res))
+        return false;
+
+/* FIXME
+    nsCOMPtr<nsILocalFile> fromFile;
+    nsCOMPtr<nsIProperties> directoryService(do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &res));
+    res = directoryService->Get((const char*)"UHist", NS_GET_IID(nsILocalFile),getter_AddRefs(fromFile));
+
+    res = dir_service_props->Set((const char*)"UHist", history_file);
+    if (NS_FAILED(res))
+        return false;
+*/
+    // set up a profile directory, which is necessary for many
+    // parts of the gecko engine, including ssl on linux
+
+    /*FIXME implement later
+    nsCOMPtr<nsILocalFile> prof_dir;
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), PR_TRUE, getter_AddRefs(prof_dir));
+    if (NS_FAILED(res))
+        return false;
+
+    res = dir_service_props->Set("ProfD", getter_AddRefs(prof_dir));
+    if (NS_FAILED(res))
+        return false;
+
+    */
+    // replace the old plugin directory enumerator with our own
+    // but keep all the entries that were in there
+    /* FIXME implement later
+    nsCOMPtr<nsISimpleEnumerator> plugin_enum;
+    res = dir_service_props->Get("APluginsDL", NS_GET_IID(nsISimpleEnumerator), getter_AddRefs(plugin_enum));
+    if (NS_FAILED(res) || !plugin_enum)
+        return false;
+
+    m_plugin_provider->AddPaths(getter_AddRefs(plugin_enum));
+    res = dir_service->RegisterProvider(m_plugin_provider);
+    if (NS_FAILED(res) || !plugin_enum)
+        return false;
+    */
+
+    // set up preferences
+#if MOZILLA_VERSION_1 < 1
+    nsCOMPtr<nsIPref> prefs = nsGetPrefService();
+#else
+    nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
+#endif
+    if (!prefs)
+        return false;
+
+    // this was originally so that we wouldn't have to set
+    // up a prompting service.
+    prefs->SetBoolPref("security.warn_submit_insecure", PR_FALSE);
+
+    // don't store a history
+    prefs->SetIntPref("browser.history_expire_days", 0);
+
+    // set path for our cache directory
+#if MOZILLA_VERSION_1 < 1
+    PRUnichar* temps = wxToUnichar(m_storage_path);
+    prefs->SetUnicharPref("browser.cache.disk.parent_directory", temps);
+    freeUnichar(temps);
+#else
+    prefs->SetCharPref("browser.cache.disk.parent_directory", (const char*)m_storage_path.mbc_str());
+#endif
+
+    m_ok = true;
+
+#if MOZILLA_VERSION_1 < 1
+    m_is18 = m_appshell.empty() ? false : true;
+
+
+    if (m_is18)
+    {
+        // 24 May 2008 - a bug was discovered; if a web control is not created
+        // in about 1 minute of the web engine being initialized, something goes
+        // wrong with the message queue, and the web control will only update
+        // when the mouse is moved over it-- strange.  I think there must be some
+        // thread condition that waits until the first web control is created.
+        // In any case, creating a web control here appears to solve the problem;
+        // It's destroyed 10 seconds after creation.
+
+        wxWebFrame* f = new wxWebFrame(NULL, -1, wxT(""));
+        f->SetShouldPreventAppExit(false);
+        f->GetWebControl()->OpenURI(wxT("about:blank"));
+
+        DelayedWindowDestroy* d = new DelayedWindowDestroy(f, 10);
+    }
+#else
+    m_is18 = false;
+#endif
+
+    return true;
+}
+
 bool GeckoEngine::Init()
 {
     nsresult res;
@@ -1811,17 +2069,65 @@ bool GeckoEngine::Init()
     xpcom_path += "libxpcom.so";
     #endif
 
-        
-    if (NS_FAILED(XPCOMGlueStartup(xpcom_path.c_str())))
+    res = XPCOMGlueStartup(xpcom_path.c_str());
+    if (NS_FAILED(res))
         return false;
     
+    NS_LogInit();
+
+        // load XUL functions
+    nsDynamicFunctionLoad nsFuncs[] = {
+    #if MOZILLA_VERSION_1 < 2
+                {"XRE_InitEmbedding", (NSFuncPtr*)&XRE_InitEmbedding},
+    #else
+                {"XRE_InitEmbedding2", (NSFuncPtr*)&XRE_InitEmbedding2},
+    #endif
+                {"XRE_TermEmbedding", (NSFuncPtr*)&XRE_TermEmbedding},
+                {"XRE_NotifyProfile", (NSFuncPtr*)&XRE_NotifyProfile},
+                {"XRE_LockProfileDirectory", (NSFuncPtr*)&XRE_LockProfileDirectory},
+                {0, 0}
+    };
+
+    res = XPCOMGlueLoadXULFunctions(nsFuncs);
+       if (NS_FAILED(res)) {
+            return false;
+       }
+
+
     nsCOMPtr<nsILocalFile> gre_dir;
+    res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), PR_TRUE, getter_AddRefs(gre_dir));
+    if (NS_FAILED(res))
+         return false;
+
+    nsCOMPtr<nsILocalFile> prof_dir;
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), PR_TRUE, getter_AddRefs(prof_dir));
+    if (NS_FAILED(res))
+            return false;
+
+    // init embedding
+#if MOZILLA_VERSION_1 < 2
+    const nsStaticModuleInfo* aComps = 0;
+    int aNumComps = 0;
+
+    res = XRE_InitEmbedding(gre_dir, prof_dir,
+                              nsnull,aComps, aNumComps);
+    //res = XRE_InitEmbedding(gre_dir, appdir,
+    //                              const_cast<MozEmbedDirectoryProvider*>(&kDirectoryProvider),aComps, aNumComps);
+#else
+    res = XRE_InitEmbedding2(gre_dir, prof_dir, nsnull);
+    //res = XRE_InitEmbedding2(gre_dir, prof_dir,
+    //                       const_cast<MozEmbedDirectoryProvider*>(&kDirectoryProvider));
+#endif
+
+
+
+    /*nsCOMPtr<nsILocalFile> gre_dir;
     res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), PR_TRUE, getter_AddRefs(gre_dir));
     if (NS_FAILED(res))
         return false;
 
     if (NS_FAILED(NS_InitXPCOM2(nsnull, gre_dir, nsnull)))
-        return false;
+        return false;*/
     
     
     // create an app shell
@@ -2014,6 +2320,7 @@ bool GeckoEngine::Init()
     
     return true;
 }
+
 
 void GeckoEngine::AddContentListener(ContentListener* l)
 {
@@ -2310,7 +2617,31 @@ wxWebControl::wxWebControl(wxWindow* parent,
 
     // create gecko web browser component
     //m_ptrs->m_web_browser = nsCreateInstance("@mozilla.org/embedding/browser/nsWebBrowser;1");
-    m_ptrs->m_web_browser = do_CreateInstance(NS_WEBBROWSER_CONTRACTID, &res);
+    nsCOMPtr<nsIWebBrowser> webres;
+    {
+
+        static nsIID nsISupportsIID = NS_ISUPPORTS_IID;
+        nsresult result;
+
+        nsCOMPtr<nsIComponentManager> comp_mgr;
+        result = NS_GetComponentManager(getter_AddRefs(comp_mgr));
+        if (comp_mgr)
+        {
+            result = comp_mgr->CreateInstanceByContractID(NS_WEBBROWSER_CONTRACTID,
+                                                 0,
+                                                 nsISupportsIID,
+                                                 getter_AddRefs(webres));
+        }
+
+        //nsCOMPtr<nsIComponentManager> compMgr;
+        //nsresult status = NS_GetComponentManager(getter_AddRefs(compMgr));
+        //if (compMgr)
+        //    status = compMgr->CreateInstanceByContractID(aContractID, aDelegate,
+        //                                                 aIID, aResult);
+    }
+    m_ptrs->m_web_browser = webres;
+    //m_ptrs->m_web_browser = do_CreateInstance(NS_WEBBROWSER_CONTRACTID, &res);
+
     if (!m_ptrs->m_web_browser)
     {
         wxASSERT(0);
@@ -2864,10 +3195,11 @@ bool wxWebControl::ClearCache()
     }
 }
 
-//FIXME implement later
 void wxWebControl::FetchFavIcon(void* _uri)
 {
-    if (m_favicon_fetched)
+
+	return; //FIXME implement later (BUG in calling create instance nsiwebbrowserpersist)
+	if (m_favicon_fetched)
         return;
     m_favicon_fetched = true;
 
@@ -2879,9 +3211,9 @@ void wxWebControl::FetchFavIcon(void* _uri)
     uri->GetSpec(ns_spec);
     spec = ns2wx(ns_spec);
     
-    //nsresult rv;
+    nsresult rv;
     //m_ptrs->m_web_browser = do_CreateInstance(NS_WEBBROWSER_CONTRACTID, &rv);
-    nsCOMPtr<nsIWebBrowserPersist> persist = do_CreateInstance("@mozilla.org/embedding/browser/nsWebBrowserPersist;1");
+    nsCOMPtr<nsIWebBrowserPersist> persist = do_CreateInstance("@mozilla.org/embedding/browser/nsWebBrowserPersist;1",&rv);
     //nsCOMPtr<nsIWebBrowserPersist> persist = nsCreateInstance("@mozilla.org/embedding/browser/nsWebBrowserPersist;1");
 
     if (!persist)
@@ -2905,7 +3237,7 @@ void wxWebControl::FetchFavIcon(void* _uri)
     la->Release();
 
     
-    nsresult rv = persist->SaveURI(uri, nsnull, nsnull, nsnull, nsnull, file);
+    rv = persist->SaveURI(uri, nsnull, nsnull, nsnull, nsnull, file);
     
     if (NS_FAILED(rv))
     {
@@ -3022,7 +3354,7 @@ void wxWebControl::OpenURI(const wxString& uri,
     {
         nsCOMPtr<nsIStringInputStream> strs;
         strs = do_CreateInstance("@mozilla.org/io/string-input-stream;1");
-        wxASSERT(strs.p);
+        //wxASSERT(strs.p);
         
         if (strs)
         {

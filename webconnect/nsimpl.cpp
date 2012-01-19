@@ -593,7 +593,7 @@ nsCOMPtr<nsIIOService> nsGetIOService()
     
     return result;
 }
-
+/*
 nsCOMPtr<nsISupports> nsGetService(const char* contract_id)
 {
     nsCOMPtr<nsISupports> result;
@@ -647,7 +647,7 @@ nsCOMPtr<nsISupports> nsCreateInstance(const nsCID& cid)
     }
     
     return res;
-}
+}*/
 
 nsCOMPtr<nsILocalFile> nsNewLocalFile(const wxString& filename)
 {
