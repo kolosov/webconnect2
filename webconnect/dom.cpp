@@ -773,12 +773,14 @@ bool wxDOMNode::AddEventListener(const wxString& type,
     
     nsEmbedString nstype;
     wx2ns(type, nstype);
-    
+
+#if MOZILLA_VERSION_1 >= 10    
     if (NS_SUCCEEDED(evt_target->AddEventListener(nstype,
                                              listener_adaptor,
-#if MOZILLA_VERSION_1 >= 10
                                              use_capture ? true : false)))
 #else
+	    if (NS_SUCCEEDED(evt_target->AddEventListener(nstype,
+                                             listener_adaptor,
                                              use_capture ? PR_TRUE : PR_FALSE)))
 #endif
     {
