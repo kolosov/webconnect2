@@ -17,6 +17,8 @@
 #undef NS_WC_OLD_WAY
 
 #include "moz_config.h"
+#undef HAVE_CPP_2BYTE_WCHAR_T
+#define HAVE_CPP_CHAR16_T
 
 #ifdef NS_WC_OLD_WAY
 #include "nsbase.h"
@@ -26,18 +28,20 @@
 #include "nsutils.h"
 #include "nsweak.h"
 #else
-
+#include "xpcom-config.h"
 //#include "nspr/prtypes.h"
 #include "prtypes.h"
 #include "nsID.h"
 
 #include "nsIInterfaceRequestor.h"
 #include "nsIProperties.h"
-//#include "nsXULAppAPI.h"
+#include "nsXULAppAPI.h"
 #include "nsXPCOMGlue.h"
 #include "nsCOMPtr.h"
 #include "nsStringAPI.h"
 #include "nsComponentManagerUtils.h"
+#include "nsServiceManagerUtils.h"
+#include "nsDirectoryServiceUtils.h"
 #include "nsNetUtil.h" // NS_NewURI()
 #include "nsIComponentManager.h"
 #include "nsEmbedCID.h"

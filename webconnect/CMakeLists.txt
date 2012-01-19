@@ -4,14 +4,14 @@ include(${wxWidgets_USE_FILE})
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
 if ( ${MOZILLA_VERSION_1} VERSION_LESS "7") #FIXME cross check!
-add_definitions(-fshort-wchar)
+#add_definitions(-fshort-wchar)
 endif()
  add_definitions(-g -std=c++0x -fno-rtti -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES Windows)
 if ( ${MOZILLA_VERSION_1} VERSION_LESS "7") #FIXME cross check!
-  add_definitions(/Zc:wchar_t-)
+#  add_definitions(/Zc:wchar_t-)
 endif()
 add_definitions(-DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1)
 endif()
