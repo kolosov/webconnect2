@@ -18,7 +18,7 @@
 
 #include "moz_config.h"
 #undef HAVE_CPP_2BYTE_WCHAR_T
-#define HAVE_CPP_CHAR16_T
+//#define HAVE_CPP_CHAR16_T
 
 #ifdef NS_WC_OLD_WAY
 #include "nsbase.h"
@@ -38,6 +38,8 @@
 #include "nsXULAppAPI.h"
 #include "nsXPCOMGlue.h"
 #include "nsCOMPtr.h"
+
+#undef HAVE_CPP_2BYTE_WCHAR_T
 #include "nsStringAPI.h"
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
@@ -47,11 +49,16 @@
 #include "nsEmbedCID.h"
 
 #include "nsIPromptService2.h"
+//#if MOZILLA_VERSION_1 > 1 || (MOZILLA_VERSION_2 == 9 && MOZILLA_VERSION_3 == 2 )
 #include "nsIBadCertListener2.h"
 #include "nsIX509Cert.h"
+#include "nsIRecentBadCertsService.h"
+#include "nsICertOverrideService.h"
+//#endif
+
 #include "nsIAuthInformation.h"
 #include "nsIURIFixup.h"
-#include "nsIRecentBadCertsService.h"
+
 #include "nsICertOverrideService.h"
 #include "nsISSLStatus.h"
 #include "nsIHelperAppLauncherDialog.h"

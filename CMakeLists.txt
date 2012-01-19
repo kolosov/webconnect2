@@ -45,9 +45,6 @@ configure_file (
   "${PROJECT_BINARY_DIR}/moz_config.h"
   )
 include_directories("${PROJECT_BINARY_DIR}")
-include_directories(${GECKO_SDK_PATH}/include ${GECKO_SDK_PATH}/include/nspr)
-
-#find_library(gecko_libs xpcomglue PATHS ${GECKO_SDK_PATH}/lib)
 
 add_subdirectory (webconnect)
 add_subdirectory (testapp)
