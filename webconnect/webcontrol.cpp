@@ -68,6 +68,77 @@ XRE_TermEmbeddingType XRE_TermEmbedding = 0;
 XRE_NotifyProfileType XRE_NotifyProfile = 0;
 XRE_LockProfileDirectoryType XRE_LockProfileDirectory = 0;
 
+nsCOMPtr<nsILocalFile> prof_dir;
+
+//Directory service provider
+nsIDirectoryServiceProvider *sAppFileLocProvider = 0;
+class wxDirSrvProvider : public nsIDirectoryServiceProvider2
+{
+public:
+    NS_DECL_ISUPPORTS_INHERITED
+    NS_DECL_NSIDIRECTORYSERVICEPROVIDER
+    NS_DECL_NSIDIRECTORYSERVICEPROVIDER2
+};
+
+static const wxDirSrvProvider DirectoryProvider = wxDirSrvProvider();
+
+NS_IMPL_QUERY_INTERFACE2(wxDirSrvProvider,
+                         nsIDirectoryServiceProvider,
+                         nsIDirectoryServiceProvider2)
+
+NS_IMETHODIMP_(nsrefcnt)
+wxDirSrvProvider::AddRef()
+{
+    return 1;
+}
+
+NS_IMETHODIMP_(nsrefcnt)
+wxDirSrvProvider::Release()
+{
+    return 1;
+}
+
+NS_IMETHODIMP
+wxDirSrvProvider::GetFile(const char *aKey, PRBool *aPersist,
+                                   nsIFile* *aResult)
+{
+    if (sAppFileLocProvider) {
+        nsresult rv = sAppFileLocProvider->GetFile(aKey, aPersist, aResult);
+        if (NS_SUCCEEDED(rv))
+            return rv;
+    }
+
+    if (prof_dir && !strcmp(aKey, NS_APP_USER_PROFILE_50_DIR)) {
+        *aPersist = PR_TRUE;
+        return prof_dir->Clone(aResult);
+    }
+
+    if (prof_dir && !strcmp(aKey, NS_APP_PROFILE_DIR_STARTUP)) {
+        *aPersist = PR_TRUE;
+        return prof_dir->Clone(aResult);
+    }
+
+    if (prof_dir && !strcmp(aKey, NS_APP_CACHE_PARENT_DIR)) {
+        *aPersist = PR_TRUE;
+        return prof_dir->Clone(aResult);
+    }
+
+    return NS_ERROR_FAILURE;
+}
+
+NS_IMETHODIMP
+wxDirSrvProvider::GetFiles(const char *aKey,
+                                    nsISimpleEnumerator* *aResult)
+{
+    nsCOMPtr<nsIDirectoryServiceProvider2>
+        dp2(do_QueryInterface(sAppFileLocProvider));
+
+    if (!dp2)
+        return NS_ERROR_FAILURE;
+
+    return dp2->GetFiles(aKey, aResult);
+}
+
 
 // the purpose of the EmbeddingPtrs structure is to allow us a way
 // to access the ns interfaces without including them in any public
@@ -2099,7 +2170,7 @@ bool GeckoEngine::Init()
     if (NS_FAILED(res))
          return false;
 
-    nsCOMPtr<nsILocalFile> prof_dir;
+    //nsCOMPtr<nsILocalFile> prof_dir;
     res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), PR_TRUE, getter_AddRefs(prof_dir));
     if (NS_FAILED(res))
             return false;
@@ -2110,17 +2181,19 @@ bool GeckoEngine::Init()
     int aNumComps = 0;
 
     res = XRE_InitEmbedding(gre_dir, prof_dir,
-                              nsnull,aComps, aNumComps);
+    		const_cast<wxDirSrvProvider*>(&DirectoryProvider),aComps, aNumComps);
     //res = XRE_InitEmbedding(gre_dir, appdir,
     //                              const_cast<MozEmbedDirectoryProvider*>(&kDirectoryProvider),aComps, aNumComps);
 #else
-    res = XRE_InitEmbedding2(gre_dir, prof_dir, nsnull);
+    res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));
     //res = XRE_InitEmbedding2(gre_dir, prof_dir,
     //                       const_cast<MozEmbedDirectoryProvider*>(&kDirectoryProvider));
 #endif
 
+    // initialize profile:
+    XRE_NotifyProfile();
 
-
+    NS_LogTerm();
     /*nsCOMPtr<nsILocalFile> gre_dir;
     res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), PR_TRUE, getter_AddRefs(gre_dir));
     if (NS_FAILED(res))
@@ -2224,21 +2297,27 @@ bool GeckoEngine::Init()
     //nsCOMPtr<nsIDirectoryService> dir_service = nsGetDirectoryService();
     nsCOMPtr<nsIProperties> dir_service_props = nsGetDirectoryService();
     
-    nsCOMPtr<nsILocalFile> history_file;
+    /*nsCOMPtr<nsILocalFile> history_file;
 
     res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_history_filename.mbc_str()), PR_TRUE, getter_AddRefs(history_file));
     if (NS_FAILED(res))
         return false;
+    */
 
-/* FIXME
+/*
     nsCOMPtr<nsILocalFile> fromFile;
-    nsCOMPtr<nsIProperties> directoryService(do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &res));
+    nsCOMPtr<nsIProperties> directoryService;
+    directoryService = do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &res);
     res = directoryService->Get((const char*)"UHist", NS_GET_IID(nsILocalFile),getter_AddRefs(fromFile));
-
-    res = dir_service_props->Set((const char*)"UHist", history_file);
+    nsString tdirfile;
+    fromFile->GetPath(tdirfile);
+    char *tdirchat = ToNewUTF8String(tdirfile);
+/
+/*
+    /*res = dir_service_props->Set((const char*)"UHist", history_file);
     if (NS_FAILED(res))
-        return false;
-*/
+        return false;*
+
     // set up a profile directory, which is necessary for many
     // parts of the gecko engine, including ssl on linux
 
@@ -3197,9 +3276,10 @@ bool wxWebControl::ClearCache()
 
 void wxWebControl::FetchFavIcon(void* _uri)
 {
-
-	return; //FIXME implement later (BUG in calling create instance nsiwebbrowserpersist)
-	/*if (m_favicon_fetched)
+#if MOZILLA_VERSION_1 < 2
+	return;//FIXME implement later (BUG in calling create instance nsiwebbrowserpersist)
+#else
+	if (m_favicon_fetched)
         return;
     m_favicon_fetched = true;
 
@@ -3243,7 +3323,8 @@ void wxWebControl::FetchFavIcon(void* _uri)
     {
         persist->SetProgressListener(nsnull);
         return;
-    }*/
+    }
+#endif
 }
 
 

@@ -48,6 +48,8 @@
 #include "nsIComponentManager.h"
 #include "nsEmbedCID.h"
 
+#include "nsAppDirectoryServiceDefs.h"
+
 #include "nsIPromptService2.h"
 //#if MOZILLA_VERSION_1 > 1 || (MOZILLA_VERSION_2 == 9 && MOZILLA_VERSION_3 == 2 )
 #include "nsIBadCertListener2.h"
