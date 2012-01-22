@@ -20,14 +20,6 @@
 #undef HAVE_CPP_2BYTE_WCHAR_T
 //#define HAVE_CPP_CHAR16_T
 
-#ifdef NS_WC_OLD_WAY
-#include "nsbase.h"
-#include "nsstr.h"
-#include "nsall.h"
-#include "nsptr.h"
-#include "nsutils.h"
-#include "nsweak.h"
-#else
 #include "xpcom-config.h"
 //#include "nspr/prtypes.h"
 #include "prtypes.h"
@@ -183,10 +175,5 @@ void     NS_CStringContainerFinish(nsCStringContainer& str);
 PRUint32 NS_CStringGetData(const nsACString& str, const char** str_data, PRBool* terminated = NULL);
 */
 //end function definition
-
-
-
-
-#endif
 
 #endif
