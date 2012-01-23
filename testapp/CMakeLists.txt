@@ -15,7 +15,7 @@ include_directories ("${PROJECT_SOURCE_DIR}/webconnect")
 
 set(testapp_src testapp.cpp)
 
-add_executable(testapp ${testapp_src})
+add_executable(testapp WIN32 ${testapp_src})
 target_link_libraries(testapp ${wxWidgets_LIBRARIES} webconlib ${gecko_libs})
 #target_link_libraries(testapp ${QT_LIBRARIES} webconlib ${gecko_libs})
 
