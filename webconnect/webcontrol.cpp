@@ -1928,10 +1928,13 @@ bool GeckoEngine::Init()
     const nsStaticModuleInfo* aComps = 0;
     int aNumComps = 0;
 
+#if MOZILLA_VERSION_1 == 1 && MOZILLA_VERSION_2 == 9 && MOZILLA_VERSION_3 == 2
     res = XRE_InitEmbedding(gre_dir, prof_dir,
-    		const_cast<wxDirSrvProvider*>(&DirectoryProvider),aComps, aNumComps);
-    //res = XRE_InitEmbedding(gre_dir, appdir,
-    //                              const_cast<MozEmbedDirectoryProvider*>(&kDirectoryProvider),aComps, aNumComps);
+    		nsnull,aComps, aNumComps);
+#else
+	res = XRE_InitEmbedding(gre_dir, prof_dir,    		
+			const_cast<wxDirSrvProvider*>(&DirectoryProvider),aComps, aNumComps);
+#endif    
 #else
     res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));
     //res = XRE_InitEmbedding2(gre_dir, prof_dir,
@@ -1942,30 +1945,8 @@ bool GeckoEngine::Init()
     XRE_NotifyProfile();
 
     NS_LogTerm();
-    /*nsCOMPtr<nsILocalFile> gre_dir;
-    res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), PR_TRUE, getter_AddRefs(gre_dir));
-    if (NS_FAILED(res))
-        return false;
-
-    if (NS_FAILED(NS_InitXPCOM2(nsnull, gre_dir, nsnull)))
-        return false;*/
     
-    
-    // create an app shell
-    //const nsCID appshell_cid = NS_APPSHELL_CID;
-    //m_appshell = nsCreateInstance(appshell_cid);
-    //NS_DEFINE_CID(kAppShellCID, NS_APPSHELL_CID);
-
-    //m_appshell = do_GetService(NS_IAPPSHELL_IID);
-    //		m_appshell = do_CreateInstance
-    /*FIXME if (m_appshell)
-    {
-        m_appshell->Create(0, nsnull);
-        m_appshell->Spinup();
-    }*/
-
-    // set the window creator
-    
+    // set the window creator    
     nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
     if (!window_watcher)
         return false;
@@ -2052,15 +2033,6 @@ bool GeckoEngine::Init()
         return false;
     */
 
-/*
-    nsCOMPtr<nsILocalFile> fromFile;
-    nsCOMPtr<nsIProperties> directoryService;
-    directoryService = do_GetService(NS_DIRECTORY_SERVICE_CONTRACTID, &res);
-    res = directoryService->Get((const char*)"UHist", NS_GET_IID(nsILocalFile),getter_AddRefs(fromFile));
-    nsString tdirfile;
-    fromFile->GetPath(tdirfile);
-    char *tdirchat = ToNewUTF8String(tdirfile);
-/
 /*
     /*res = dir_service_props->Set((const char*)"UHist", history_file);
     if (NS_FAILED(res))
@@ -2443,39 +2415,14 @@ wxWebControl::wxWebControl(wxWindow* parent,
     nsresult res;
 
     // create gecko web browser component
-    //m_ptrs->m_web_browser = nsCreateInstance("@mozilla.org/embedding/browser/nsWebBrowser;1");
-    nsCOMPtr<nsIWebBrowser> webres;
-    {
-
-        static nsIID nsISupportsIID = NS_ISUPPORTS_IID;
-        nsresult result;
-
-        nsCOMPtr<nsIComponentManager> comp_mgr;
-        result = NS_GetComponentManager(getter_AddRefs(comp_mgr));
-        if (comp_mgr)
-        {
-            result = comp_mgr->CreateInstanceByContractID(NS_WEBBROWSER_CONTRACTID,
-                                                 0,
-                                                 nsISupportsIID,
-                                                 getter_AddRefs(webres));
-        }
-
-        //nsCOMPtr<nsIComponentManager> compMgr;
-        //nsresult status = NS_GetComponentManager(getter_AddRefs(compMgr));
-        //if (compMgr)
-        //    status = compMgr->CreateInstanceByContractID(aContractID, aDelegate,
-        //                                                 aIID, aResult);
-    }
-    m_ptrs->m_web_browser = webres;
-    //m_ptrs->m_web_browser = do_CreateInstance(NS_WEBBROWSER_CONTRACTID, &res);
-
-    if (!m_ptrs->m_web_browser)
+	m_ptrs->m_web_browser = do_CreateInstance(NS_WEBBROWSER_CONTRACTID,&res);
+	if(NS_FAILED(res))
     {
         wxASSERT(0);
         return;
     }
 
-    chrome->m_web_browser = m_ptrs->m_web_browser;
+    //chrome->m_web_browser = m_ptrs->m_web_browser;
 
     m_ptrs->m_base_window = do_QueryInterface(m_ptrs->m_web_browser);
     if (!m_ptrs->m_base_window)
@@ -2484,6 +2431,27 @@ wxWebControl::wxWebControl(wxWindow* parent,
         return;
     }
 
+    // get base window interface and set its native window
+    #ifdef __WXGTK__
+    void* native_handle = (void*)m_wxwindow;
+    #else
+    void* native_handle = (void*)GetHandle();
+    #endif
+
+    wxSize cli_size = GetClientSize();
+    res = m_ptrs->m_base_window->InitWindow(native_handle,
+                                            nsnull,
+                                            0, 0,
+                                            cli_size.x, cli_size.y);
+    if (NS_FAILED(res))
+    {
+        wxASSERT(0);
+        return;
+    }
+
+
+	chrome->m_web_browser = m_ptrs->m_web_browser;
+	
     // create browser chrome
     res = m_ptrs->m_web_browser->SetContainerWindow(static_cast<nsIWebBrowserChrome*>(m_chrome));
 
@@ -2507,23 +2475,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     }
 #endif
     
-    // get base window interface and set its native window
-    #ifdef __WXGTK__
-    void* native_handle = (void*)m_wxwindow;
-    #else
-    void* native_handle = (void*)GetHandle();
-    #endif
-
-    wxSize cli_size = GetClientSize();
-    res = m_ptrs->m_base_window->InitWindow(native_handle,
-                                            nsnull,
-                                            0, 0,
-                                            cli_size.x, cli_size.y);
-    if (NS_FAILED(res))
-    {
-        wxASSERT(0);
-        return;
-    }
       
     res = m_ptrs->m_base_window->Create();
     if (NS_FAILED(res))
@@ -3024,7 +2975,7 @@ bool wxWebControl::ClearCache()
 
 void wxWebControl::FetchFavIcon(void* _uri)
 {
-#if MOZILLA_VERSION_1 < 2
+#if MOZILLA_VERSION_1 < 12
 	return;//FIXME implement later (BUG in calling create instance nsiwebbrowserpersist)
 #else
 	if (m_favicon_fetched)
