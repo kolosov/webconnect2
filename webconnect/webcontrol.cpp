@@ -69,6 +69,7 @@ XRE_NotifyProfileType XRE_NotifyProfile = 0;
 XRE_LockProfileDirectoryType XRE_LockProfileDirectory = 0;
 
 nsCOMPtr<nsILocalFile> prof_dir;
+nsISupports * sProfileLock = 0;
 
 //Directory service provider
 nsIDirectoryServiceProvider *sAppFileLocProvider = 0;
@@ -1923,6 +1924,12 @@ bool GeckoEngine::Init()
     if (NS_FAILED(res))
             return false;
 
+    // Lock profile directory
+    if (prof_dir && !sProfileLock) {
+        res = XRE_LockProfileDirectory(prof_dir, &sProfileLock);
+        if (NS_FAILED(res)) return res;
+    }
+
     // init embedding
 #if MOZILLA_VERSION_1 < 2
     const nsStaticModuleInfo* aComps = 0;
@@ -2006,18 +2013,18 @@ bool GeckoEngine::Init()
                                     "@mozilla.org/helperapplauncherdialog;1",
                                     unknowncontenttype_factory);
 
-/*
+
     // set up cert override service
     
     nsCOMPtr<nsIFactory> certoverride_factory;
-    CreateCertOverrideFactory(&certoverride_factory.p);
+    CreateCertOverrideFactory(getter_AddRefs(certoverride_factory));
     
     nsCID certoverride_cid = NS_CERTOVERRIDE_CID;
     res = comp_reg->RegisterFactory(certoverride_cid,
                                     "PSM Cert Override Settings Service",
                                     "@mozilla.org/security/certoverride;1",
                                     certoverride_factory);
-    */
+
 
     // set up some history file (which appears to be
     // required for downloads to work properly, even if we
@@ -2054,8 +2061,8 @@ bool GeckoEngine::Init()
     */
     // replace the old plugin directory enumerator with our own
     // but keep all the entries that were in there
-    /* FIXME implement later
-    nsCOMPtr<nsISimpleEnumerator> plugin_enum;
+    // FIXME implement later
+    /*nsCOMPtr<nsISimpleEnumerator> plugin_enum;
     res = dir_service_props->Get("APluginsDL", NS_GET_IID(nsISimpleEnumerator), getter_AddRefs(plugin_enum));
     if (NS_FAILED(res) || !plugin_enum)
         return false;
