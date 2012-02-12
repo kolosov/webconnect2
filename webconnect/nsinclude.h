@@ -36,10 +36,12 @@
 #include "nsComponentManagerUtils.h"
 #include "nsServiceManagerUtils.h"
 #include "nsDirectoryServiceUtils.h"
+#include "nsIDirectoryService.h"
 #include "nsNetUtil.h" // NS_NewURI()
 #include "nsIComponentManager.h"
 #include "nsEmbedCID.h"
 
+#include "nsIFile.h"
 #include "nsAppDirectoryServiceDefs.h"
 
 #include "nsIPromptService2.h"
@@ -84,6 +86,7 @@
 #include "nsIConsoleService.h"
 #include "nsIDOMDocument.h"
 #include "nsIDOMEventListener.h"
+#include "nsIDocShell.h"
 #include "nsIDocShellTreeItem.h"
 #include "nsIDOMEventTarget.h"
 
@@ -140,10 +143,12 @@
 
 #include "nsutils.h"
 #include "nsIComponentRegistrar.h"
+#include "nsICancelable.h"
 #include "nsIWebBrowserPersist.h"
 #include "nsICacheService.h"
 #include "nsIPrintSettingsService.h"
 #include "nsIPrintSettings.h"
+#include "nsIContentViewer.h"
 #include "nsIWebBrowserPrint.h"
 #include "nsEvent.h"
 #include "nsIScriptSecurityManager.h"

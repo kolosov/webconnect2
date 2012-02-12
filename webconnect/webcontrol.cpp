@@ -69,7 +69,6 @@ XRE_NotifyProfileType XRE_NotifyProfile = 0;
 XRE_LockProfileDirectoryType XRE_LockProfileDirectory = 0;
 
 nsCOMPtr<nsILocalFile> prof_dir;
-nsISupports * sProfileLock = 0;
 
 //Directory service provider
 nsIDirectoryServiceProvider *sAppFileLocProvider = 0;
@@ -154,7 +153,8 @@ struct EmbeddingPtrs
     nsCOMPtr<nsIDOMEventTarget> m_event_target;
     nsCOMPtr<nsIClipboardCommands> m_clipboard_commands;
     
-    nsCOMPtr<nsISupports> m_print_settings;
+    //nsCOMPtr<nsISupports> m_print_settings;
+    nsCOMPtr<nsIPrintSettings> m_print_settings;
 };
 
 
@@ -1924,18 +1924,12 @@ bool GeckoEngine::Init()
     if (NS_FAILED(res))
             return false;
 
-    // Lock profile directory
-    if (prof_dir && !sProfileLock) {
-        res = XRE_LockProfileDirectory(prof_dir, &sProfileLock);
-        if (NS_FAILED(res)) return res;
-    }
-
     // init embedding
 #if MOZILLA_VERSION_1 < 2
     const nsStaticModuleInfo* aComps = 0;
     int aNumComps = 0;
 
-#if MOZILLA_VERSION_1 == 1 && MOZILLA_VERSION_2 == 9 && MOZILLA_VERSION_3 == 2
+#if MOZILLA_VERSION_1 == 1 && MOZILLA_VERSION_2 == 9 && (MOZILLA_VERSION_3 == 2 || MOZILLA_VERSION_3 == 0)//FIXME
     res = XRE_InitEmbedding(gre_dir, prof_dir,
     		nsnull,aComps, aNumComps);
 #else
@@ -2061,13 +2055,12 @@ bool GeckoEngine::Init()
     */
     // replace the old plugin directory enumerator with our own
     // but keep all the entries that were in there
-    // FIXME implement later
-    /*nsCOMPtr<nsISimpleEnumerator> plugin_enum;
+    nsCOMPtr<nsISimpleEnumerator> plugin_enum;
     res = dir_service_props->Get("APluginsDL", NS_GET_IID(nsISimpleEnumerator), getter_AddRefs(plugin_enum));
     if (NS_FAILED(res) || !plugin_enum)
         return false;
-    
-    m_plugin_provider->AddPaths(getter_AddRefs(plugin_enum));
+    // FIXME implement later
+    /*m_plugin_provider->AddPaths(getter_AddRefs(plugin_enum));
     res = dir_service->RegisterProvider(m_plugin_provider);
     if (NS_FAILED(res) || !plugin_enum)
         return false;
@@ -2982,7 +2975,7 @@ bool wxWebControl::ClearCache()
 
 void wxWebControl::FetchFavIcon(void* _uri)
 {
-#if MOZILLA_VERSION_1 < 12
+#if MOZILLA_VERSION_1 < 1
 	return;//FIXME implement later (BUG in calling create instance nsiwebbrowserpersist)
 #else
 	if (m_favicon_fetched)
@@ -3007,11 +3000,11 @@ void wxWebControl::FetchFavIcon(void* _uri)
 
     wxString extension = spec.AfterLast(L'.');
     extension = extension.Left(4);
-    if (extension.IsEmpty())
-        extension = L"tmp";
+    //if (extension.IsEmpty()) extension = L"tmp";
+	if (extension.IsEmpty()) extension = wxT("tmp");
     extension.MakeLower();
-    
-    wxString filename = wxFileName::CreateTempFileName(L"fav");
+    //wxString filename = wxFileName::CreateTempFileName(L"fav");
+	wxString filename = wxFileName::CreateTempFileName(wxT("fav"));
     filename += wxT(".");
     filename += extension;
     nsCOMPtr<nsILocalFile> file = nsNewLocalFile(filename);
@@ -3294,23 +3287,23 @@ wxString wxWebControl::GetCurrentLoadURI()
 
 void wxWebControl::InitPrintSettings()
 {
-	//FIXME
- /*   if (!m_ptrs->m_print_settings)
+    nsresult rv;
+	if (!m_ptrs->m_print_settings)
     {
-        nsCOMPtr<nsIPrintSettingsService> print_settings_service;
-        print_settings_service = nsGetService("@mozilla.org/gfx/printsettings-service;1");
+    	nsCOMPtr<nsIPrintSettingsService> print_settings_service;
+        print_settings_service = do_GetService("@mozilla.org/gfx/printsettings-service;1");
         if (print_settings_service)
         {
             nsCOMPtr<nsIPrintSettings> print_settings;
             
-            print_settings_service->GetGlobalPrintSettings(getter_AddRefs(print_settings));
+            rv = print_settings_service->GetGlobalPrintSettings(getter_AddRefs(print_settings));
 
             PRUnichar* printer_name = NULL;
-            print_settings_service->GetDefaultPrinterName(&printer_name);
+            rv = print_settings_service->GetDefaultPrinterName(&printer_name);
             if (printer_name)
-                print_settings_service->InitPrintSettingsFromPrinter(printer_name, print_settings);
+                rv = print_settings_service->InitPrintSettingsFromPrinter(printer_name, print_settings);
                 
-            print_settings_service->InitPrintSettingsFromPrefs(print_settings, 
+            rv = print_settings_service->InitPrintSettingsFromPrefs(print_settings,
                                                              PR_TRUE, 
                                                              nsIPrintSettings::kInitSaveAll);
                                                              
@@ -3318,19 +3311,18 @@ void wxWebControl::InitPrintSettings()
         }
          else
         {
-            nsCOMPtr<nsIWebBrowserPrint> web_browser_print = nsRequestInterface(m_ptrs->m_web_browser);
+            nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
             if (!web_browser_print)
             {
                 wxASSERT(0);
                 return;
             }
 
-            nsCOMPtr<nsISupports> supports;
-            web_browser_print->GetGlobalPrintSettings((nsIPrintSettings**)&supports.p);
+            nsCOMPtr<nsIPrintSettings> supports;
+            rv = web_browser_print->GetGlobalPrintSettings(getter_AddRefs(supports));
             m_ptrs->m_print_settings = supports;
         }
     }
-    */
 }
 
 // (METHOD) wxWebControl::Print
@@ -3344,8 +3336,7 @@ void wxWebControl::InitPrintSettings()
 
 void wxWebControl::Print(bool silent)
 {
-    // get the nsIWebBrowserPrint interface
-    nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_QueryInterface(m_ptrs->m_web_browser);
+    nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
     {
         wxASSERT(0);
@@ -3353,6 +3344,13 @@ void wxWebControl::Print(bool silent)
     }
     
     InitPrintSettings();
+    nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
+    if (settings19)
+    {
+        settings19->SetShowPrintProgress(PR_FALSE);
+        settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
+        web_browser_print->Print(settings19, NULL);
+    }
 #if MOZILLA_VERSION_1 < 1
     nsCOMPtr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
     if (settings18)
@@ -3390,15 +3388,13 @@ void wxWebControl::SetPageSettings(double page_width, double page_height,
                                    double left_margin, double right_margin, 
                                    double top_margin, double bottom_margin)
 {
-    // get the nsIWebBrowserPrint interface
-    nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_QueryInterface(m_ptrs->m_web_browser);
+	nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
     {
         wxASSERT(0);
         return;
     }
 
-    
     InitPrintSettings();
     
 #if MOZILLA_VERSION_1 < 1
@@ -3425,7 +3421,6 @@ void wxWebControl::SetPageSettings(double page_width, double page_height,
         settings18->SetMarginBottom(bottom_margin);
     }
 #endif
-    /* FIXME
     nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
     {
@@ -3448,7 +3443,6 @@ void wxWebControl::SetPageSettings(double page_width, double page_height,
         settings19->SetMarginTop(top_margin);
         settings19->SetMarginBottom(bottom_margin);
     }
-    */
 }
 
 // (METHOD) wxWebControl::GetPageSettings
@@ -3466,8 +3460,7 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
                                    double* left_margin, double* right_margin, 
                                    double* top_margin, double* bottom_margin)
 {
-    // get the nsIWebBrowserPrint interface
-    nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_QueryInterface(m_ptrs->m_web_browser);
+	nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
     {
         wxASSERT(0);
@@ -3500,7 +3493,6 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
         }
     }
 #endif
-   /*
     nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
     {
@@ -3522,7 +3514,6 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
             *page_height = t;
         }
     }
-    */
 }
 
 // (METHOD) wxWebControl::ViewSource
