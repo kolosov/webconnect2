@@ -1493,85 +1493,99 @@ NS_INTERFACE_MAP_END
 ///////////////////////////////////////////////////////////////////////////////
 
 
-class WindowCreator : public nsIWindowCreator
+class WindowCreator : public nsIWindowCreator2
 
 {
 public:
-
-    NS_DECL_ISUPPORTS
-
     WindowCreator()
     {
-        NS_INIT_ISUPPORTS();
+        //NS_INIT_ISUPPORTS();
     }
     
-    virtual ~WindowCreator()
+    //virtual ~WindowCreator()
+    ~WindowCreator()
     {
     }
     
-    NS_IMETHODIMP CreateChromeWindow(nsIWebBrowserChrome* parent,
-                                     PRUint32 chrome_flags,
-                                     nsIWebBrowserChrome** retval)
-    {
-        wxWebControl* web_control = GetWebControlFromBrowserChrome(parent);
-        if (!web_control)
-        {
-            // no web control, so we can't create a new window
-            // (this shouldn't happen)
-            return NS_ERROR_FAILURE;
-        }
-        
-        int wx_chrome_flags = 0;
-        
-        
-        // TODO: add more flags as necessary
-        if (chrome_flags & nsIWebBrowserChrome::CHROME_MODAL)
-            wx_chrome_flags |= wxWEB_CHROME_MODAL;
-        if (chrome_flags & nsIWebBrowserChrome::CHROME_WINDOW_RESIZE)
-            wx_chrome_flags |= wxWEB_CHROME_RESIZABLE;
-        if (chrome_flags & nsIWebBrowserChrome::CHROME_CENTER_SCREEN)
-            wx_chrome_flags |= wxWEB_CHROME_CENTER;
-        
-        
-        
-        wxWebEvent evt(wxEVT_WEB_CREATEBROWSER, web_control->GetId());
-        evt.SetEventObject(web_control);
-        evt.SetCreateChromeFlags(wx_chrome_flags);
-        web_control->GetEventHandler()->ProcessEvent(evt);
-
-        if (!evt.IsAllowed())
-        {
-            // owner blocked creation of new browser
-            // window with a veto
-            return NS_ERROR_FAILURE;
-        }
-        
-        if (evt.m_create_browser)
-        {
-            // owner supplied its own window
-            *retval = static_cast<nsIWebBrowserChrome*>(evt.m_create_browser->m_chrome);
-            NS_ADDREF(*retval);
-            
-            return NS_OK;
-        }
-         else
-        {
-            // owner did nothing, so we'll create our own window
-            wxWebFrame* frame = new wxWebFrame(NULL, -1, wxT(""), wxPoint(50, 50), wxSize(550, 500));
-            wxWebControl* ctrl = frame->GetWebControl();
-            frame->Show(true);
-
-            *retval = static_cast<nsIWebBrowserChrome*>(ctrl->m_chrome);
-            NS_ADDREF(*retval);
-        }
-        
-        return NS_OK;
-    }
+    NS_DECL_ISUPPORTS
+    NS_DECL_NSIWINDOWCREATOR
+    NS_DECL_NSIWINDOWCREATOR2
 };
 
+NS_IMPL_ISUPPORTS2(WindowCreator, nsIWindowCreator, nsIWindowCreator2)
+//NS_IMPL_ISUPPORTS1(WindowCreator, nsIWindowCreator)
 
-NS_IMPL_ISUPPORTS1(WindowCreator, nsIWindowCreator)
 
+NS_IMETHODIMP
+WindowCreator::CreateChromeWindow(nsIWebBrowserChrome* parent,
+                                 PRUint32 chrome_flags,
+                                 nsIWebBrowserChrome** retval)
+{
+    return NS_OK;
+	wxWebControl* web_control = GetWebControlFromBrowserChrome(parent);
+    if (!web_control)
+    {
+        // no web control, so we can't create a new window
+        // (this shouldn't happen)
+        return NS_ERROR_FAILURE;
+    }
+
+    int wx_chrome_flags = 0;
+
+
+    // TODO: add more flags as necessary
+    if (chrome_flags & nsIWebBrowserChrome::CHROME_MODAL)
+        wx_chrome_flags |= wxWEB_CHROME_MODAL;
+    if (chrome_flags & nsIWebBrowserChrome::CHROME_WINDOW_RESIZE)
+        wx_chrome_flags |= wxWEB_CHROME_RESIZABLE;
+    if (chrome_flags & nsIWebBrowserChrome::CHROME_CENTER_SCREEN)
+        wx_chrome_flags |= wxWEB_CHROME_CENTER;
+
+
+
+    wxWebEvent evt(wxEVT_WEB_CREATEBROWSER, web_control->GetId());
+    evt.SetEventObject(web_control);
+    evt.SetCreateChromeFlags(wx_chrome_flags);
+    web_control->GetEventHandler()->ProcessEvent(evt);
+
+    if (!evt.IsAllowed())
+    {
+        // owner blocked creation of new browser
+        // window with a veto
+        return NS_ERROR_FAILURE;
+    }
+
+    if (evt.m_create_browser)
+    {
+        // owner supplied its own window
+        *retval = static_cast<nsIWebBrowserChrome*>(evt.m_create_browser->m_chrome);
+        NS_ADDREF(*retval);
+
+        return NS_OK;
+    }
+     else
+    {
+        // owner did nothing, so we'll create our own window
+        wxWebFrame* frame = new wxWebFrame(NULL, -1, wxT(""), wxPoint(50, 50), wxSize(550, 500));
+        wxWebControl* ctrl = frame->GetWebControl();
+        frame->Show(true);
+
+        *retval = static_cast<nsIWebBrowserChrome*>(ctrl->m_chrome);
+        NS_ADDREF(*retval);
+    }
+
+    return NS_OK;
+}
+
+NS_IMETHODIMP
+WindowCreator::CreateChromeWindow2(nsIWebBrowserChrome *aParent,
+                                   PRUint32 aChromeFlags,
+                                   PRUint32 ,
+                                   nsIURI * , PRBool * ,
+                                   nsIWebBrowserChrome **_retval)
+{
+    return CreateChromeWindow(aParent, aChromeFlags, _retval);
+}
 
 
 
@@ -1947,12 +1961,14 @@ bool GeckoEngine::Init()
 
     NS_LogTerm();
     
-    // set the window creator    
-    nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
+    // set the window creator
+    //nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
+    nsCOMPtr<nsIWindowWatcher> window_watcher(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
     if (!window_watcher)
         return false;
         
-    nsCOMPtr<nsIWindowCreator> wnd_creator = static_cast<nsIWindowCreator*>(new WindowCreator);
+    //nsCOMPtr<nsIWindowCreator> wnd_creator = static_cast<nsIWindowCreator*>(new WindowCreator);
+    nsCOMPtr<WindowCreator> wnd_creator = new WindowCreator();
     window_watcher->SetWindowCreator(wnd_creator);
 
 
@@ -1969,7 +1985,8 @@ bool GeckoEngine::Init()
     nsCID prompt_cid = NS_PROMPTSERVICE_CID;
     res = comp_reg->RegisterFactory(prompt_cid,
                                     "Prompt Service",
-                                    "@mozilla.org/embedcomp/prompt-service;1",
+                                    NS_PROMPTSERVICE_CONTRACTID,
+                                    //"@mozilla.org/embedcomp/prompt-service;1",
                                     prompt_factory);
 
     //prompt_factory.clear();
