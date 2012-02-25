@@ -157,7 +157,6 @@
 #include "nsISupportsUtils.h"
 #include "nsIWeakReference.h"
 #include "nsIWeakReferenceUtils.h"
-#include "nsWeakReference.h"
 #include "nsISupportsImpl.h"
 
 //definition function
