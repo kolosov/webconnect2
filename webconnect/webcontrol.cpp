@@ -68,7 +68,7 @@ XRE_TermEmbeddingType XRE_TermEmbedding = 0;
 XRE_NotifyProfileType XRE_NotifyProfile = 0;
 XRE_LockProfileDirectoryType XRE_LockProfileDirectory = 0;
 
-nsCOMPtr<nsILocalFile> prof_dir;
+nsCOMPtr<nsILocalFile> prof_dir = 0;
 
 //Directory service provider
 nsIDirectoryServiceProvider *sAppFileLocProvider = 0;
@@ -202,6 +202,7 @@ private:
     ContentListenerPtrArray m_content_listeners;
     nsCOMPtr<nsIAppShell> m_appshell;
     PluginListProvider* m_plugin_provider;
+    friend class WindowCreator;
 };
 
 
@@ -1521,7 +1522,6 @@ WindowCreator::CreateChromeWindow(nsIWebBrowserChrome* parent,
                                  PRUint32 chrome_flags,
                                  nsIWebBrowserChrome** retval)
 {
-    return NS_OK;
 	wxWebControl* web_control = GetWebControlFromBrowserChrome(parent);
     if (!web_control)
     {
@@ -1943,13 +1943,9 @@ bool GeckoEngine::Init()
     const nsStaticModuleInfo* aComps = 0;
     int aNumComps = 0;
 
-#if MOZILLA_VERSION_1 == 1 && MOZILLA_VERSION_2 == 9 && (MOZILLA_VERSION_3 == 2 || MOZILLA_VERSION_3 == 0)//FIXME
-    res = XRE_InitEmbedding(gre_dir, prof_dir,
-    		nsnull,aComps, aNumComps);
-#else
 	res = XRE_InitEmbedding(gre_dir, prof_dir,    		
 			const_cast<wxDirSrvProvider*>(&DirectoryProvider),aComps, aNumComps);
-#endif    
+
 #else
     res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));
     //res = XRE_InitEmbedding2(gre_dir, prof_dir,
@@ -1962,13 +1958,15 @@ bool GeckoEngine::Init()
     NS_LogTerm();
     
     // set the window creator
-    //nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
-    nsCOMPtr<nsIWindowWatcher> window_watcher(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
-    if (!window_watcher)
-        return false;
-        
     //nsCOMPtr<nsIWindowCreator> wnd_creator = static_cast<nsIWindowCreator*>(new WindowCreator);
     nsCOMPtr<WindowCreator> wnd_creator = new WindowCreator();
+
+    //set window watcher
+    nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
+    //nsCOMPtr<nsIWindowWatcher> window_watcher(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+    if (!window_watcher)
+        return false;
+
     window_watcher->SetWindowCreator(wnd_creator);
 
 
@@ -3308,7 +3306,18 @@ void wxWebControl::InitPrintSettings()
 	if (!m_ptrs->m_print_settings)
     {
     	nsCOMPtr<nsIPrintSettingsService> print_settings_service;
-        print_settings_service = do_GetService("@mozilla.org/gfx/printsettings-service;1");
+    	//print_settings_service = do_GetService("@mozilla.org/gfx/printsettings-service;1");
+        nsCOMPtr<nsIServiceManager> service_mgr;
+
+        rv = NS_GetServiceManager(getter_AddRefs(service_mgr));
+        if (NS_FAILED(rv))
+            return;
+
+        nsIID iid = NS_PRINTSETTINGSSERVICE_IID;
+        service_mgr->GetServiceByContractID("@mozilla.org/gfx/printsettings-service;1",
+                                            iid,
+                                            getter_AddRefs(print_settings_service));
+
         if (print_settings_service)
         {
             nsCOMPtr<nsIPrintSettings> print_settings;
