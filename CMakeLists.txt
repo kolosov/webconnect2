@@ -48,4 +48,5 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 add_subdirectory (webconnect)
 add_subdirectory (testapp)
+add_subdirectory (moz)
 
