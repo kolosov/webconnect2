@@ -99,8 +99,13 @@ wxDirSrvProvider::Release()
 }
 
 NS_IMETHODIMP
-wxDirSrvProvider::GetFile(const char *aKey, PRBool *aPersist,
-                                   nsIFile* *aResult)
+wxDirSrvProvider::GetFile(const char *aKey,
+#if MOZILLA_VERSION_1 >= 10
+		bool *aPersist,
+#else
+		PRBool *aPersist,
+#endif
+		nsIFile* *aResult)
 {
     if (sAppFileLocProvider) {
         nsresult rv = sAppFileLocProvider->GetFile(aKey, aPersist, aResult);
@@ -109,17 +114,29 @@ wxDirSrvProvider::GetFile(const char *aKey, PRBool *aPersist,
     }
 
     if (prof_dir && !strcmp(aKey, NS_APP_USER_PROFILE_50_DIR)) {
+#if MOZILLA_VERSION_1 >= 10
+        *aPersist = true;
+#else
         *aPersist = PR_TRUE;
+#endif
         return prof_dir->Clone(aResult);
     }
 
     if (prof_dir && !strcmp(aKey, NS_APP_PROFILE_DIR_STARTUP)) {
+#if MOZILLA_VERSION_1 >= 10
+        *aPersist = true;
+#else
         *aPersist = PR_TRUE;
+#endif
         return prof_dir->Clone(aResult);
     }
 
     if (prof_dir && !strcmp(aKey, NS_APP_CACHE_PARENT_DIR)) {
+#if MOZILLA_VERSION_1 >= 10
+        *aPersist = true;
+#else
         *aPersist = PR_TRUE;
+#endif
         return prof_dir->Clone(aResult);
     }
 
@@ -1583,7 +1600,12 @@ NS_IMETHODIMP
 WindowCreator::CreateChromeWindow2(nsIWebBrowserChrome *aParent,
                                    PRUint32 aChromeFlags,
                                    PRUint32 ,
-                                   nsIURI * , PRBool * ,
+                                   nsIURI * ,
+#if MOZILLA_VERSION_1 >=10
+                                   bool * ,
+#else
+                                   PRBool * ,
+#endif
                                    nsIWebBrowserChrome **_retval)
 {
     return CreateChromeWindow(aParent, aChromeFlags, _retval);
@@ -1931,12 +1953,20 @@ bool GeckoEngine::Init()
 
 
     nsCOMPtr<nsILocalFile> gre_dir;
+#if MOZILLA_VERSION_1 >=10
+    res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), true, getter_AddRefs(gre_dir));
+#else
     res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), PR_TRUE, getter_AddRefs(gre_dir));
+#endif
     if (NS_FAILED(res))
          return false;
 
     //nsCOMPtr<nsILocalFile> prof_dir;
+#if MOZILLA_VERSION_1 >=10
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), true, getter_AddRefs(prof_dir));
+#else
     res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), PR_TRUE, getter_AddRefs(prof_dir));
+#endif
     if (NS_FAILED(res))
             return false;
 
