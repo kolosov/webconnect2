@@ -37,6 +37,7 @@ class MyFrame : public wxFrame
         ID_Close,
         ID_SaveAs,
         ID_PageSetup,
+        ID_PrintPreview,
         ID_Print,
         ID_Exit,
         
@@ -92,6 +93,7 @@ private:
     void OnClose(wxCommandEvent& evt);
     void OnSaveAs(wxCommandEvent& evt);
     void OnPageSetup(wxCommandEvent& evt);
+    void OnPrintPreview(wxCommandEvent& evt);
     void OnPrint(wxCommandEvent& evt);
     void OnExit(wxCommandEvent& evt);
 
@@ -268,6 +270,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(ID_Close, MyFrame::OnClose)
     EVT_MENU(ID_SaveAs, MyFrame::OnSaveAs)
     EVT_MENU(ID_PageSetup, MyFrame::OnPageSetup)
+    //EVT_MENU(ID_PrintPreview, MyFrame::OnPrintPreview)
     EVT_MENU(ID_Print, MyFrame::OnPrint)
     EVT_MENU(ID_Exit, MyFrame::OnExit)
     EVT_MENU(ID_Cut, MyFrame::OnCut)
@@ -344,6 +347,7 @@ MyFrame::MyFrame(wxWindow* parent,
     file_menu->Append(ID_SaveAs, _("&Save As...\tCtrl+S"));
     file_menu->AppendSeparator();
     file_menu->Append(ID_PageSetup, _("Page Set&up..."));
+    //file_menu->Append(ID_PrintPreview, _("Print pre&view..."));
     file_menu->Append(ID_Print, _("&Print...\tCtrl+P"));
     file_menu->AppendSeparator();
     file_menu->Append(ID_Exit, _("E&xit"));
@@ -592,9 +596,14 @@ void MyFrame::OnPageSetup(wxCommandEvent& evt)
                                left_margin, right_margin, top_margin, bottom_margin);    
 }
 
+void MyFrame::OnPrintPreview(wxCommandEvent& evt)
+{
+	m_browser->PrintPreview();
+}
+
 void MyFrame::OnPrint(wxCommandEvent& evt)
 {
-    m_browser->Print();
+	m_browser->Print();
 }
 
 void MyFrame::OnExit(wxCommandEvent& evt)

@@ -552,6 +552,8 @@ NS_IMETHODIMP BrowserChrome::SetTitle(const PRUnichar* title)
         m_dialog->SetTitle(ns2wx(title));
         return NS_OK;
     }
+    //debug
+    int win_id = m_wnd->GetId();
       
     wxWebEvent evt(wxEVT_WEB_TITLECHANGE, m_wnd->GetId());
     evt.SetEventObject(m_wnd);
@@ -2406,7 +2408,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     m_ok = false;
     m_content_loaded = true;
 
-
     m_favicon_progress = NULL;
 
     m_ptrs = new EmbeddingPtrs;
@@ -3180,7 +3181,7 @@ void wxWebControl::OpenURI(const wxString& uri,
 
 
     nsCOMPtr<nsIWebBrowserFocus> focus;// = nsRequestInterface(m_ptrs->m_web_browser);
-    focus = (do_QueryInterface(m_ptrs->m_web_browser));
+    focus = do_QueryInterface(m_ptrs->m_web_browser);
     if (!focus)
         return;
 
@@ -3351,6 +3352,58 @@ void wxWebControl::InitPrintSettings()
     }
 }
 
+// (METHOD) wxWebControl::PrintPreview
+// Description:
+//
+// Syntax: void wxWebControl::PrintPreview(bool silent)
+//
+// Remarks:
+//
+// Returns:
+
+void wxWebControl::PrintPreview(bool silent)
+{
+    return;
+	//TODO implement
+	nsresult rv;
+	nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
+    if (!web_browser_print)
+    {
+        wxASSERT(0);
+        return;
+    }
+
+    InitPrintSettings();
+
+    nsCOMPtr<nsIDOMWindow> dom_window;
+    rv = m_ptrs->m_web_browser->GetContentDOMWindow(getter_AddRefs(dom_window));
+    if (!dom_window) return;
+
+    nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
+    if (settings19)
+    {
+        settings19->SetShowPrintProgress(PR_FALSE);
+        settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
+        //web_browser_print->Print(settings19, NULL);
+
+        //web_browser_print->PrintPreview(settings19,dom_window,m_chrome);
+        web_browser_print->PrintPreviewNavigate(nsnull,nsnull);
+    }
+#if MOZILLA_VERSION_1 < 1
+    nsCOMPtr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
+    if (settings18)
+    {
+        settings18->SetShowPrintProgress(PR_FALSE);
+        settings18->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
+
+        nsCOMPtr<nsIWebBrowserPrint18> web_browser_print = nsRequestInterface(m_ptrs->m_web_browser);
+        web_browser_print->Print(settings18.p, NULL);
+    }
+#endif
+
+}
+
+
 // (METHOD) wxWebControl::Print
 // Description:
 //
@@ -3492,7 +3545,6 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
         wxASSERT(0);
         return;
     }
-
 
     InitPrintSettings();
 

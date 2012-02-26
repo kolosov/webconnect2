@@ -400,6 +400,7 @@ public:
     bool Execute(const wxString& js_code);
     
     // printing
+    void PrintPreview(bool silent = false);
     void Print(bool silent = false);
     void SetPageSettings(double page_width, double page_height,
                          double left_margin, double right_margin, double top_margin, double bottom_margin);
