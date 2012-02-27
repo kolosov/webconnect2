@@ -2,7 +2,7 @@
 // Name:        promptservice.h
 // Purpose:     wxwebconnect: embedded web browser control library
 // Author:      Benjamin I. Williams
-// Modified by:
+// Modified by: Sergey Kolosov
 // Created:     2006-10-07
 // RCS-ID:      
 // Copyright:   (C) Copyright 2006-2010, Kirix Corporation, All Rights Reserved.
