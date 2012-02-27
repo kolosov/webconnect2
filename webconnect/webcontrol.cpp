@@ -3393,8 +3393,8 @@ void wxWebControl::InitPrintSettings()
 
 void wxWebControl::PrintPreview(bool silent)
 {
-    return;
-	//TODO implement
+    return; //TODO implement
+
 	nsresult rv;
 	nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
@@ -3414,22 +3414,9 @@ void wxWebControl::PrintPreview(bool silent)
     {
         settings19->SetShowPrintProgress(PR_FALSE);
         settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
-        //web_browser_print->Print(settings19, NULL);
-
         //web_browser_print->PrintPreview(settings19,dom_window,m_chrome);
         web_browser_print->PrintPreviewNavigate(nsnull,nsnull);
     }
-#if MOZILLA_VERSION_1 < 1
-    nsCOMPtr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
-    if (settings18)
-    {
-        settings18->SetShowPrintProgress(PR_FALSE);
-        settings18->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
-
-        nsCOMPtr<nsIWebBrowserPrint18> web_browser_print = nsRequestInterface(m_ptrs->m_web_browser);
-        web_browser_print->Print(settings18.p, NULL);
-    }
-#endif
 
 }
 
