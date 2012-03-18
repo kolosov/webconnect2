@@ -69,6 +69,7 @@ XRE_NotifyProfileType XRE_NotifyProfile = 0;
 XRE_LockProfileDirectoryType XRE_LockProfileDirectory = 0;
 
 nsCOMPtr<nsILocalFile> prof_dir = 0;
+nsISupports * prof_lock = 0;
 
 //Directory service provider
 nsIDirectoryServiceProvider *sAppFileLocProvider = 0;
@@ -356,6 +357,8 @@ BrowserChrome::~BrowserChrome()
 void BrowserChrome::ChromeInit()
 {
     nsresult res;
+	//FIXME
+	return;
 
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("mousedown"),
@@ -1970,6 +1973,19 @@ bool GeckoEngine::Init()
     if (NS_FAILED(res))
             return false;
 
+	// create dir if needed
+    PRBool dirExists;
+    res = prof_dir->Exists(&dirExists);
+    if (NS_FAILED(res)) return false;
+    if (!dirExists) {
+        prof_dir->Create(nsIFile::DIRECTORY_TYPE, 0700);
+    }
+
+    // Lock profile directory
+    if (prof_dir && !prof_lock) {
+        res = XRE_LockProfileDirectory(prof_dir, &prof_lock);
+        if (NS_FAILED(res)) return false;
+    }
     // init embedding
 #if MOZILLA_VERSION_1 < 2
     const nsStaticModuleInfo* aComps = 0;
@@ -1992,10 +2008,12 @@ bool GeckoEngine::Init()
     // set the window creator
     //nsCOMPtr<nsIWindowCreator> wnd_creator = static_cast<nsIWindowCreator*>(new WindowCreator);
     nsCOMPtr<WindowCreator> wnd_creator = new WindowCreator();
+    if (!wnd_creator)
+        return false;
 
     //set window watcher
-    nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
-    //nsCOMPtr<nsIWindowWatcher> window_watcher(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+    //nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
+    nsCOMPtr<nsIWindowWatcher> window_watcher(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
     if (!window_watcher)
         return false;
 
@@ -2003,7 +2021,7 @@ bool GeckoEngine::Init()
 
 
     // set up our own custom prompting service
-    
+  /*  
     nsCOMPtr<nsIComponentRegistrar> comp_reg;
     res = NS_GetComponentRegistrar(getter_AddRefs(comp_reg));
     if (NS_FAILED(res))
@@ -2066,13 +2084,13 @@ bool GeckoEngine::Init()
                                     "@mozilla.org/security/certoverride;1",
                                     certoverride_factory);
 
-
+*/
     // set up some history file (which appears to be
     // required for downloads to work properly, even if we
     // don't store any history entries)
 
     //nsCOMPtr<nsIDirectoryService> dir_service = nsGetDirectoryService();
-    nsCOMPtr<nsIProperties> dir_service_props = nsGetDirectoryService();
+    //nsCOMPtr<nsIProperties> dir_service_props = nsGetDirectoryService();
     
     /*nsCOMPtr<nsILocalFile> history_file;
 
@@ -2102,10 +2120,10 @@ bool GeckoEngine::Init()
     */
     // replace the old plugin directory enumerator with our own
     // but keep all the entries that were in there
-    nsCOMPtr<nsISimpleEnumerator> plugin_enum;
+    /*nsCOMPtr<nsISimpleEnumerator> plugin_enum;
     res = dir_service_props->Get("APluginsDL", NS_GET_IID(nsISimpleEnumerator), getter_AddRefs(plugin_enum));
     if (NS_FAILED(res) || !plugin_enum)
-        return false;
+        return false;*/
     // FIXME implement later
     /*m_plugin_provider->AddPaths(getter_AddRefs(plugin_enum));
     res = dir_service->RegisterProvider(m_plugin_provider);
@@ -2485,7 +2503,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     #endif
 
     wxSize cli_size = GetClientSize();
-    res = m_ptrs->m_base_window->InitWindow(native_handle,
+    res = m_ptrs->m_base_window->InitWindow(nsNativeWidget(native_handle),
                                             nsnull,
                                             0, 0,
                                             cli_size.x, cli_size.y);
@@ -2495,17 +2513,22 @@ wxWebControl::wxWebControl(wxWindow* parent,
         return;
     }
 
-
-	chrome->m_web_browser = m_ptrs->m_web_browser;
+	//chrome->m_web_browser = m_ptrs->m_web_browser;
 	
     // create browser chrome
     res = m_ptrs->m_web_browser->SetContainerWindow(static_cast<nsIWebBrowserChrome*>(m_chrome));
+	if(NS_FAILED(res)) {
+		wxASSERT(0);
+		return;
+	}
+	chrome->SetWebBrowser(m_ptrs->m_web_browser);
 
     // set the type to contentWrapper
-    nsCOMPtr<nsIDocShellTreeItem> dsti = do_QueryInterface(m_ptrs->m_web_browser);
+    //nsCOMPtr<nsIDocShellTreeItem> dsti = do_QueryInterface(m_ptrs->m_web_browser);
+	nsCOMPtr<nsIDocShellTreeItem> dsti (do_QueryInterface(m_ptrs->m_base_window));
     if (dsti)
     {
-        dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
+        dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);		
     }
 #if MOZILLA_VERSION_1 < 1
      else
@@ -2520,22 +2543,38 @@ wxWebControl::wxWebControl(wxWindow* parent,
         dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
     }
 #endif
-    
-      
+          
     res = m_ptrs->m_base_window->Create();
     if (NS_FAILED(res))
     {
         wxASSERT(0);
         return;
     }
-    
+    // show the browser component
+    res = m_ptrs->m_base_window->SetVisibility(PR_TRUE);
+	if (NS_FAILED(res))
+    {
+        wxASSERT(0);
+        return;
+    }
+	
+	nsCOMPtr<nsIDOMWindow> dom_window;
+    res = m_ptrs->m_web_browser->GetContentDOMWindow(getter_AddRefs(dom_window));
+    if (!dom_window)
+    {
+        wxASSERT(0);
+        return;
+    }
     // set our web progress listener
 
+	// register the progress listener
+    nsCOMPtr<nsIWebProgressListener> listener = do_QueryInterface(static_cast<nsIWebBrowserChrome*>(m_chrome));
+    nsCOMPtr<nsIWeakReference> thisListener(do_GetWeakReference(listener));
+    m_ptrs->m_web_browser->AddWebBrowserListener(thisListener, NS_GET_IID(nsIWebProgressListener));
+	/*
     nsIWeakReference* weak = NS_GetWeakReference((nsIWebProgressListener*)m_chrome);
     res = m_ptrs->m_web_browser->AddWebBrowserListener(weak, NS_GET_IID(nsIWebProgressListener));
-    weak->Release();
-
-    
+    weak->Release();*/
 
     // set our URI content listener
 
@@ -2544,14 +2583,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     res = m_ptrs->m_web_browser->SetParentURIContentListener(static_cast<nsIURIContentListener*>(m_main_uri_listener));
 
     // get the event target
-
-    nsCOMPtr<nsIDOMWindow> dom_window;
-    res = m_ptrs->m_web_browser->GetContentDOMWindow(getter_AddRefs(dom_window));
-    if (!dom_window)
-    {
-        wxASSERT(0);
-        return;
-    }
     
 #if MOZILLA_VERSION_1 < 7
     //nsCOMPtr<nsIDOMWindow2> dom_window2 = static_cast<nsIDOMWindow2>(dom_window);
@@ -2560,7 +2591,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     nsCOMPtr<nsIDOMWindow2> dom_window2 = do_QueryInterface(dom_window);
 
 #else
-    nsCOMPtr<nsIDOMWindow> dom_window2(dom_window);
+    nsCOMPtr<nsIDOMWindow> dom_window2 = do_QueryInterface(dom_window);
 #endif
     if (dom_window2)
     {
@@ -2573,15 +2604,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     }
      else
     {
-#if MOZILLA_VERSION_1 < 1
-        // 1.8.x support
-        nsCOMPtr<ns18IDOMWindow2> dom_window2(dom_window);
-        if (!dom_window2)
-        {
-            wxASSERT(0);
-            return;
-        }
-#endif
         res = dom_window2->GetWindowRoot(getter_AddRefs(m_ptrs->m_event_target));
         if (NS_FAILED(res))
         {
@@ -2589,11 +2611,16 @@ wxWebControl::wxWebControl(wxWindow* parent,
             return;
         }
     }
-
+	// get the nsIWebNavigation interface
+    m_ptrs->m_web_navigation = do_QueryInterface(m_ptrs->m_web_browser);
+    if (!m_ptrs->m_web_navigation)
+    {
+        wxASSERT(0);
+        return;
+    }
 
     // initialize chrome events
     m_chrome->ChromeInit();
-
 
     // get the nsIClipboardCommands interface
     m_ptrs->m_clipboard_commands = do_GetInterface(m_ptrs->m_web_browser);
@@ -2606,14 +2633,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     // get the nsIWebBrowserFind interface
     m_ptrs->m_web_browser_find = do_GetInterface(m_ptrs->m_web_browser);
     if (!m_ptrs->m_web_browser_find)
-    {
-        wxASSERT(0);
-        return;
-    }
-
-    // get the nsIWebNavigation interface
-    m_ptrs->m_web_navigation = do_QueryInterface(m_ptrs->m_web_browser);
-    if (!m_ptrs->m_web_navigation)
     {
         wxASSERT(0);
         return;
@@ -2635,10 +2654,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
                                       0,
                                       0,
                                       0);
-    //freeUnichar(ns_uri);
-    
-    // show the browser component
-    res = m_ptrs->m_base_window->SetVisibility(PR_TRUE);
+    //freeUnichar(ns_uri);        
 }
 
 wxWebControl::~wxWebControl()
