@@ -692,7 +692,7 @@ NS_IMETHODIMP BrowserChrome::GetDimensions(PRUint32 flags,
 NS_IMETHODIMP BrowserChrome::GetSiteWindow(void** site_window)
 {
     NS_ENSURE_ARG_POINTER(site_window);
-	void* site_window_1;
+	/*void* site_window_1;
     #ifdef __WXGTK_
     *site_window = (void*)m_wnd->m_wxwindow;
     #else
@@ -700,7 +700,8 @@ NS_IMETHODIMP BrowserChrome::GetSiteWindow(void** site_window)
     #endif
 	site_window_1 = *site_window;
 	void* site_window_2;
-	site_window_2 = (void*)m_wnd->GetParentWindow();
+	site_window_2 = (void*)m_wnd->GetParentWindow();*/
+	*site_window = (void*)m_wnd->GetParentWindow();
 	
     return NS_OK;
 }
@@ -2463,8 +2464,8 @@ wxWebControl::wxWebControl(wxWindow* parent,
     // create browser chrome
     BrowserChrome* chrome = new BrowserChrome(this);
     chrome->AddRef();
-    m_chrome = chrome;
-	m_ptrs->m_parent_window = parent;
+    m_chrome = chrome;	
+	m_ptrs->m_parent_window = (void*)parent->GetHandle();
 
     // make sure gecko is initialized
     if (!g_gecko_engine.IsOk())
