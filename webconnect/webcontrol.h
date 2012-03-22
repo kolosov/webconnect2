@@ -164,9 +164,6 @@ public:
 
 WX_DEFINE_ARRAY_PTR(wxWebContentHandler*, wxWebContentHandlerPtrArray);
 
-
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //  wxWebProgressBase class
 ///////////////////////////////////////////////////////////////////////////////
@@ -381,6 +378,8 @@ public:
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize);
     ~wxWebControl();
+
+	void* GetParentWindow();
     
     bool IsOk() const;
     
@@ -472,8 +471,6 @@ private:
     
     DECLARE_EVENT_TABLE()
 };
-
-
 
 
 ///////////////////////////////////////////////////////////////////////////////

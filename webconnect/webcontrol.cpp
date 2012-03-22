@@ -173,6 +173,8 @@ struct EmbeddingPtrs
     
     //nsCOMPtr<nsISupports> m_print_settings;
     nsCOMPtr<nsIPrintSettings> m_print_settings;
+	//parent window
+	void* m_parent_window;
 };
 
 
@@ -262,15 +264,16 @@ public:
 
 
 class BrowserChrome : public nsIWebBrowserChrome,
-                      public nsIChromeInternal,
+                      //public nsIChromeInternal,
                       public nsIWebBrowserChromeFocus,
                       public nsIWebProgressListener,
-                      public nsIEmbeddingSiteWindow2,
+					  public nsIEmbeddingSiteWindow,//Added
+                      //public nsIEmbeddingSiteWindow2,
                       public nsIInterfaceRequestor,
-                      public nsSupportsWeakReference,
-                      public nsIContextMenuListener2,
-                      public nsITooltipListener,
-                      public nsIDOMEventListener
+                      public nsSupportsWeakReference
+                      //public nsIContextMenuListener2,
+                      //public nsITooltipListener,
+                      //public nsIDOMEventListener
 {
 public:
 
@@ -278,12 +281,12 @@ public:
     NS_DECL_NSIWEBBROWSERCHROME
     NS_DECL_NSIWEBBROWSERCHROMEFOCUS
     NS_DECL_NSIWEBPROGRESSLISTENER
-    NS_DECL_NSIINTERFACEREQUESTOR
-    NS_DECL_NSIEMBEDDINGSITEWINDOW
-    NS_DECL_NSIEMBEDDINGSITEWINDOW2
-    NS_DECL_NSICONTEXTMENULISTENER2
-    NS_DECL_NSITOOLTIPLISTENER
-    NS_DECL_NSIDOMEVENTLISTENER
+	NS_DECL_NSIEMBEDDINGSITEWINDOW
+    NS_DECL_NSIINTERFACEREQUESTOR    
+    //NS_DECL_NSIEMBEDDINGSITEWINDOW2
+    //NS_DECL_NSICONTEXTMENULISTENER2
+    //NS_DECL_NSITOOLTIPLISTENER
+    //NS_DECL_NSIDOMEVENTLISTENER
 
     BrowserChrome(wxWebControl* wnd);
     virtual ~BrowserChrome();
@@ -301,6 +304,42 @@ public:
     wxDialog* m_dialog;
     nsresult m_dialog_retval;
 };
+
+BrowserChrome::BrowserChrome(wxWebControl* wnd)
+{
+    m_wnd = wnd;
+    m_chrome_mask = nsIWebBrowserChrome::CHROME_ALL;
+    m_dialog = NULL;
+    m_dialog_retval = NS_OK;
+}
+
+BrowserChrome::~BrowserChrome()
+{
+}
+
+NS_IMPL_ISUPPORTS6(BrowserChrome,
+                   nsIWebBrowserChrome,
+                   nsIWebBrowserChromeFocus,
+                   nsIInterfaceRequestor,
+                   nsIEmbeddingSiteWindow,
+                   nsIWebProgressListener,
+                   nsISupportsWeakReference)
+
+NS_IMETHODIMP BrowserChrome::GetInterface(const nsIID &aIID, void** aInstancePtr)
+{
+    NS_ENSURE_ARG_POINTER(aInstancePtr);
+
+    *aInstancePtr = 0;
+    if (aIID.Equals(NS_GET_IID(nsIDOMWindow)))
+    {
+        if (!m_web_browser)
+            return NS_ERROR_NOT_INITIALIZED;
+
+        return m_web_browser->GetContentDOMWindow((nsIDOMWindow **) aInstancePtr);
+    }
+    return QueryInterface(aIID, aInstancePtr);
+}
+
 
 
 static nsIDOMNode* GetAnchor(nsIDOMNode* node)
@@ -322,7 +361,7 @@ static nsIDOMNode* GetAnchor(nsIDOMNode* node)
     return GetAnchor(node);
 }
 
-
+/*
 NS_IMPL_ADDREF(BrowserChrome)
 NS_IMPL_RELEASE(BrowserChrome)
 
@@ -340,26 +379,14 @@ NS_INTERFACE_MAP_BEGIN(BrowserChrome)
     NS_INTERFACE_MAP_ENTRY(nsITooltipListener)
     NS_INTERFACE_MAP_ENTRY(nsIDOMEventListener)
 NS_INTERFACE_MAP_END
-
-
-BrowserChrome::BrowserChrome(wxWebControl* wnd)
-{
-    m_wnd = wnd;
-    m_chrome_mask = nsIWebBrowserChrome::CHROME_ALL;
-    m_dialog = NULL;
-    m_dialog_retval = NS_OK;
-}
-
-BrowserChrome::~BrowserChrome()
-{
-}
+*/
 
 void BrowserChrome::ChromeInit()
 {
     nsresult res;
 	//FIXME
 	return;
-
+/*
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("mousedown"),
                                             this,
@@ -414,12 +441,13 @@ void BrowserChrome::ChromeInit()
 #else
                                             PR_TRUE);
 #endif
+	*/
 }
 
 void BrowserChrome::ChromeUninit()
 {
     nsresult res;
-    
+ /*   
     res = m_wnd->m_ptrs->m_event_target->RemoveEventListener(
                                             NS_LITERAL_STRING("mousedown"),
                                             this,
@@ -449,7 +477,7 @@ void BrowserChrome::ChromeUninit()
                                             NS_LITERAL_STRING("DOMContentLoaded"),
                                             this,
                                             PR_FALSE);
-    
+    */
     m_wnd = NULL;
 }
 
@@ -664,16 +692,21 @@ NS_IMETHODIMP BrowserChrome::GetDimensions(PRUint32 flags,
 NS_IMETHODIMP BrowserChrome::GetSiteWindow(void** site_window)
 {
     NS_ENSURE_ARG_POINTER(site_window);
+	void* site_window_1;
     #ifdef __WXGTK_
     *site_window = (void*)m_wnd->m_wxwindow;
     #else
     *site_window = (void*)m_wnd->GetHandle();
     #endif
+	site_window_1 = *site_window;
+	void* site_window_2;
+	site_window_2 = (void*)m_wnd->GetParentWindow();
+	
     return NS_OK;
 }
 
 // nsIInterfaceRequestor::GetInterface()
-NS_IMETHODIMP BrowserChrome::GetInterface(const nsIID& IID, void** instance_ptr)
+/*NS_IMETHODIMP BrowserChrome::GetInterface(const nsIID& IID, void** instance_ptr)
 {
     if(IID.Equals(NS_GET_IID(nsIDOMWindow)))
     {
@@ -684,7 +717,7 @@ NS_IMETHODIMP BrowserChrome::GetInterface(const nsIID& IID, void** instance_ptr)
 
     return QueryInterface(IID, instance_ptr);
 }
-
+*/
 // nsIWebProgressListener::OnProgressChange()
 NS_IMETHODIMP BrowserChrome::OnProgressChange(nsIWebProgress* progress,
                                               nsIRequest* request,
@@ -816,7 +849,7 @@ NS_IMETHODIMP BrowserChrome::OnSecurityChange(nsIWebProgress* progress,
 {
     return NS_OK;
 }
-
+/*
 NS_IMETHODIMP BrowserChrome::OnShowContextMenu(PRUint32 context_flags,
                                                nsIContextMenuInfo* info)
 {
@@ -878,7 +911,9 @@ NS_IMETHODIMP BrowserChrome::Blur()
 {
     return NS_OK;
 }
+*/
 
+/*
 NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
 {
     if (!m_wnd)
@@ -1081,7 +1116,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
 
     return NS_ERROR_NOT_IMPLEMENTED;
 }
-
+*/
 wxWebControl* GetWebControlFromBrowserChrome(nsIWebBrowserChrome* chrome)
 {
     if (!chrome)
@@ -1562,7 +1597,6 @@ WindowCreator::CreateChromeWindow(nsIWebBrowserChrome* parent,
         wx_chrome_flags |= wxWEB_CHROME_RESIZABLE;
     if (chrome_flags & nsIWebBrowserChrome::CHROME_CENTER_SCREEN)
         wx_chrome_flags |= wxWEB_CHROME_CENTER;
-
 
 
     wxWebEvent evt(wxEVT_WEB_CREATEBROWSER, web_control->GetId());
@@ -2132,11 +2166,7 @@ bool GeckoEngine::Init()
     */
 
     // set up preferences
-#if MOZILLA_VERSION_1 < 1
-    nsCOMPtr<nsIPref> prefs = nsGetPrefService();
-#else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
-#endif
     if (!prefs)
         return false;
     
@@ -2148,40 +2178,12 @@ bool GeckoEngine::Init()
     prefs->SetIntPref("browser.history_expire_days", 0);
     
     // set path for our cache directory
-#if MOZILLA_VERSION_1 < 1
-    PRUnichar* temps = wxToUnichar(m_storage_path);
-    prefs->SetUnicharPref("browser.cache.disk.parent_directory", temps);
-    freeUnichar(temps);
-#else
     prefs->SetCharPref("browser.cache.disk.parent_directory", (const char*)m_storage_path.mbc_str());
-#endif
 
     m_ok = true;
     
-#if MOZILLA_VERSION_1 < 1
-    m_is18 = m_appshell.empty() ? false : true;
-    
-    
-    if (m_is18)
-    {
-        // 24 May 2008 - a bug was discovered; if a web control is not created
-        // in about 1 minute of the web engine being initialized, something goes
-        // wrong with the message queue, and the web control will only update
-        // when the mouse is moved over it-- strange.  I think there must be some
-        // thread condition that waits until the first web control is created.
-        // In any case, creating a web control here appears to solve the problem;
-        // It's destroyed 10 seconds after creation.
-        
-        wxWebFrame* f = new wxWebFrame(NULL, -1, wxT(""));
-        f->SetShouldPreventAppExit(false);
-        f->GetWebControl()->OpenURI(wxT("about:blank"));
-        
-        DelayedWindowDestroy* d = new DelayedWindowDestroy(f, 10);
-    }
-#else
     m_is18 = false;
-#endif
-    
+
     return true;
 }
 
@@ -2204,8 +2206,6 @@ void GeckoEngine::AddPluginPath(const wxString& path)
         
     m_plugin_provider->AddPath(path);
 }
-
-
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2464,6 +2464,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     BrowserChrome* chrome = new BrowserChrome(this);
     chrome->AddRef();
     m_chrome = chrome;
+	m_ptrs->m_parent_window = parent;
 
     // make sure gecko is initialized
     if (!g_gecko_engine.IsOk())
@@ -2686,6 +2687,11 @@ wxWebControl::~wxWebControl()
     delete m_ptrs;
 }
 
+void* wxWebControl::GetParentWindow()
+{
+	return m_ptrs->m_parent_window;
+}
+
 // (METHOD) wxWebControl::IsOk
 // Description:
 //
@@ -2764,8 +2770,7 @@ bool wxWebControl::AddContentHandler(wxWebContentHandler* handler,
     
     //FIXME
     nsCOMPtr<nsISupports> uri_loader;
-    
-    
+        
     nsIID iid = NS_ISUPPORTS_IID;
     service_mgr->GetServiceByContractID("@mozilla.org/uriloader;1",
                                         iid,
