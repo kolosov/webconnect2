@@ -206,7 +206,7 @@ public:
     void AddContentListener(ContentListener* l);
     ContentListenerPtrArray& GetContentListeners();
 
-    void AddPluginPath(const wxString& path);
+    //void AddPluginPath(const wxString& path);
     
     // xulrunner versions 1.8 will return true, 1.9 will return false
     bool IsVersion18() const { return m_is18; }
@@ -1551,18 +1551,16 @@ NS_INTERFACE_MAP_END
 //  WindowCreator implementation
 ///////////////////////////////////////////////////////////////////////////////
 
-
 class WindowCreator : public nsIWindowCreator2
 
 {
 public:
     WindowCreator()
     {
-        //NS_INIT_ISUPPORTS();
     }
     
-    //virtual ~WindowCreator()
-    ~WindowCreator()
+    virtual ~WindowCreator()
+    //~WindowCreator()
     {
     }
     
@@ -1572,7 +1570,6 @@ public:
 };
 
 NS_IMPL_ISUPPORTS2(WindowCreator, nsIWindowCreator, nsIWindowCreator2)
-//NS_IMPL_ISUPPORTS1(WindowCreator, nsIWindowCreator)
 
 
 NS_IMETHODIMP
@@ -2198,7 +2195,7 @@ ContentListenerPtrArray& GeckoEngine::GetContentListeners()
 {
     return m_content_listeners;
 }
-
+/*
 void GeckoEngine::AddPluginPath(const wxString& path)
 {
     // check first if the path exists
@@ -2207,7 +2204,7 @@ void GeckoEngine::AddPluginPath(const wxString& path)
         
     m_plugin_provider->AddPath(path);
 }
-
+*/
 
 ///////////////////////////////////////////////////////////////////////////////
 //  wxWebPostData class implementation
