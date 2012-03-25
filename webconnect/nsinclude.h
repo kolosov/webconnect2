@@ -132,6 +132,7 @@
 #include "nsIDOMHTMLSelectElement.h"
 #include "nsIDOMHTMLTextAreaElement.h"
 
+#include "nsXULAppAPI.h"
 #if MOZILLA_VERSION_1 < 2
 #include "nsIPref.h"
 #else
