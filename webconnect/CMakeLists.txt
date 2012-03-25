@@ -42,7 +42,7 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 #include_directories("${CMAKE_CURRENT_SOURCE_DIR}/xulheaders")
 include_directories("/usr/include/nspr") #FIXME
 
-set(webconlib_src dom.cpp nsimpl.cpp promptservice.cpp webcontrol.cpp webframe.cpp webprefs.cpp ContentListener.cpp DOMEventListener.cpp)
+set(webconlib_src dom.cpp nsimpl.cpp promptservice.cpp webcontrol.cpp webframe.cpp webprefs.cpp ContentListener.cpp DOMEventListener.cpp ConsoleListener.cpp)
 
 add_library(webconlib STATIC ${webconlib_src})
 

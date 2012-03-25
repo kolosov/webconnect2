@@ -24,9 +24,13 @@
 #include "domprivate.h"
 #include "promptservice.h"
 
+#include "ConsoleListener.h"
 #include "ContentListener.h"
 #include "DOMEventListener.h"
 
+#include <iostream>
+#include <string>
+using namespace std;
 
 // global preference for whether or not to show certificate errors
 bool g_ignore_ssl_cert_errors = false;
@@ -181,7 +185,7 @@ struct EmbeddingPtrs
 	//listeners
 	nsCOMPtr<nsIURIContentListener> m_content_listener;
 	nsCOMPtr<nsIDOMEventListener> m_domevent_listener;
-//	nsCOMPtr<ConsoleListener> m_console_listener;
+	nsCOMPtr<ConsoleListener> m_console_listener;
 };
 
 
@@ -2584,6 +2588,18 @@ wxWebControl::wxWebControl(wxWindow* parent,
     // register the DOM event listener
     m_ptrs->m_domevent_listener = new DOMEventListener(this);
 
+    // register the console event listener
+    m_ptrs->m_console_listener = new ConsoleListener(this);
+    if (!m_ptrs->m_console_listener)
+        cerr << "No Console listener created!" << endl;
+
+    nsCOMPtr<nsIConsoleService> consoleService(do_GetService(NS_CONSOLESERVICE_CONTRACTID));
+    if (!consoleService)
+        cerr << "Failed to get Console service!" << endl;
+    else if (NS_FAILED(consoleService->RegisterListener(m_ptrs->m_console_listener)))
+        cerr << "Failed to register console listener." << endl;
+
+
 	/*
     nsIWeakReference* weak = NS_GetWeakReference((nsIWebProgressListener*)m_chrome);
     res = m_ptrs->m_web_browser->AddWebBrowserListener(weak, NS_GET_IID(nsIWebProgressListener));
@@ -3465,6 +3481,24 @@ void wxWebControl::PrintPreview(bool silent)
 
 void wxWebControl::Print(bool silent)
 {
+	nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
+    if (!web_browser_print)
+    {
+//        wxASSERT(0);
+        return;
+    }
+	nsCOMPtr<nsIPrintSettings> supports;
+    nsresult rv = web_browser_print->GetGlobalPrintSettings(getter_AddRefs(supports));
+    //m_ptrs->m_print_settings = supports;
+
+	supports->SetShowPrintProgress(PR_FALSE);
+    supports->SetPrintSilent(PR_TRUE);
+	web_browser_print->Print(supports, nsnull);
+}
+
+/*
+void wxWebControl::Print(bool silent)
+{
     nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
     {
@@ -3480,28 +3514,8 @@ void wxWebControl::Print(bool silent)
         settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
         web_browser_print->Print(settings19, NULL);
     }
-#if MOZILLA_VERSION_1 < 1
-    nsCOMPtr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
-    if (settings18)
-    {
-        settings18->SetShowPrintProgress(PR_FALSE);
-        settings18->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
-        
-        nsCOMPtr<nsIWebBrowserPrint18> web_browser_print = nsRequestInterface(m_ptrs->m_web_browser);
-        web_browser_print->Print(settings18.p, NULL);
-    }
-#endif
-/*
-    nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
-    if (settings19)
-    {
-        settings19->SetShowPrintProgress(PR_FALSE);
-        settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
-        web_browser_print->Print(settings19, NULL);
-    }
-  */
 }
-
+*/
 // (METHOD) wxWebControl::SetPageSettings
 // Description:
 //
