@@ -194,7 +194,7 @@ public:
 
         wxString dir = program_files_dir;
         dir += wxT("Mozilla Firefox\\plugins");
-        wxWebControl::AddPluginPath(dir);
+        //wxWebControl::AddPluginPath(dir);
 
         // to install the flash plugin automatically, if it exists, 
         // add a path to the flash location; for example, on windows,

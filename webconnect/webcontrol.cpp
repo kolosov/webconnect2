@@ -24,6 +24,10 @@
 #include "domprivate.h"
 #include "promptservice.h"
 
+#include "ConsoleListener.h"
+#include "ContentListener.h"
+#include "DOMEventListener.h"
+
 
 // global preference for whether or not to show certificate errors
 bool g_ignore_ssl_cert_errors = false;
@@ -175,6 +179,10 @@ struct EmbeddingPtrs
     nsCOMPtr<nsIPrintSettings> m_print_settings;
 	//parent window
 	void* m_parent_window;
+	//listeners
+	nsCOMPtr<nsIURIContentListener> m_content_listener;
+	nsCOMPtr<nsIDOMEventListener> m_domevent_listener;
+	nsCOMPtr<ConsoleListener> m_console_listener;
 };
 
 
@@ -1141,7 +1149,7 @@ wxWebControl* GetWebControlFromBrowserChrome(nsIWebBrowserChrome* chrome)
 // ContentListener implements the ns interfaces for
 // content listeners and patches them through to our
 // public wxWebContentHandler class
-
+/*
 class ContentListener : public nsIURIContentListener,
                         public nsIStreamListener,
                         public nsSupportsWeakReference
@@ -1316,7 +1324,7 @@ NS_INTERFACE_MAP_BEGIN(ContentListener)
     NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
 NS_INTERFACE_MAP_END
 
-
+*/
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2570,6 +2578,14 @@ wxWebControl::wxWebControl(wxWindow* parent,
     nsCOMPtr<nsIWebProgressListener> listener = do_QueryInterface(static_cast<nsIWebBrowserChrome*>(m_chrome));
     nsCOMPtr<nsIWeakReference> thisListener(do_GetWeakReference(listener));
     m_ptrs->m_web_browser->AddWebBrowserListener(thisListener, NS_GET_IID(nsIWebProgressListener));
+
+    // register the content listeners
+    m_ptrs->m_content_listener = new ContentListener(this, m_ptrs->m_web_navigation);
+    m_ptrs->m_web_browser->SetParentURIContentListener(m_ptrs->m_content_listener);
+
+    // register the DOM event listener
+    m_ptrs->m_domevent_listener = new DOMEventListener(this);
+
 	/*
     nsIWeakReference* weak = NS_GetWeakReference((nsIWebProgressListener*)m_chrome);
     res = m_ptrs->m_web_browser->AddWebBrowserListener(weak, NS_GET_IID(nsIWebProgressListener));
@@ -2814,12 +2830,12 @@ bool wxWebControl::AddContentHandler(wxWebContentHandler* handler,
 // Remarks:
 //
 // Returns:
-
+/*
 void wxWebControl::AddPluginPath(const wxString& path)
 {
     g_gecko_engine.AddPluginPath(path);
 }
-
+*/
 
 
 // (METHOD) wxWebControl::SetProfilePath
