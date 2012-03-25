@@ -24,7 +24,6 @@
 #include "domprivate.h"
 #include "promptservice.h"
 
-#include "ConsoleListener.h"
 #include "ContentListener.h"
 #include "DOMEventListener.h"
 
@@ -182,7 +181,7 @@ struct EmbeddingPtrs
 	//listeners
 	nsCOMPtr<nsIURIContentListener> m_content_listener;
 	nsCOMPtr<nsIDOMEventListener> m_domevent_listener;
-	nsCOMPtr<ConsoleListener> m_console_listener;
+//	nsCOMPtr<ConsoleListener> m_console_listener;
 };
 
 
@@ -699,17 +698,16 @@ NS_IMETHODIMP BrowserChrome::GetDimensions(PRUint32 flags,
 
 NS_IMETHODIMP BrowserChrome::GetSiteWindow(void** site_window)
 {
-    NS_ENSURE_ARG_POINTER(site_window);
-	/*void* site_window_1;
+    NS_ENSURE_ARG_POINTER(site_window);	
     #ifdef __WXGTK_
     *site_window = (void*)m_wnd->m_wxwindow;
     #else
     *site_window = (void*)m_wnd->GetHandle();
     #endif
-	site_window_1 = *site_window;
-	void* site_window_2;
-	site_window_2 = (void*)m_wnd->GetParentWindow();*/
-	*site_window = (void*)m_wnd->GetParentWindow();
+	//site_window_1 = *site_window;
+	//void* site_window_2;
+	//site_window_2 = (void*)m_wnd->GetParentWindow();*/
+	//*site_window = (void*)m_wnd->GetParentWindow();
 	
     return NS_OK;
 }
