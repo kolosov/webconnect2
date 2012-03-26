@@ -132,6 +132,7 @@
 #include "nsIDOMHTMLSelectElement.h"
 #include "nsIDOMHTMLTextAreaElement.h"
 
+#include "nsXULAppAPI.h"
 #if MOZILLA_VERSION_1 < 2
 #include "nsIPref.h"
 #else
@@ -160,26 +161,5 @@
 #include "nsIWeakReference.h"
 #include "nsIWeakReferenceUtils.h"
 #include "nsISupportsImpl.h"
-
-//definition function
-/*nsresult XPCOMGlueStartup(const char* xpcom_dll_path);
-nsresult NS_InitXPCOM2(nsIServiceManager** result, nsIFile* bin_directory, nsIDirectoryServiceProvider* app_file_location_provider);
-void*    NS_Alloc(PRSize size);
-void     NS_Free(void* ptr);
-nsresult NS_GetServiceManager(nsIServiceManager** result);
-nsresult NS_GetComponentManager(nsIComponentManager** result);
-nsresult NS_GetComponentRegistrar(nsIComponentRegistrar** result);
-nsresult NS_StringContainerInit(nsStringContainer& str);
-nsresult NS_StringContainerInit2(nsStringContainer& str, const PRUnichar* str_data, PRUint32 len = PR_UINT32_MAX, PRUint32 flags = 0);
-void     NS_StringContainerFinish(nsStringContainer& str);
-nsresult NS_NewNativeLocalFile(const nsACString& path, PRBool follow_links, nsILocalFile** result);
-nsresult NS_StringSetData(nsAString& str, const PRUnichar* str_data, PRUint32 len);
-PRUint32 NS_StringGetData(const nsAString& str, const PRUnichar** str_data, PRBool* terminated = NULL);
-nsresult NS_CStringContainerInit(nsCStringContainer& str);
-nsresult NS_CStringContainerInit2(nsCStringContainer& str, const char* str_data, PRUint32 len = PR_UINT32_MAX, PRUint32 flags = 0);
-void     NS_CStringContainerFinish(nsCStringContainer& str);
-PRUint32 NS_CStringGetData(const nsACString& str, const char** str_data, PRBool* terminated = NULL);
-*/
-//end function definition
 
 #endif
