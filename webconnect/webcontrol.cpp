@@ -1975,13 +1975,14 @@ bool GeckoEngine::Init()
     const nsStaticModuleInfo* aComps = 0;
     int aNumComps = 0;
 
+	//res = XRE_InitEmbedding(gre_dir, prof_dir,    		
+	//		const_cast<wxDirSrvProvider*>(&DirectoryProvider),aComps, aNumComps);
 	res = XRE_InitEmbedding(gre_dir, prof_dir,    		
-			const_cast<wxDirSrvProvider*>(&DirectoryProvider),aComps, aNumComps);
+			nsnull,aComps, aNumComps);
 
 #else
-    res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));
-    //res = XRE_InitEmbedding2(gre_dir, prof_dir,
-    //                       const_cast<MozEmbedDirectoryProvider*>(&kDirectoryProvider));
+    //res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));
+	res = XRE_InitEmbedding2(gre_dir, prof_dir, nsnull);
 #endif
 
     // initialize profile:
@@ -3420,7 +3421,6 @@ void wxWebControl::PrintPreview(bool silent)
 
 }
 
-
 // (METHOD) wxWebControl::Print
 // Description:
 //
@@ -3431,42 +3431,34 @@ void wxWebControl::PrintPreview(bool silent)
 // Returns:
 
 void wxWebControl::Print(bool silent)
-{
+{	
     nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
     {
         wxASSERT(0);
         return;
     }
-    
     InitPrintSettings();
     nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
     {
         settings19->SetShowPrintProgress(PR_FALSE);
+#if MOZILLA_VERSION_1 < 2 //FIXME workaround for printing, always print silent
         settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
-        web_browser_print->Print(settings19, NULL);
-    }
-#if MOZILLA_VERSION_1 < 1
-    nsCOMPtr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
-    if (settings18)
-    {
-        settings18->SetShowPrintProgress(PR_FALSE);
-        settings18->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
-        
-        nsCOMPtr<nsIWebBrowserPrint18> web_browser_print = nsRequestInterface(m_ptrs->m_web_browser);
-        web_browser_print->Print(settings18.p, NULL);
-    }
+#else
+		settings19->SetPrintSilent(PR_TRUE);
 #endif
-/*
-    nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
-    if (settings19)
-    {
-        settings19->SetShowPrintProgress(PR_FALSE);
-        settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
-        web_browser_print->Print(settings19, NULL);
+        web_browser_print->Print(settings19, nsnull);
     }
-  */
+	/*nsCOMPtr<nsIPrintSettings> print_settings;
+	nsresult rv = web_browser_print->GetGlobalPrintSettings(getter_AddRefs(print_settings));
+	if (NS_SUCCEEDED(rv))
+    {
+        print_settings->SetShowPrintProgress(PR_FALSE);
+        //print_settings->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
+		print_settings->SetPrintSilent(PR_TRUE);
+        web_browser_print->Print(print_settings, nsnull);
+    }*/
 }
 
 // (METHOD) wxWebControl::SetPageSettings
