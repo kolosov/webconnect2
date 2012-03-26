@@ -18,8 +18,6 @@
 #include "webcontrol.h"
 #include "nsinclude.h"
 
-//#include "moz_config.h"
-
 #ifdef __WXMSW__
 #include <windows.h>
 #else
