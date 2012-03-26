@@ -745,6 +745,7 @@ void MyFrame::OnGoForums(wxCommandEvent& evt)
 void MyFrame::OnGoAbout(wxCommandEvent& evt)
 {
     wxArrayString arr;
+	wxString geckoVer = m_browser->GeckoVersion();
 
     arr.Add(wxT("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\""));
     arr.Add(wxT("\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"));
@@ -772,13 +773,13 @@ void MyFrame::OnGoAbout(wxCommandEvent& evt)
     arr.Add(wxT("		<p class=\"gray\">This software contains an unmodified binary version of the open-source XULRunner"));
     arr.Add(wxT("                         engine as provided by the Mozilla Foundation. Please read the"));
     arr.Add(wxT("                         <a href=\"http://www.mozilla.org/MPL/\">license terms and notices"));
-    arr.Add(wxT("                         </a> for the XULRunner engine. This software uses XULRunner version 1.9.2.</p>"));
+    arr.Add(wxT("                         </a> for the XULRunner engine. This software uses XULRunner version " + geckoVer + ".</p>"));	
     arr.Add(wxT("	</div>"));
     arr.Add(wxT("</body>"));
     arr.Add(wxT("</html>"));
 
     // create a temporary file listing the links
-    wxTextFile file;    
+    wxTextFile file;
     wxString temp_file = wxFileName::CreateTempFileName(wxT("web"));
     file.Create(temp_file);
 

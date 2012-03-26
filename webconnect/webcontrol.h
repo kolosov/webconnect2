@@ -381,7 +381,7 @@ public:
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize);
     ~wxWebControl();
-    
+	wxString GeckoVersion();
     bool IsOk() const;
     
     // navigation

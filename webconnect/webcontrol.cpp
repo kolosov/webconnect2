@@ -1719,7 +1719,7 @@ public:
     {
     }
     
-    void AddPaths(nsISimpleEnumerator* paths)
+    void AddPaths(nsCOMPtr<nsISimpleEnumerator> paths)
     {
 #if MOZILLA_VERSION_1 >=10
     	bool more = false;
@@ -1733,15 +1733,15 @@ public:
             if (!more)
                 break;
             //FIXME
-            /*nsISupports* element = NULL;
-            paths->GetNext(&element);
+            nsCOMPtr<nsISupports> element = nsnull;
+            paths->GetNext(getter_AddRefs(element));
             if (!element)
                 continue;
                 
-            nsCOMPtr<nsIFile> file = nsToSmart(element);
-            */
-            nsCOMPtr<nsIFile> file;
-            /*element->Release();*/
+            //nsCOMPtr<nsIFile> file = nsToSmart(element);
+            
+            nsCOMPtr<nsIFile> file = nsnull;
+            //element->Release();
             
             if (file)
             {
@@ -2108,11 +2108,12 @@ bool GeckoEngine::Init()
     if (NS_FAILED(res) || !plugin_enum)
         return false;
     // FIXME implement later
-    /*m_plugin_provider->AddPaths(getter_AddRefs(plugin_enum));
-    res = dir_service->RegisterProvider(m_plugin_provider);
-    if (NS_FAILED(res) || !plugin_enum)
-        return false;
-    */
+    //m_plugin_provider->AddPaths(getter_AddRefs(plugin_enum));
+	//m_plugin_provider->AddPaths(plugin_enum);
+    //res = dir_service->RegisterProvider(m_plugin_provider);
+    //if (NS_FAILED(res) || !plugin_enum)
+    //    return false;
+    
 
     // set up preferences
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
@@ -2623,6 +2624,21 @@ bool wxWebControl::IsOk() const
     return m_ok;
 }
 
+// (METHOD) wxWebControl::GeckoVersion
+// Description:
+//
+// Syntax: wxString wxWebControl::GeckoVersion() const
+//
+// Remarks:
+//
+// Returns: Returns gecko version by MOZILLA_VERSION definition
+
+wxString wxWebControl::GeckoVersion()
+{
+	wxString version;    
+	version << MOZILLA_VERSION_1 << "." << MOZILLA_VERSION_2 << "." << MOZILLA_VERSION_3;
+	return version;
+}
 // (METHOD) wxWebControl::Find
 // Description:
 //
@@ -2944,9 +2960,7 @@ bool wxWebControl::ClearCache()
 
 void wxWebControl::FetchFavIcon(void* _uri)
 {
-#if MOZILLA_VERSION_1 < 1
-	return;//FIXME implement later (BUG in calling create instance nsiwebbrowserpersist)
-#else
+
 	if (m_favicon_fetched)
         return;
     m_favicon_fetched = true;
@@ -2992,7 +3006,6 @@ void wxWebControl::FetchFavIcon(void* _uri)
         persist->SetProgressListener(nsnull);
         return;
     }
-#endif
 }
 
 
