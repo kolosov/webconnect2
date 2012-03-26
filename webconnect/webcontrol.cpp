@@ -2115,11 +2115,8 @@ bool GeckoEngine::Init()
     */
 
     // set up preferences
-#if MOZILLA_VERSION_1 < 1
-    nsCOMPtr<nsIPref> prefs = nsGetPrefService();
-#else
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
-#endif
+
     if (!prefs)
         return false;
     
@@ -2131,40 +2128,10 @@ bool GeckoEngine::Init()
     prefs->SetIntPref("browser.history_expire_days", 0);
     
     // set path for our cache directory
-#if MOZILLA_VERSION_1 < 1
-    PRUnichar* temps = wxToUnichar(m_storage_path);
-    prefs->SetUnicharPref("browser.cache.disk.parent_directory", temps);
-    freeUnichar(temps);
-#else
     prefs->SetCharPref("browser.cache.disk.parent_directory", (const char*)m_storage_path.mbc_str());
-#endif
-
-    m_ok = true;
-    
-#if MOZILLA_VERSION_1 < 1
-    m_is18 = m_appshell.empty() ? false : true;
-    
-    
-    if (m_is18)
-    {
-        // 24 May 2008 - a bug was discovered; if a web control is not created
-        // in about 1 minute of the web engine being initialized, something goes
-        // wrong with the message queue, and the web control will only update
-        // when the mouse is moved over it-- strange.  I think there must be some
-        // thread condition that waits until the first web control is created.
-        // In any case, creating a web control here appears to solve the problem;
-        // It's destroyed 10 seconds after creation.
-        
-        wxWebFrame* f = new wxWebFrame(NULL, -1, wxT(""));
-        f->SetShouldPreventAppExit(false);
-        f->GetWebControl()->OpenURI(wxT("about:blank"));
-        
-        DelayedWindowDestroy* d = new DelayedWindowDestroy(f, 10);
-    }
-#else
+    m_ok = true;    
     m_is18 = false;
-#endif
-    
+
     return true;
 }
 
@@ -2309,7 +2276,6 @@ bool wxWebControl::IsVersion18()
 }
 
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //  wxWebFavIconProgress class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -2334,11 +2300,6 @@ public:
     {
         if (m_progress)
         {
-#if MOZILLA_VERSION_1 < 1
-            if (wxWebControl::IsVersion18())
-                ((ProgressListenerAdaptor18*)m_progress)->ClearProgressReference();
-                 else
-#endif
                 ((ProgressListenerAdaptor*)m_progress)->ClearProgressReference();
             
             m_progress->Release();
@@ -2508,20 +2469,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     {
         dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
     }
-#if MOZILLA_VERSION_1 < 1
-     else
-    {
-        // 1.8.x support
-        nsCOMPtr<ns18IDocShellTreeItem> dsti = m_ptrs->m_web_browser;
-        if (dsti.empty())
-        {
-            wxASSERT(0);
-            return;
-        }
-        dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
-    }
-#endif
-    
       
     res = m_ptrs->m_base_window->Create();
     if (NS_FAILED(res))
@@ -2574,15 +2521,6 @@ wxWebControl::wxWebControl(wxWindow* parent,
     }
      else
     {
-#if MOZILLA_VERSION_1 < 1
-        // 1.8.x support
-        nsCOMPtr<ns18IDOMWindow2> dom_window2(dom_window);
-        if (!dom_window2)
-        {
-            wxASSERT(0);
-            return;
-        }
-#endif
         res = dom_window2->GetWindowRoot(getter_AddRefs(m_ptrs->m_event_target));
         if (NS_FAILED(res))
         {
@@ -2769,22 +2707,6 @@ bool wxWebControl::AddContentHandler(wxWebContentHandler* handler,
             return false;
         g_gecko_engine.AddContentListener(l);
     }*/
-#if MOZILLA_VERSION_1 < 1
-     else
-    {
-        nsCOMPtr<ns18IURILoader> uri_loader18 = uri_loader;
-        if (uri_loader18.empty())
-            return false;
-    
-        ContentListener* l = new ContentListener(handler);
-        l->AddRef(); // will be released later
-        res = uri_loader18->RegisterContentListener(static_cast<nsIURIContentListener*>(l));
-        if (NS_FAILED(res))
-            return false;
-        g_gecko_engine.AddContentListener(l);
-    }
-#endif
-
     return true;
 }
 
@@ -3484,31 +3406,7 @@ void wxWebControl::SetPageSettings(double page_width, double page_height,
     }
 
     InitPrintSettings();
-    
-#if MOZILLA_VERSION_1 < 1
-    nsCOMPtr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
-    if (settings18)
-    {
-        // if the page width is greater than the page height,
-        // set the proper orientation
-        settings18->SetOrientation(settings18->kPortraitOrientation);
-        if (page_width > page_height)
-        {
-            double t = page_width;
-            page_width = page_height;
-            page_height = t;
 
-            settings18->SetOrientation(settings18->kLandscapeOrientation);
-        }
-
-        settings18->SetPaperWidth(page_width);
-        settings18->SetPaperHeight(page_height);
-        settings18->SetMarginLeft(left_margin);
-        settings18->SetMarginRight(right_margin);
-        settings18->SetMarginTop(top_margin);
-        settings18->SetMarginBottom(bottom_margin);
-    }
-#endif
     nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
     {
@@ -3557,29 +3455,6 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
 
     InitPrintSettings();
 
-#if MOZILLA_VERSION_1 < 1
-    nsCOMPtr<nsIPrintSettings18> settings18 = m_ptrs->m_print_settings;
-    if (settings18)
-    {
-        settings18->GetPaperWidth(page_width);
-        settings18->GetPaperHeight(page_height);
-        settings18->GetMarginLeft(left_margin);
-        settings18->GetMarginRight(right_margin);
-        settings18->GetMarginTop(top_margin);
-        settings18->GetMarginBottom(bottom_margin);
-        
-        // if the orientation is set, reverse the page width
-        // and page height
-        PRInt32 orientation;
-        settings18->GetOrientation(&orientation);
-        if (orientation == settings18->kLandscapeOrientation)
-        {
-            double t = *page_width;
-            *page_width = *page_height;
-            *page_height = t;
-        }
-    }
-#endif
     nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
     {
@@ -4061,180 +3936,6 @@ void wxWebControl::OnSize(wxSizeEvent& evt)
                                     PR_TRUE);
     }
 }
-
-/*#define NS_ISCRIPTGLOBALOBJECT_IID \
-{ 0xd326a211, 0xdc31, 0x45c6, \
- { 0x98, 0x97, 0x22, 0x11, 0xea, 0xbc, 0xd0, 0x1c } }
-*/
-/*
-class nsIScriptContext;
-class nsIArray;
-class nsScriptErrorEvent;
-//class nsEventStatus;
-class nsIScriptGlobalObjectOwner;
-class nsPresContext;
-class nsEvent;
-class nsIDocShell;
-class nsIDOMWindowInternal;*/
-
-/*
-class nsIScriptGlobalObject : public nsISupports
-{
-public:
-#if (MOZILLA_VERSION_1 >= 2 ) ||  ((MOZILLA_VERSION_1 == 1) && (MOZILLA_VERSION_2 >= 9))
-  NS_DEFINE_STATIC_IID_ACCESSOR(nsIScriptGlobalObject,NS_ISCRIPTGLOBALOBJECT_IID)
-#else
-  NS_DEFINE_STATIC_IID_ACCESSOR(NS_ISCRIPTGLOBALOBJECT_IID)
-#endif
-
-    virtual void SetContext(nsIScriptContext* context) = 0;
-    virtual nsIScriptContext* GetContext() = 0;
-    
-    virtual nsresult SetNewDocument(
-                    nsIDOMDocument* document,
-                    nsISupports* state,
-                    PRBool remove_event_listeners,
-                    PRBool clear_scope) = 0;
-                    
-    virtual void SetDocShell(nsIDocShell* doc_shell) = 0;
-    virtual nsIDocShell* GetDocShell() = 0;
-    
-    virtual void SetOpenerWindow(nsIDOMWindowInternal* opener) = 0;
-    
-    virtual void SetGlobalObjectOwner(nsIScriptGlobalObjectOwner* owner) = 0;
-    virtual nsIScriptGlobalObjectOwner* GetGlobalObjectOwner() = 0;
-
-    virtual nsresult HandleDOMEvent(
-                    nsPresContext* pres_context, 
-                    nsEvent* event, 
-                    nsIDOMEvent** dom_event,
-                    PRUint32 flags,
-                    nsEventStatus* event_status)=0;
-
-    virtual JSObject* GetGlobalJSObject() = 0;
-    virtual void OnFinalize(JSObject* js_object) = 0;
-    virtual void SetScriptsEnabled(PRBool enabled, PRBool fire_timeouts) = 0;
-    virtual nsresult SetNewArguments(PRUint32 argc, void* argv) = 0;
-};
-*/
-
-
-//#define NS_ISCRIPTCONTEXT_IID \
-//{ /* b3fd8821-b46d-4160-913f-cc8fe8176f5f */ \
-//  0xb3fd8821, 0xb46d, 0x4160, \
-//  {0x91, 0x3f, 0xcc, 0x8f, 0xe8, 0x17, 0x6f, 0x5f} }
-
-class nsIAtom;
-class nsIScriptContextOwner;
-typedef void (*nsScriptTerminationFunc)(nsISupports* ref);
-
-/*
-class nsIScriptContext : public nsISupports
-{
-public:
-#if (MOZILLA_VERSION_1 >= 2 ) ||  ((MOZILLA_VERSION_1 == 1) && (MOZILLA_VERSION_2 >= 9))
-    NS_DEFINE_STATIC_IID_ACCESSOR(nsIScriptContext, NS_ISCRIPTCONTEXT_IID)
-#else
-    NS_DEFINE_STATIC_IID_ACCESSOR(NS_ISCRIPTCONTEXT_IID)
-#endif
-
-    virtual nsresult EvaluateString(
-                                   const nsAString& script,
-                                   void* scope_object,
-                                   nsIPrincipal* principal,
-                                   const char* url,
-                                   PRUint32 line_no,
-                                   const char* version,
-                                   nsAString* retval,
-                                   PRBool* is_undefined) = 0;
-
-    virtual nsresult EvaluateStringWithValue(
-                                   const nsAString& script,
-                                   void* scope_object,
-                                   nsIPrincipal* principal,
-                                   const char* url,
-                                   PRUint32 line_no,
-                                   const char* version,
-                                   void* retval,
-                                   PRBool* is_undefined) = 0;
-
-    virtual nsresult CompileScript(const PRUnichar* text,
-                                   PRInt32 text_length,
-                                   void* scope_object,
-                                   nsIPrincipal* principal,
-                                   const char* url,
-                                   PRUint32 line_no,
-                                   const char* version,
-                                   void** script_object) = 0;
-
-    virtual nsresult ExecuteScript(void* script_object,
-                                   void* scope_object,
-                                   nsAString* retval,
-                                   PRBool* is_undefined) = 0;
-
-    virtual nsresult CompileEventHandler(
-                                   void* target,
-                                   nsIAtom* name,
-                                   const char* event_name,
-                                   const nsAString& body,
-                                   const char* url,
-                                   PRUint32 line_no,
-                                   PRBool shared,
-                                   void** handler) = 0;
-
-    virtual nsresult CallEventHandler(
-                                   JSObject* target,
-                                   JSObject* handler,
-                                   unsigned int argc,
-                                   jsval* argv,
-                                   jsval* rval) = 0;
-
-    virtual nsresult BindCompiledEventHandler(
-                                   void* aTarget,
-                                   nsIAtom* aName,
-                                   void* aHandler) = 0;
-
-    virtual nsresult CompileFunction(
-                                   void* target,
-                                   const nsACString& name,
-                                   PRUint32 arg_count,
-                                   const char** arg_array,
-                                   const nsAString& body,
-                                   const char* url,
-                                   PRUint32 line_no,
-                                   PRBool shared,
-                                   void** function_object) = 0;
-
-    virtual void SetDefaultLanguageVersion(const char* aVersion) = 0;
-
-    virtual nsIScriptGlobalObject* GetGlobalObject() = 0;
-    virtual void *GetNativeContext() = 0;
-    virtual nsresult InitContext(nsIScriptGlobalObject* global_object) = 0;
-    virtual PRBool IsContextInitialized() = 0;
-    virtual void GC() = 0;
-
-    virtual void ScriptEvaluated(PRBool terminated) = 0;
-    virtual void SetOwner(nsIScriptContextOwner* owner) = 0;
-    virtual nsIScriptContextOwner *GetOwner() = 0;
-
-    virtual nsresult SetTerminationFunction(nsScriptTerminationFunc func,
-                                            nsISupports* ref) = 0;
-
-    virtual PRBool GetScriptsEnabled() = 0;
-    virtual void SetScriptsEnabled(PRBool enabled,
-                                   PRBool fire_timeouts) = 0;
-
-    virtual PRBool GetProcessingScriptTag() = 0;
-    virtual void SetProcessingScriptTag(PRBool result) = 0;
-    virtual void SetGCOnDestruction(PRBool gc_on_destruction) = 0;
-
-    virtual nsresult InitClasses(JSObject* global_obj) = 0;
-    virtual void WillInitializeContext() = 0;
-    virtual void DidInitializeContext() = 0;
-};
-*/
-
-
 
 
 bool wxWebControl::Execute(const wxString& js_code)
