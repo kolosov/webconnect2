@@ -2,7 +2,7 @@
 // Name:        testapp.cpp
 // Purpose:     wxwebconnect test application
 // Author:      Benjamin I. Williams
-// Modified by:
+// Modified by: Sergey Kolosov <kolosov@gmail.com>
 // Created:     2007-05-14
 // RCS-ID:      
 // Copyright:   (C) Copyright 2006-2009, Kirix Corporation, All Rights Reserved.
@@ -769,7 +769,8 @@ void MyFrame::OnGoAbout(wxCommandEvent& evt)
     arr.Add(wxT("		<h3>wxWebConnect Test Application<br/></h3>"));
     arr.Add(wxT("		<h5>Version 1.1<br/></h5>"));
     arr.Add(wxT("		<p class=\"copyright\">Copyright &copy; 2006-2009 Kirix Corporation. All rights reserved.<br/>"));
-    arr.Add(wxT("		                       Licence:     wxWindows Library Licence, Version 3.1</p>"));
+    arr.Add(wxT("		                       Licence:     wxWindows Library Licence, Version 3.1<br/>"));
+    arr.Add(wxT("		                       Modified by: Sergey Kolosov</p>"));	
     arr.Add(wxT("		<p class=\"gray\">This software contains an unmodified binary version of the open-source XULRunner"));
     arr.Add(wxT("                         engine as provided by the Mozilla Foundation. Please read the"));
     arr.Add(wxT("                         <a href=\"http://www.mozilla.org/MPL/\">license terms and notices"));

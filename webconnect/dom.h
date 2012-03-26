@@ -2,7 +2,7 @@
 // Name:        dom.h
 // Purpose:     wxwebconnect: embedded web browser control library
 // Author:      Benjamin I. Williams
-// Modified by: Sergey Kolosov
+// Modified by: Sergey Kolosov <kolosov@gmail.com>
 // Created:     2009-05-14
 // RCS-ID:      
 // Copyright:   (C) Copyright 2006-2010, Kirix Corporation, All Rights Reserved.
