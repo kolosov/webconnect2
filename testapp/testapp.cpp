@@ -774,7 +774,7 @@ void MyFrame::OnGoAbout(wxCommandEvent& evt)
     arr.Add(wxT("		<p class=\"gray\">This software contains an unmodified binary version of the open-source XULRunner"));
     arr.Add(wxT("                         engine as provided by the Mozilla Foundation. Please read the"));
     arr.Add(wxT("                         <a href=\"http://www.mozilla.org/MPL/\">license terms and notices"));
-    arr.Add(wxT("                         </a> for the XULRunner engine. This software uses XULRunner version " + geckoVer + ".</p>"));	
+    arr.Add(wxT("                         </a> for the XULRunner engine. This software uses XULRunner version ") + geckoVer + wxT(".</p>"));
     arr.Add(wxT("	</div>"));
     arr.Add(wxT("</body>"));
     arr.Add(wxT("</html>"));

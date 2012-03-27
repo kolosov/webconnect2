@@ -2635,7 +2635,7 @@ bool wxWebControl::IsOk() const
 wxString wxWebControl::GeckoVersion()
 {
 	wxString version;    
-	version << MOZILLA_VERSION_1 << "." << MOZILLA_VERSION_2 << "." << MOZILLA_VERSION_3;
+	version << MOZILLA_VERSION_1 << wxT(".") << MOZILLA_VERSION_2 << wxT(".") << MOZILLA_VERSION_3;
 	return version;
 }
 // (METHOD) wxWebControl::Find
