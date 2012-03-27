@@ -199,6 +199,7 @@ public:
     
     bool Init();
     bool IsOk() const;
+    void Uninit();
     
     void AddContentListener(ContentListener* l);
     ContentListenerPtrArray& GetContentListeners();
@@ -1831,6 +1832,18 @@ bool GeckoEngine::IsOk() const
 {
     return m_ok;
 }
+void GeckoEngine::Uninit()
+{
+	if(IsOk())
+	{
+		NS_LogInit();
+		if(!XRE_TermEmbedding) return;
+		XRE_TermEmbedding();
+		nsresult res;
+		res = XPCOMGlueShutdown();
+		NS_LogTerm();
+	}
+}
 
 void GeckoEngine::SetEnginePath(const wxString& path)
 {
@@ -2597,6 +2610,8 @@ wxWebControl::~wxWebControl()
         // release chrome
         m_chrome->ChromeUninit();
         m_chrome->Release();
+		//FIXME
+		//g_gecko_engine.Uninit();
     }
 
 
