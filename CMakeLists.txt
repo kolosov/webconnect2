@@ -44,6 +44,9 @@ configure_file (
   "${PROJECT_SOURCE_DIR}/moz_config.h.in"
   "${PROJECT_BINARY_DIR}/moz_config.h"
   )
+
+file(MAKE_DIRECTORY "${PROJECT_BINARY_DIR}/xr")
+
 include_directories("${PROJECT_BINARY_DIR}")
 
 add_subdirectory (webconnect)
