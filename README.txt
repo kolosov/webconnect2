@@ -1,8 +1,10 @@
 It is webconnect2 based on webconnect 1.1 project(please read readme_1.1.txt)
 
-webconnect2 ask gecko sdk for compilation and uses cmake based build system.
-It is works both under linux and windows. Under windows I use wxwidget compiled 
-without UNICODE support because there are some promlem seems linked with WCHAR.
+Webconnect2 supports gecko from 1.9.0 to 10 versions. Under windows Gecko 10 build requires
+a copy of mozutils.dll to root binary directory.
+
+Webconnect2 requires gecko sdk for compilation and uses cmake based build system.
+It is works both under linux and windows.
 Steps for windows buildung:
 
 1) mkdir build_w2 && cd build_w2
