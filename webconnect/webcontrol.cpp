@@ -2569,11 +2569,12 @@ wxWebControl::wxWebControl(wxWindow* parent,
 	const char *ns_uri = "about:blank";
 	
     //m_ptrs->m_web_navigation->LoadURI(ns_uri,
+	/*FIXME!!!
 	m_ptrs->m_web_navigation->LoadURI(NS_ConvertUTF8toUTF16(ns_uri).get(),
                                       nsIWebNavigation::LOAD_FLAGS_NONE,
                                       0,
                                       0,
-                                      0);
+                                      0);*/
     //freeUnichar(ns_uri);
     
     // show the browser component
