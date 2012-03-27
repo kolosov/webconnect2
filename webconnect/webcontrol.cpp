@@ -1983,6 +1983,8 @@ bool GeckoEngine::Init()
 #else
     res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));	
 #endif
+    if (NS_FAILED(res))
+            return false;
 
     // initialize profile:
     XRE_NotifyProfile();
