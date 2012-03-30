@@ -774,7 +774,12 @@ NS_IMETHODIMP BrowserChrome::OnStateChange(nsIWebProgress* progress,
 // nsIWebProgressListener::OnLocationChange()
 NS_IMETHODIMP BrowserChrome::OnLocationChange(nsIWebProgress* progress,
                                               nsIRequest* request,
-                                              nsIURI* location)
+#if MOZILLA_VERSION_1 >= 11
+                     nsIURI* location,
+                     PRUint32 aflags)
+#else
+                     nsIURI* location)
+#endif
 {
     if (!m_wnd)
         return NS_OK;
@@ -3993,7 +3998,9 @@ bool wxWebControl::Execute(const wxString& js_code)
     
     nsEmbedString str;
     wx2ns(js_code, str);
-#if MOZILLA_VERSION_1 < 9
+#if MOZILLA_VERSION_1 >= 11
+    JS::Value out;
+#elif MOZILLA_VERSION_1 < 9
     jsval out;
 #else
 	void* out;

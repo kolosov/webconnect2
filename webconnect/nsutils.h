@@ -82,7 +82,12 @@ public:
     NS_IMETHOD OnLocationChange(
                              nsIWebProgress* web_progress,
                              nsIRequest* request,
-                             nsIURI* location);
+#if MOZILLA_VERSION_1 >= 11
+                     nsIURI* location,
+                     PRUint32 aflags);
+#else
+                     nsIURI* location);
+#endif
     NS_IMETHOD OnStatusChange(
                              nsIWebProgress* web_progress,
                              nsIRequest* request,

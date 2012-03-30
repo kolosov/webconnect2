@@ -162,4 +162,8 @@
 #include "nsIWeakReferenceUtils.h"
 #include "nsISupportsImpl.h"
 
+#if MOZILLA_VERSION_1 >=11
+#include "jsapi.h"
+#endif
+
 #endif
