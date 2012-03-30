@@ -290,7 +290,12 @@ NS_IMETHODIMP ProgressListenerAdaptor::OnProgressChange64(
 NS_IMETHODIMP ProgressListenerAdaptor::OnLocationChange(
                      nsIWebProgress* web_progress,
                      nsIRequest* request,
+#if MOZILLA_VERSION_1 >= 11
+                     nsIURI* location,
+                     PRUint32 aflags)
+#else
                      nsIURI* location)
+#endif
 {
    return NS_OK;
 }
