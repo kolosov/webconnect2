@@ -2,8 +2,9 @@ It is deeply modification of webconnect 1.1 project(please read old webconnect
 readme_1.1.txt)
 
 Improvements:
- - supports gecko from 1.9.0 to 10 versions.  Under windows Gecko 10 build 
-requires a copy of mozutils.dll to root binary directory.
+ - supports gecko from 1.9.0 to 10 (gecko 10 ask some additional workaround 
+with mozalloc library, under windows Gecko 10 build requires a mozutils.dll
+ copy to root binary directory).
  - cmake build system
  - support Linux (32bit and 64bit) and Windows build
 
