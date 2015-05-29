@@ -18,9 +18,11 @@ class wxDOMNode;
 class wxDOMElement;
 class wxDOMDocument;
 class wxDOMNodeList;
+class wxDOMHTMLCollection;
 class wxDOMNamedNodeMap;
 struct wxDOMNodeData;
 struct wxDOMNodeListData;
+class wxDOMHTMLCollectionData;
 struct wxDOMNamedNodeMapData;
 struct wxDOMEventData;
 
@@ -44,6 +46,7 @@ friend class wxDOMAttr;
 friend class wxDOMElement;
 friend class wxDOMDocument;
 friend class wxDOMNodeList;
+friend class wxDOMHTMLCollection;
 friend class wxDOMNamedNodeMap;
 friend class wxDOMHTMLSelectElement;
 
@@ -84,7 +87,7 @@ public:
     wxDOMNode RemoveChild(wxDOMNode& old_child);
     wxDOMNode AppendChild(wxDOMNode& new_child);
     
-    wxDOMNamedNodeMap GetAttributes();
+    //wxDOMNamedNodeMap GetAttributes();
 
     wxDOMNode CloneNode(bool deep);
     void Normalize();
@@ -145,6 +148,40 @@ public:
 private:
 
     wxDOMNodeListData* m_data;
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
+//  wxDOMHTMLCollection class
+///////////////////////////////////////////////////////////////////////////////
+
+
+// (CLASS) wxDOMHTMLCollection
+// Category: DOM
+// Description: Encapsulates a DOM node list.
+// Remarks: The wxDOMNodeList class encapsulates a DOM node list.
+
+class wxDOMHTMLCollection
+{
+friend class wxDOMNode;
+friend class wxDOMElement;
+friend class wxDOMDocument;
+
+public:
+
+    wxDOMHTMLCollection();
+    ~wxDOMHTMLCollection();
+    wxDOMHTMLCollection(const wxDOMHTMLCollection& c);
+    wxDOMHTMLCollection& operator=(const wxDOMHTMLCollection& c);
+
+    bool IsOk() const;
+
+    wxDOMNode Item(uint32_t idx);
+    size_t GetLength();
+
+private:
+
+    wxDOMHTMLCollectionData* m_data;
 };
 
 
@@ -260,7 +297,7 @@ public:
     wxDOMAttr SetAttributeNode(wxDOMAttr& new_attr);
     wxDOMAttr RemoveAttributeNode(wxDOMAttr& old_attr);
 
-    wxDOMNodeList GetElementsByTagName(const wxString& name);
+    wxDOMHTMLCollection GetElementsByTagName(const wxString& name);
 
     wxString GetAttributeNS(const wxString& namespace_uri, const wxString& local_name);
     void SetAttributeNS(const wxString& namespace_uri, const wxString& qualified_name, const wxString& value);
@@ -392,8 +429,8 @@ public:
     wxString GetDir();
     void SetDir(const wxString& value);
 
-    wxString GetClassName();
-    void SetClassName(const wxString& value);
+    //wxString GetClassName();
+    //void SetClassName(const wxString& value);
 
 public:
 
@@ -408,7 +445,7 @@ public:
 
 
 
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLAnchorElement class
 ///////////////////////////////////////////////////////////////////////////////
@@ -471,10 +508,10 @@ public:
     void Blur();
     void Focus();
 };
+*/
 
 
-
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLButtonElement class
 ///////////////////////////////////////////////////////////////////////////////
@@ -519,10 +556,10 @@ public:
     // NS_IMETHOD GetValue(nsAString& value);
     // NS_IMETHOD SetValue(const nsAString& value);
 };
+*/
 
 
-
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLInputElement class
 ///////////////////////////////////////////////////////////////////////////////
@@ -606,10 +643,10 @@ public:
     void Select();
     void Click();
 };
+*/
 
 
-
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLLinkElement class
 ///////////////////////////////////////////////////////////////////////////////
@@ -661,7 +698,7 @@ public:
     wxString GetType();
     void SetType(const wxString& value);
 };
-
+*/
 
 
 
@@ -754,7 +791,7 @@ public:
 
 
 
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLSelectElement class
 ///////////////////////////////////////////////////////////////////////////////
@@ -815,10 +852,10 @@ public:
     void Blur();
     void Focus();
 };
+*/
 
 
-
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLTextAreaElement class
 ///////////////////////////////////////////////////////////////////////////////
@@ -887,7 +924,7 @@ public:
     void Focus();
     void Select();
 };
-
+*/
 
 
 

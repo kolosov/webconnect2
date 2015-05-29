@@ -67,7 +67,7 @@
 #include "nsIWebBrowserFind.h"
 #include "nsIClipboardCommands.h"
 #include "nsIWebBrowserChromeFocus.h"
-#include "nsIEmbeddingSiteWindow2.h"
+#include "nsIEmbeddingSiteWindow.h"
 #include "nsIWeakReference.h"
 #include "nsWeakReference.h"
 
@@ -118,8 +118,9 @@
 #include "nsIDOMAttr.h"
 #include "nsIDOMText.h"
 #include "nsIDOMNodeList.h"
+#include "nsIDOMHTMLCollection.h"
 #include "nsIDOMDocumentType.h"
-#include "nsIDOMNamedNodeMap.h"
+//#include "nsIDOMNamedNodeMap.h"
 
 #include "nsIServiceManager.h"
 
@@ -128,7 +129,7 @@
 #include "nsIDOMHTMLInputElement.h"
 #include "nsIDOMHTMLLinkElement.h"
 #include "nsIDOMHTMLOptionElement.h"
-#include "nsIDOMHTMLParamElement.h"
+//#include "nsIDOMHTMLParamElement.h"
 #include "nsIDOMHTMLSelectElement.h"
 #include "nsIDOMHTMLTextAreaElement.h"
 
@@ -153,7 +154,7 @@
 #include "nsIPrintSettings.h"
 #include "nsIContentViewer.h"
 #include "nsIWebBrowserPrint.h"
-#include "nsEvent.h"
+//#include "nsEvent.h"
 #include "nsIScriptSecurityManager.h"
 #include "nsIAppShell.h"
 

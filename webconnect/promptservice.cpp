@@ -1289,7 +1289,7 @@ public:
             switch (evt.m_download_action)
             {
                 case wxWEB_DOWNLOAD_SAVE:
-                    launcher->SaveToDisk(nsnull, PR_FALSE);
+                    launcher->SaveToDisk(nsnull, false);
                     break;
                 case wxWEB_DOWNLOAD_SAVEAS:
                     wxASSERT_MSG(evt.m_download_action_path.Length() > 0, wxT("You must specify a filename in the event object"));
@@ -1303,8 +1303,8 @@ public:
                     {
                         std::string fname = (const char*)evt.m_download_action_path.mbc_str();
                         
-                        nsILocalFile* filep = NULL;
-                        NS_NewNativeLocalFile(nsDependentCString(fname.c_str()), PR_TRUE, &filep);
+                        nsIFile* filep = NULL;
+                        NS_NewNativeLocalFile(nsDependentCString(fname.c_str()), true, &filep);
 
                         launcher->SaveToDisk(filep, PR_FALSE);
 
@@ -1338,7 +1338,7 @@ public:
         }
          else
         {
-            launcher->SaveToDisk(nsnull, PR_FALSE);
+            launcher->SaveToDisk(nsnull, false);
             return NS_OK;
 /*
             OpenOrSaveDlg dlg(GetTopFrameFromDOMWindow(parent), filename);
@@ -1365,7 +1365,7 @@ public:
                                    nsISupports* window_context,
                                    const PRUnichar* default_file,
                                    const PRUnichar* suggested_file_extension,
-                                   nsILocalFile** new_file)
+                                   nsIFile** new_file)
     {
         return PromptForSaveToFile(launcher, window_context, default_file, suggested_file_extension, false, new_file);
     }
@@ -1379,7 +1379,7 @@ public:
 #else
                                    PRBool force_prompt,
 #endif
-                                   nsILocalFile** new_file)
+                                   nsIFile** new_file)
     {
         nsCOMPtr<nsISupports> context = window_context;
         //FIXME later
@@ -1407,7 +1407,7 @@ public:
         
         std::string fname = (const char*)dlg.GetPath().mbc_str();
 
-        NS_NewNativeLocalFile(nsDependentCString(fname.c_str()), PR_TRUE, new_file);
+        NS_NewNativeLocalFile(nsDependentCString(fname.c_str()), true, new_file);
         return NS_OK;
     }
 };
@@ -1473,7 +1473,7 @@ public:
     }
 };
 
-NS_IMPL_ISUPPORTS1(UnknownContentTypeHandlerFactory, nsIFactory);
+NS_IMPL_ISUPPORTS(UnknownContentTypeHandlerFactory, nsIFactory);
 
 
 void CreateUnknownContentTypeHandlerFactory(nsIFactory** result)

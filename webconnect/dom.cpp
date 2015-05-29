@@ -459,6 +459,7 @@ wxDOMNode wxDOMNode::AppendChild(wxDOMNode& new_child)
     return node;
 }
 
+/*
 // (METHOD) wxDOMNode::GetAttributes
 // Description:
 //
@@ -479,6 +480,7 @@ wxDOMNamedNodeMap wxDOMNode::GetAttributes()
     m_data->node_ptr->GetAttributes( getter_AddRefs (node_map.m_data->ptr));
     return node_map;
 }
+*/
 
 // (METHOD) wxDOMNode::CloneNode
 // Description:
@@ -492,12 +494,13 @@ wxDOMNamedNodeMap wxDOMNode::GetAttributes()
 wxDOMNode wxDOMNode::CloneNode(bool deep)
 {
     wxDOMNode node;
+    uint8_t argc=0;
 
     if (!IsOk())
         return node;
         
     nsIDOMNode* result = NULL;
-    m_data->node_ptr->CloneNode((deep ? PR_TRUE : PR_FALSE),
+    m_data->node_ptr->CloneNode(deep, argc,
                                 &result);
 
     if (!result)
@@ -523,6 +526,7 @@ void wxDOMNode::Normalize()
     m_data->node_ptr->Normalize();
 }
 
+/*
 // (METHOD) wxDOMNode::IsSupported
 // Description:
 //
@@ -559,6 +563,7 @@ bool wxDOMNode::IsSupported(const wxString& feature,
 #endif
 
 }
+*/
 
 // (METHOD) wxDOMNode::HasChildNodes
 // Description:
@@ -735,7 +740,7 @@ public:
 };
 
 
-NS_IMPL_ISUPPORTS1(wxDOMEventAdaptor, nsIDOMEventListener)
+NS_IMPL_ISUPPORTS(wxDOMEventAdaptor, nsIDOMEventListener)
 
 
 
@@ -1158,19 +1163,19 @@ wxDOMAttr wxDOMElement::RemoveAttributeNode(wxDOMAttr& old_attr)
 //
 // Returns:
 
-wxDOMNodeList wxDOMElement::GetElementsByTagName(const wxString& name)
+wxDOMHTMLCollection wxDOMElement::GetElementsByTagName(const wxString& name)
 {
-    wxDOMNodeList node_list;
+	wxDOMHTMLCollection node_collection;
 
     if (!IsOk())
-        return node_list;
+        return node_collection;
 
     nsEmbedString nsname;
     wx2ns(name, nsname);
 
-    m_data->element_ptr->GetElementsByTagName(nsname,
-                                              getter_AddRefs(node_list.m_data->ptr));
-    return node_list;
+    m_data->element_ptr->GetElementsByTagName(nsname, getter_AddRefs(node_collection.m_data->ptr));
+
+    return node_collection;
 }
 
 // (METHOD) wxDOMElement::GetAttributeNS
@@ -2110,6 +2115,7 @@ void wxDOMHTMLElement::SetDir(const wxString& value)
     }
 }
 
+/*
 // (METHOD) wxDOMHTMLElement::GetClassName
 // Description:
 //
@@ -2135,7 +2141,9 @@ wxString wxDOMHTMLElement::GetClassName()
     
     return wxEmptyString;
 }
+*/
 
+/*
 // (METHOD) wxDOMHTMLElement::SetClassName
 // Description:
 //
@@ -2160,6 +2168,7 @@ void wxDOMHTMLElement::SetClassName(const wxString& value)
         e->SetClassName(nsvalue);
     }
 }
+*/
 
 // (METHOD) wxDOMHTMLElement::SetValue
 // Description:
@@ -2299,6 +2308,7 @@ bool wxDOMHTMLElement::HasValueProperty() const
 }
 
 
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLAnchorElement class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -2855,10 +2865,10 @@ void wxDOMHTMLAnchorElement::Focus()
         
     m_data->anchor_ptr->Focus();
 }
+*/
 
 
-
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLButtonElement class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -3085,10 +3095,10 @@ wxString wxDOMHTMLButtonElement::GetType()
 
     return ns2wx(ns);
 }
+*/
 
 
-
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLInputElement class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -3840,10 +3850,10 @@ void wxDOMHTMLInputElement::Click()
         
     m_data->input_ptr->Click();
 }
+*/
 
 
-
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLLinkElement class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -4251,7 +4261,7 @@ void wxDOMHTMLLinkElement::SetType(const wxString& value)
 
     m_data->link_ptr->SetType(nsvalue);
 }
-
+*/
 
 
 
@@ -4506,7 +4516,7 @@ void wxDOMHTMLOptionElement::SetSelected(bool value)
 
 
 
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLParamElement class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -4673,9 +4683,10 @@ void wxDOMHTMLParamElement::SetValueType(const wxString& valuetype)
     m_data->param_ptr->SetValueType(nsvaluetype);
 }
 
+*/
 
 
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLSelectElement class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -5090,10 +5101,10 @@ void wxDOMHTMLSelectElement::Focus()
 
     m_data->select_ptr->Focus();
 }
+*/
 
 
-
-
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMHTMLTextAreaElement class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -5537,7 +5548,7 @@ void wxDOMHTMLTextAreaElement::Select()
         
     m_data->textarea_ptr->Select();
 }
-
+*/
 
 
 
@@ -5628,8 +5639,93 @@ size_t wxDOMNodeList::GetLength()
 }
 
 
+///////////////////////////////////////////////////////////////////////////////
+//  wxDOMHTMLCollection class implementation
+///////////////////////////////////////////////////////////////////////////////
 
 
+// (CONSTRUCTOR) wxDOMHTMLCollection::wxDOMNodeList
+// Description: Creates a new wxDOMNodeList object.
+//
+// Syntax: wxDOMHTMLCollection::wxDOMNodeList()
+//
+// Remarks: Creates a new wxDOMHTMLCollection object.
+
+wxDOMHTMLCollection::wxDOMHTMLCollection()
+{
+    m_data = new wxDOMHTMLCollectionData;
+}
+
+wxDOMHTMLCollection::~wxDOMHTMLCollection()
+{
+    delete m_data;
+}
+
+wxDOMHTMLCollection::wxDOMHTMLCollection(const wxDOMHTMLCollection& c)
+{
+    m_data = new wxDOMHTMLCollectionData;
+    m_data->ptr = c.m_data->ptr;
+}
+
+wxDOMHTMLCollection& wxDOMHTMLCollection::operator=(const wxDOMHTMLCollection& c)
+{
+    m_data->ptr = c.m_data->ptr;
+    return *this;
+}
+
+// (METHOD) wxDOMHTMLCollection::IsOk
+// Description:
+//
+// Syntax: bool wxDOMHTMLCollection::IsOk() const
+//
+// Remarks:
+//
+// Returns: Returns true if the DOM Node List is valid, and false otherwise.
+
+bool wxDOMHTMLCollection::IsOk() const
+{
+    return (m_data->ptr ? true : false);
+}
+
+// (METHOD) wxDOMNodeList::Item
+// Description:
+//
+// Syntax: wxDOMNode wxDOMNodeList::Item(size_t idx)
+//
+// Remarks:
+//
+// Returns:
+
+wxDOMNode wxDOMHTMLCollection::Item(uint32_t idx)
+{
+    wxDOMNode node;
+    if (!IsOk())
+        return node;
+    //m_data->ptr->Item(idx, &node.m_data->node_ptr.p);
+    m_data->ptr->Item(idx, getter_AddRefs(node.m_data->node_ptr));
+    return node;
+}
+
+// (METHOD) wxDOMNodeList::GetLength
+// Description:
+//
+// Syntax: size_t wxDOMNodeList::GetLength()
+//
+// Remarks:
+//
+// Returns:
+
+size_t wxDOMHTMLCollection::GetLength()
+{
+    if (!IsOk())
+        return 0;
+
+    uint32_t res;
+    m_data->ptr->GetLength(&res);
+    return res;
+}
+
+/*
 ///////////////////////////////////////////////////////////////////////////////
 //  wxDOMNamedNodeMap class implementation
 ///////////////////////////////////////////////////////////////////////////////
@@ -5841,7 +5937,7 @@ wxDOMNode wxDOMNamedNodeMap::SetNamedItemNS(wxDOMNode& arg)
     m_data->ptr->SetNamedItemNS(arg.m_data->node_ptr, getter_AddRefs(node.m_data->node_ptr));
     return node;
 }
-
+*/
 
 
 

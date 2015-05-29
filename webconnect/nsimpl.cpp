@@ -44,10 +44,10 @@ wxString ns2wx(nsEmbedCString& str)
 wxString ns2wx(nsEmbedString& str)
 {
     wxString res;
-    const PRUnichar* begin;
-    const PRUnichar* end;
+    const char16_t* begin;
+    const char16_t* end;
     
-    PRUint32 i, len = NS_StringGetData(str, &begin);
+    uint32_t i, len = NS_StringGetData(str, &begin);
     end = begin + len;
     
     res.Alloc(end - begin);
@@ -57,7 +57,7 @@ wxString ns2wx(nsEmbedString& str)
     return res;
 }
 
-wxString ns2wx(const PRUnichar* str)
+wxString ns2wx(const char16_t* str)
 {
     if (!str)
         return wxT("");
@@ -75,7 +75,7 @@ wxString ns2wx(const PRUnichar* str)
 void wx2ns(const wxString& wxstr, nsEmbedString& nsstr)
 {
     size_t i, len = wxstr.Length();
-    PRUnichar* buf = new PRUnichar[len+1];
+    char16_t* buf = new char16_t[len+1];
     for (i = 0; i < len; ++i)
         buf[i] = wxstr.GetChar(i);
     nsstr.Assign(buf, len);
@@ -87,17 +87,17 @@ void wx2ns(const wxString& wxstr, nsEmbedCString& nsstr)
     nsstr.Assign(wxstr.mbc_str());
 }
 
-PRUnichar* wxToUnichar(const wxString& wxstr)
+char16_t* wxToUnichar(const wxString& wxstr)
 {
     size_t i,len = wxstr.Length();
-    PRUnichar* ret = (PRUnichar*)NS_Alloc((len+1) * sizeof(PRUnichar));
+    char16_t* ret = (char16_t*)NS_Alloc((len+1) * sizeof(char16_t));
     for (i = 0; i < len; ++i)
-        *(ret+i) = (PRUnichar)wxstr.GetChar(i);
+        *(ret+i) = (char16_t)wxstr.GetChar(i);
     *(ret+len) = 0;
     return ret;
 }
 
-void freeUnichar(PRUnichar* p)
+void freeUnichar(char16_t* p)
 {
     NS_Free((void*)p);
 }
@@ -175,12 +175,18 @@ nsCOMPtr<nsIIOService> nsGetIOService()
     return result;
 }
 
-nsCOMPtr<nsILocalFile> nsNewLocalFile(const wxString& filename)
+nsCOMPtr<nsIFile> nsNewLocalFile(const wxString& filename)
 {
-    nsresult res = 0;
-    nsCOMPtr<nsILocalFile> ret;
+    nsresult res;
+    nsCOMPtr<nsIFile> ret;
+
+    /*NS_NewNativeLocalFile(const nsACString &path,
+                          bool followLinks,
+                          nsIFile* *result);*/
+
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)filename.mbc_str()), true, getter_AddRefs(ret));
     
-    res = NS_NewNativeLocalFile(nsDependentCString((const char*)filename.mbc_str()), TRUE, getter_AddRefs(ret));
+    //res = NS_NewNativeLocalFile(nsDependentCString((const char*)filename.mbc_str()), TRUE, getter_AddRefs(ret));
     
     //if (NS_FAILED(res))
     //    ret.clear();
@@ -199,8 +205,8 @@ nsCOMPtr<nsIURI> nsNewURI(const wxString& spec)
         return res;
     
     std::string cstr_spec = (const char*)spec.mbc_str();
-    
-    io_service->NewURI(nsDependentCString(cstr_spec.c_str()), nsnull, nsnull, getter_AddRefs(res));
+
+    io_service->NewURI(nsDependentCString(cstr_spec.c_str()), NULL, NULL, getter_AddRefs(res));
     
     return res;
 }
@@ -278,9 +284,12 @@ NS_IMETHODIMP ProgressListenerAdaptor::OnProgressChange64(
     {
         m_progress->OnProgressChange(wxLongLong(cur_self_progress),
                                      wxLongLong(max_self_progress));
+
+        nsresult status; //TODO set status
                                      
         if (m_progress->IsCancelled())
-            request->Cancel(0x804b0002 /*NS_BINDING_ABORTED*/);
+        	request->Cancel(status);
+            //request->Cancel(0x804b0002 /*NS_BINDING_ABORTED*/);
     }
     
     return NS_OK;

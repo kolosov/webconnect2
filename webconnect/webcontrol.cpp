@@ -82,10 +82,11 @@ public:
 
 static const wxDirSrvProvider DirectoryProvider = wxDirSrvProvider();
 
-NS_IMPL_QUERY_INTERFACE2(wxDirSrvProvider,
+NS_IMPL_QUERY_INTERFACE(wxDirSrvProvider,
                          nsIDirectoryServiceProvider,
                          nsIDirectoryServiceProvider2)
 
+/*
 NS_IMETHODIMP_(nsrefcnt)
 wxDirSrvProvider::AddRef()
 {
@@ -97,6 +98,7 @@ wxDirSrvProvider::Release()
 {
     return 1;
 }
+*/
 
 NS_IMETHODIMP
 wxDirSrvProvider::GetFile(const char *aKey,
@@ -265,7 +267,7 @@ class BrowserChrome : public nsIWebBrowserChrome,
                       public nsIChromeInternal,
                       public nsIWebBrowserChromeFocus,
                       public nsIWebProgressListener,
-                      public nsIEmbeddingSiteWindow2,
+                      public nsIEmbeddingSiteWindow,
                       public nsIInterfaceRequestor,
                       public nsSupportsWeakReference,
                       public nsIContextMenuListener2,
@@ -280,7 +282,6 @@ public:
     NS_DECL_NSIWEBPROGRESSLISTENER
     NS_DECL_NSIINTERFACEREQUESTOR
     NS_DECL_NSIEMBEDDINGSITEWINDOW
-    NS_DECL_NSIEMBEDDINGSITEWINDOW2
     NS_DECL_NSICONTEXTMENULISTENER2
     NS_DECL_NSITOOLTIPLISTENER
     NS_DECL_NSIDOMEVENTLISTENER
@@ -333,7 +334,6 @@ NS_INTERFACE_MAP_BEGIN(BrowserChrome)
     NS_INTERFACE_MAP_ENTRY(nsIWebBrowserChromeFocus)
     NS_INTERFACE_MAP_ENTRY(nsIWebProgressListener)
     NS_INTERFACE_MAP_ENTRY(nsIEmbeddingSiteWindow)
-    NS_INTERFACE_MAP_ENTRY(nsIEmbeddingSiteWindow2)
     NS_INTERFACE_MAP_ENTRY(nsIInterfaceRequestor)
     NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
     NS_INTERFACE_MAP_ENTRY(nsIContextMenuListener2)
@@ -551,13 +551,13 @@ NS_IMETHODIMP BrowserChrome::SetFocus()
     return NS_OK;
 }
 
-NS_IMETHODIMP BrowserChrome::GetTitle(PRUnichar** title)
+NS_IMETHODIMP BrowserChrome::GetTitle(char16_t** title)
 {
     *title = wxToUnichar(m_title);
     return NS_OK;
 }
 
-NS_IMETHODIMP BrowserChrome::SetTitle(const PRUnichar* title)
+NS_IMETHODIMP BrowserChrome::SetTitle(const char16_t* title)
 {
     if (!m_wnd)
         return NS_OK;
@@ -608,7 +608,7 @@ NS_IMETHODIMP BrowserChrome::DestroyBrowserWindow()
     return NS_OK;
 }
 
-NS_IMETHODIMP BrowserChrome::SetStatus(PRUint32 type, const PRUnichar* status)
+NS_IMETHODIMP BrowserChrome::SetStatus(PRUint32 type, const char16_t* status)
 {
     if (!m_wnd)
         return NS_OK;
@@ -799,7 +799,7 @@ NS_IMETHODIMP BrowserChrome::OnLocationChange(nsIWebProgress* progress,
 NS_IMETHODIMP BrowserChrome::OnStatusChange(nsIWebProgress* progress,
                                             nsIRequest* request,
                                             nsresult status,
-                                            const PRUnichar* message)
+                                            const char16_t* message)
 {
     if (!m_wnd)
         return NS_OK;
@@ -867,7 +867,7 @@ NS_IMETHODIMP BrowserChrome::OnShowContextMenu(PRUint32 context_flags,
 
 NS_IMETHODIMP BrowserChrome::OnShowTooltip(PRInt32 x,
                                            PRInt32 y,
-                                           const PRUnichar* tip_text)
+                                           const char16_t* tip_text)
 {
     return NS_OK;
 }
@@ -1012,7 +1012,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
             return NS_ERROR_NOT_IMPLEMENTED;
         
         int evtid;
-        PRUint16 ns_button = 0;
+        int16_t ns_button = 0;
         
         mouse_evt->GetButton(&ns_button);
         
@@ -1673,7 +1673,7 @@ public:
         if (!retval)
             return NS_ERROR_NULL_POINTER;
 
-        nsCOMPtr<nsILocalFile> file;
+        nsCOMPtr<nsIFile> file;
         nsresult res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_paths[m_cur_item].mbc_str()), PR_TRUE, getter_AddRefs(file));
         if (NS_FAILED(res))
             return NS_ERROR_NULL_POINTER;
@@ -1699,7 +1699,7 @@ private:
     
 };
 
-NS_IMPL_ISUPPORTS1(PluginEnumerator, nsISimpleEnumerator)
+NS_IMPL_ISUPPORTS(PluginEnumerator, nsISimpleEnumerator)
 
 
 
@@ -1739,14 +1739,14 @@ public:
             if (!more)
                 break;
             //FIXME
-            nsCOMPtr<nsISupports> element = nsnull;
+            nsCOMPtr<nsISupports> element;
             paths->GetNext(getter_AddRefs(element));
             if (!element)
                 continue;
                 
             //nsCOMPtr<nsIFile> file = nsToSmart(element);
             
-            nsCOMPtr<nsIFile> file = nsnull;
+            nsCOMPtr<nsIFile> file;
             //element->Release();
             
             if (file)
@@ -1845,7 +1845,7 @@ void GeckoEngine::Uninit()
 		if(!XRE_TermEmbedding) return;
 		XRE_TermEmbedding();
 		nsresult res;
-		res = XPCOMGlueShutdown();
+		//res = XPCOMGlueShutdown();
 		NS_LogTerm();
 	}
 }
@@ -1970,7 +1970,7 @@ bool GeckoEngine::Init()
        }
 
 
-    nsCOMPtr<nsILocalFile> gre_dir;
+    nsCOMPtr<nsIFile> gre_dir;
 #if MOZILLA_VERSION_1 >=10
     res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), true, getter_AddRefs(gre_dir));
 #else
@@ -1979,7 +1979,7 @@ bool GeckoEngine::Init()
     if (NS_FAILED(res))
          return false;
 
-    //nsCOMPtr<nsILocalFile> prof_dir;
+    nsCOMPtr<nsIFile> prof_dir;
 #if MOZILLA_VERSION_1 >=10
     res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), true, getter_AddRefs(prof_dir));
 #else
@@ -2468,7 +2468,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
 
     wxSize cli_size = GetClientSize();
     res = m_ptrs->m_base_window->InitWindow(native_handle,
-                                            nsnull,
+                                            NULL,
                                             0, 0,
                                             cli_size.x, cli_size.y);
     if (NS_FAILED(res))
@@ -2677,7 +2677,7 @@ bool wxWebControl::Find(const wxString& text,
     if (!(m_ptrs->m_web_browser_find))
         return false;
 
-    PRUnichar* find_text = wxToUnichar(text);
+    char16_t* find_text = wxToUnichar(text);
     m_ptrs->m_web_browser_find->SetSearchString(find_text);
     freeUnichar(find_text);
 #if MOZILLA_VERSION_1 >=10
@@ -3012,7 +3012,7 @@ void wxWebControl::FetchFavIcon(void* _uri)
 	wxString filename = wxFileName::CreateTempFileName(wxT("fav"));
     filename += wxT(".");
     filename += extension;
-    nsCOMPtr<nsILocalFile> file = nsNewLocalFile(filename);
+    nsCOMPtr<nsIFile> file = nsNewLocalFile(filename);
 
     m_favicon_progress->SetFilename(filename);
     nsIWebProgressListener* la = CreateProgressListenerAdaptor(m_favicon_progress);
@@ -3020,12 +3020,11 @@ void wxWebControl::FetchFavIcon(void* _uri)
     persist->SetProgressListener(la);
     la->Release();
 
-    
-    rv = persist->SaveURI(uri, nsnull, nsnull, nsnull, nsnull, file);
+    rv = persist->SaveURI(uri, NULL, NULL, NULL, NULL, file, NULL);
     
     if (NS_FAILED(rv))
     {
-        persist->SetProgressListener(nsnull);
+        persist->SetProgressListener(NULL);
         return;
     }
 }
@@ -3150,7 +3149,7 @@ void wxWebControl::OpenURI(const wxString& uri,
     
 
 
-    PRUnichar* ns_uri = wxToUnichar(uri);
+    char16_t* ns_uri = wxToUnichar(uri);
 
     //test
     //NS_ConvertUTF8toUTF16(aUri).get()
@@ -3313,7 +3312,7 @@ void wxWebControl::InitPrintSettings()
             
             rv = print_settings_service->GetGlobalPrintSettings(getter_AddRefs(print_settings));
 
-            PRUnichar* printer_name = NULL;
+            char16_t* printer_name = NULL;
             rv = print_settings_service->GetDefaultPrinterName(&printer_name);
             if (printer_name)
                 rv = print_settings_service->InitPrintSettingsFromPrinter(printer_name, print_settings);
@@ -3370,10 +3369,10 @@ void wxWebControl::PrintPreview(bool silent)
     nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
     {
-        settings19->SetShowPrintProgress(PR_FALSE);
-        settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
+        settings19->SetShowPrintProgress(false);
+        settings19->SetPrintSilent(silent);
         //web_browser_print->PrintPreview(settings19,dom_window,m_chrome);
-        web_browser_print->PrintPreviewNavigate(nsnull,nsnull);
+        web_browser_print->PrintPreviewNavigate(NULL,NULL);
     }
 
 }
@@ -3403,9 +3402,9 @@ void wxWebControl::Print(bool silent)
 #if MOZILLA_VERSION_1 < 2 //FIXME workaround for printing, always print silent
         settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
 #else
-		settings19->SetPrintSilent(PR_TRUE);
+		settings19->SetPrintSilent(silent);
 #endif
-        web_browser_print->Print(settings19, nsnull);
+        web_browser_print->Print(settings19, NULL);
     }
 	/*nsCOMPtr<nsIPrintSettings> print_settings;
 	nsresult rv = web_browser_print->GetGlobalPrintSettings(getter_AddRefs(print_settings));
@@ -3994,17 +3993,20 @@ bool wxWebControl::Execute(const wxString& js_code)
     if (!ctx)
         return false;
 
+    /*
     void* obj = sgo->GetGlobalJSObject();
     
     nsEmbedString str;
     wx2ns(js_code, str);
+    */
 #if MOZILLA_VERSION_1 >= 11
-    JS::Value out;
+    //JS::Value out;
 #elif MOZILLA_VERSION_1 < 9
-    jsval out;
+    //jsval out;
 #else
 	void* out;
 #endif
+	/*
     rv = ctx->EvaluateStringWithValue(
         str,
         sgo->GetGlobalJSObject(),
@@ -4014,6 +4016,6 @@ bool wxWebControl::Execute(const wxString& js_code)
         nsnull,
         &out,
         nsnull);
-        
+        */
     return true;
 }

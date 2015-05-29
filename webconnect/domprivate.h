@@ -30,7 +30,7 @@ struct wxDOMNodeData
         input_ptr = do_QueryInterface(supports);
         link_ptr = do_QueryInterface(supports);
         option_ptr = do_QueryInterface(supports);
-        param_ptr = do_QueryInterface(supports);
+//        param_ptr = do_QueryInterface(supports);
         select_ptr = do_QueryInterface(supports);
         textarea_ptr = do_QueryInterface(supports);
 
@@ -47,7 +47,7 @@ struct wxDOMNodeData
     nsCOMPtr<nsIDOMHTMLInputElement> input_ptr;
     nsCOMPtr<nsIDOMHTMLLinkElement> link_ptr;
     nsCOMPtr<nsIDOMHTMLOptionElement> option_ptr;
-    nsCOMPtr<nsIDOMHTMLParamElement> param_ptr;
+//    nsCOMPtr<nsIDOMHTMLParamElement> param_ptr;
     nsCOMPtr<nsIDOMHTMLSelectElement> select_ptr;
     nsCOMPtr<nsIDOMHTMLTextAreaElement> textarea_ptr;
 };
@@ -58,12 +58,17 @@ struct wxDOMNodeListData
     nsCOMPtr<nsIDOMNodeList> ptr;
 };
 
+struct wxDOMHTMLCollectionData
+{
+    nsCOMPtr<nsIDOMHTMLCollection> ptr;
+};
 
+/*
 struct wxDOMNamedNodeMapData
 {
     nsCOMPtr<nsIDOMNamedNodeMap> ptr;
 };
-
+*/
 
 struct wxDOMEventData
 {

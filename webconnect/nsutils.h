@@ -18,10 +18,10 @@
 //wxString ns2wx(nsString& str);
 wxString ns2wx(nsEmbedCString& str);
 wxString ns2wx(nsEmbedString& str);
-wxString ns2wx(const PRUnichar* str);
+wxString ns2wx(const char16_t* str);
 void wx2ns(const wxString& wxstr, nsEmbedString& nsstr);
 void wx2ns(const wxString& wxstr, nsEmbedCString& nsstr);
-PRUnichar* wxToUnichar(const wxString& wxstr);
+char16_t* wxToUnichar(const wxString& wxstr);
 void freeUnichar(PRUnichar* p);
 
 
@@ -32,7 +32,7 @@ nsCOMPtr<nsIProperties> nsGetDirectoryService();
 /*nsCOMPtr<nsISupports> nsGetService(const char* contract_id);
 nsCOMPtr<nsISupports> nsCreateInstance(const char* contract_id);
 nsCOMPtr<nsISupports> nsCreateInstance(const nsCID& cid);*/
-nsCOMPtr<nsILocalFile> nsNewLocalFile(const wxString& filename);
+nsCOMPtr<nsIFile> nsNewLocalFile(const wxString& filename);
 nsCOMPtr<nsIURI> nsNewURI(const wxString& spec);
 
 class wxWebProgressBase;
