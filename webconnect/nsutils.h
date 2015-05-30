@@ -45,7 +45,6 @@ public:
     NS_DECL_ISUPPORTS
 
     ProgressListenerAdaptor(wxWebProgressBase* progress);
-    ~ProgressListenerAdaptor();
     
     void ClearProgressReference()
     {
@@ -116,9 +115,18 @@ public:
                             PRBool *retval);
 #endif
 
+#if MOZILLA_VERSION_1 >=35
+                            NS_IMETHOD SetRedirects(nsIArray *aRedirects);
+#endif
+
+
 public:
 
     wxWebProgressBase* m_progress;
+
+protected:
+    ~ProgressListenerAdaptor();
+
 };
 
 

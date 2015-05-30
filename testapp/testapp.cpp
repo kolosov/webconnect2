@@ -177,7 +177,8 @@ public:
     {
         // Locate the XULRunner engine; the following call will look for 
         // a directory named "xr"
-        wxString xulrunner_path = FindXulRunner(wxT("xr"));
+        //wxString xulrunner_path = FindXulRunner(wxT("xr"));
+        wxString xulrunner_path = wxT("/home/sk/work/mozilla/sdk/xulrunner-31/");
         if (xulrunner_path.IsEmpty())
         {
             wxMessageBox(wxT("Could not find xulrunner directory"));

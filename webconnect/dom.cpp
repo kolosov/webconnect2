@@ -608,17 +608,12 @@ bool wxDOMNode::HasAttributes()
     if (!IsOk())
         return false;
 
-#if MOZILLA_VERSION_1 >= 10
+#if MOZILLA_VERSION_1 < 35
     bool result = false;
     m_data->node_ptr->HasAttributes(&result);
     return result;
 #else
-    PRBool result = PR_FALSE;
-    m_data->node_ptr->HasAttributes(&result);
-
-    if (result == PR_TRUE)
-        return true;
-
+    //TODO implement later!
     return false;
 #endif
 }
@@ -737,6 +732,10 @@ public:
 public:
     wxEvtHandler* m_event_handler;
     int m_event_id;
+
+protected:
+    ~wxDOMEventAdaptor(){
+    };
 };
 
 

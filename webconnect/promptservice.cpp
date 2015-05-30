@@ -388,10 +388,12 @@ class PromptService : public nsIPromptService2,
 public:
 
     PromptService();
-    virtual ~PromptService();
 
     void onBadCertificate(const wxString& message, nsIDOMWindow* dom_window);
     
+protected:
+    virtual ~PromptService();
+
     NS_DECL_ISUPPORTS
     NS_DECL_NSIPROMPTSERVICE
     NS_DECL_NSIPROMPTSERVICE2
@@ -995,6 +997,12 @@ public:
     {
         return NS_OK;
     }
+
+protected:
+    ~PromptServiceFactory()
+    {
+    }
+
 };
 
 NS_IMPL_ISUPPORTS(PromptServiceFactory, nsIFactory);
@@ -1112,6 +1120,11 @@ public:
     {
         return NS_OK;
     }
+
+protected:
+    ~TransferService()
+    {
+    }
 };
 
 NS_IMPL_ADDREF(TransferService)
@@ -1185,6 +1198,11 @@ public:
 #endif
     {
         return NS_OK;
+    }
+
+protected:
+    ~TransferFactory()
+    {
     }
 };
 
@@ -1415,6 +1433,11 @@ public:
         NS_NewNativeLocalFile(nsDependentCString(fname.c_str()), true, new_file);
         return NS_OK;
     }
+
+protected:
+    ~UnknownContentTypeHandler()
+    {
+    }
 };
 
 
@@ -1476,6 +1499,11 @@ public:
     {
         return NS_OK;
     }
+
+protected:
+    ~UnknownContentTypeHandlerFactory()
+    {
+    }
 };
 
 NS_IMPL_ISUPPORTS(UnknownContentTypeHandlerFactory, nsIFactory);
@@ -1497,10 +1525,6 @@ public:
 
 
     CertOverrideService()
-    {
-    }
-
-    virtual ~CertOverrideService()
     {
     }
 
@@ -1577,6 +1601,12 @@ public:
     {
         return NS_ERROR_NOT_IMPLEMENTED;
     }
+
+protected:
+    virtual ~CertOverrideService()
+    {
+    }
+
 };
 
 
@@ -1630,6 +1660,10 @@ public:
 #endif
     {
         return NS_OK;
+    }
+protected:
+    ~CertOverrideFactory()
+    {
     }
 };
 

@@ -288,7 +288,6 @@ public:
     NS_DECL_NSIDOMEVENTLISTENER
 
     BrowserChrome(wxWebControl* wnd);
-    virtual ~BrowserChrome();
     
     void ChromeInit();
     void ChromeUninit();
@@ -302,6 +301,9 @@ public:
     PRUint32 m_chrome_mask;
     wxDialog* m_dialog;
     nsresult m_dialog_retval;
+
+protected:
+    virtual ~BrowserChrome();
 };
 
 
@@ -331,7 +333,7 @@ NS_IMPL_RELEASE(BrowserChrome)
 NS_INTERFACE_MAP_BEGIN(BrowserChrome)
     NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIWebBrowserChrome)
     NS_INTERFACE_MAP_ENTRY(nsIWebBrowserChrome)
-    NS_INTERFACE_MAP_ENTRY(nsIChromeInternal)
+//    NS_INTERFACE_MAP_ENTRY(nsIChromeInternal)
     NS_INTERFACE_MAP_ENTRY(nsIWebBrowserChromeFocus)
     NS_INTERFACE_MAP_ENTRY(nsIWebProgressListener)
     NS_INTERFACE_MAP_ENTRY(nsIEmbeddingSiteWindow)
@@ -1125,10 +1127,6 @@ public:
         m_handler = handler;
     }
     
-    virtual ~ContentListener()
-    {
-    }
-    
     NS_IMETHODIMP OnStartURIOpen(nsIURI* uri,
 #if MOZILLA_VERSION_1 >= 10
     							bool* abort)
@@ -1273,6 +1271,10 @@ private:
 
     wxWebContentHandler* m_handler;
     wxString m_current_uri;
+protected:
+    virtual ~ContentListener()
+    {
+    }
 };
 
 NS_IMPL_ADDREF(ContentListener)
@@ -1308,10 +1310,6 @@ public:
         
         m_wnd = wnd;
         m_docshell_uri_listener = do_GetInterface(browser);
-    }
-    
-    virtual ~MainURIListener()
-    {
     }
     
     NS_IMETHODIMP OnStartURIOpen(nsIURI* uri,
@@ -1500,6 +1498,11 @@ private:
     wxWebControl* m_wnd;
     wxString m_current_url;
     nsCOMPtr<nsIURIContentListener> m_docshell_uri_listener;
+
+protected:
+    virtual ~MainURIListener()
+    {
+    }
 };
 
 
@@ -1530,13 +1533,15 @@ public:
     }
     
     //virtual ~WindowCreator()
-    ~WindowCreator()
-    {
-    }
     
     NS_DECL_ISUPPORTS
     NS_DECL_NSIWINDOWCREATOR
     NS_DECL_NSIWINDOWCREATOR2
+
+protected:
+    ~WindowCreator()
+    {
+    }
 };
 
 NS_IMPL_ISUPPORTS(WindowCreator, nsIWindowCreator, nsIWindowCreator2)
@@ -1605,14 +1610,13 @@ WindowCreator::CreateChromeWindow(nsIWebBrowserChrome* parent,
 
 NS_IMETHODIMP
 WindowCreator::CreateChromeWindow2(nsIWebBrowserChrome *aParent,
-                                   PRUint32 aChromeFlags,
-                                   PRUint32 ,
+                                   uint32_t aChromeFlags,
+								   uint32_t ,
                                    nsIURI * ,
-#if MOZILLA_VERSION_1 >=10
-                                   bool * ,
-#else
-                                   PRBool * ,
+#if MOZILLA_VERSION_1 >=35
+								   nsITabParent * ,
 #endif
+								   bool * ,
                                    nsIWebBrowserChrome **_retval)
 {
     return CreateChromeWindow(aParent, aChromeFlags, _retval);
@@ -1637,10 +1641,7 @@ public:
         NS_INIT_ISUPPORTS();
         m_cur_item = 0;
     }
-    
-    virtual ~PluginEnumerator()
-    {
-    }
+
 #if MOZILLA_VERSION_1 >= 10
     NS_IMETHODIMP HasMoreElements(bool* retval)
         {
@@ -1698,6 +1699,11 @@ private:
     wxArrayString m_paths;
     size_t m_cur_item;
     
+protected:
+    virtual ~PluginEnumerator()
+    {
+    }
+
 };
 
 NS_IMPL_ISUPPORTS(PluginEnumerator, nsISimpleEnumerator)
@@ -1721,10 +1727,7 @@ public:
     {
         NS_INIT_ISUPPORTS();
     }
-    
-    virtual ~PluginListProvider()
-    {
-    }
+
     
     void AddPaths(nsCOMPtr<nsISimpleEnumerator> paths)
     {
@@ -1801,6 +1804,11 @@ public:
 private:
 
     wxArrayString m_paths;
+
+protected:
+    virtual ~PluginListProvider()
+    {
+    }
 };
 
 
@@ -1908,8 +1916,8 @@ bool GeckoEngine::Init()
     if (IsOk())
         return true;
     
-    if (m_gecko_path.IsEmpty())
-        return false;
+    //if (m_gecko_path.IsEmpty())
+    //    return false;
     
     if (m_storage_path.IsEmpty())
     {
@@ -1932,6 +1940,8 @@ bool GeckoEngine::Init()
 
     SetStoragePath(m_storage_path);
 
+    std::string xpcom_path = std::string(defXULPathFile);
+    /*
     
     char path_separator = (char)wxFileName::GetPathSeparator();
     std::string gecko_path = (const char*)m_gecko_path.mbc_str();
@@ -1945,6 +1955,9 @@ bool GeckoEngine::Init()
     #else
     xpcom_path += "libxpcom.so";
     #endif
+    */
+
+    std::cout << "xpcom: " << xpcom_path << std::endl;
 
     res = XPCOMGlueStartup(xpcom_path.c_str());
     if (NS_FAILED(res))
@@ -1954,11 +1967,7 @@ bool GeckoEngine::Init()
 
         // load XUL functions
     nsDynamicFunctionLoad nsFuncs[] = {
-    #if MOZILLA_VERSION_1 < 2
-                {"XRE_InitEmbedding", (NSFuncPtr*)&XRE_InitEmbedding},
-    #else
                 {"XRE_InitEmbedding2", (NSFuncPtr*)&XRE_InitEmbedding2},
-    #endif
                 {"XRE_TermEmbedding", (NSFuncPtr*)&XRE_TermEmbedding},
                 {"XRE_NotifyProfile", (NSFuncPtr*)&XRE_NotifyProfile},
                 {"XRE_LockProfileDirectory", (NSFuncPtr*)&XRE_LockProfileDirectory},
@@ -1973,7 +1982,7 @@ bool GeckoEngine::Init()
 
     nsCOMPtr<nsIFile> gre_dir;
 #if MOZILLA_VERSION_1 >=10
-    res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), true, getter_AddRefs(gre_dir));
+    res = NS_NewNativeLocalFile(nsCString(defXULPathDir), true, getter_AddRefs(gre_dir));
 #else
     res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), PR_TRUE, getter_AddRefs(gre_dir));
 #endif
@@ -3374,7 +3383,7 @@ void wxWebControl::PrintPreview(bool silent)
         settings19->SetShowPrintProgress(false);
         settings19->SetPrintSilent(silent);
         //web_browser_print->PrintPreview(settings19,dom_window,m_chrome);
-        web_browser_print->PrintPreviewNavigate(NULL,NULL);
+        web_browser_print->PrintPreviewNavigate(0, 0);
     }
 
 }

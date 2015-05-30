@@ -357,7 +357,14 @@ NS_IMETHODIMP ProgressListenerAdaptor::OnRefreshAttempted(
 {
     return NS_OK;
 }
-             
+
+#if MOZILLA_VERSION_1 >=35
+NS_IMETHODIMP ProgressListenerAdaptor::SetRedirects(nsIArray *aRedirects)
+{
+	return NS_OK;
+}
+#endif
+
 NS_IMPL_ADDREF(ProgressListenerAdaptor)
 NS_IMPL_RELEASE(ProgressListenerAdaptor)
 
