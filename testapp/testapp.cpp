@@ -1071,7 +1071,7 @@ void MyFrame::GetChildLinks(wxDOMNode node, wxArrayString& arr)
     for (i = 0; i < count; ++i)
     {
         wxDOMNode node = nodelist.Item(i);
-        wxDOMHTMLAnchorElement anchor = node;
+        /*wxDOMHTMLAnchorElement anchor = node;
 
         if (anchor.IsOk())
         {
@@ -1082,7 +1082,7 @@ void MyFrame::GetChildLinks(wxDOMNode node, wxArrayString& arr)
             wxString href = anchor.GetHref();
             wxString link = wxT("<a href=\"") + href + wxT("\">") + href + wxT("</a><br>");
             arr.Add(link);
-        }
+        }*/
 
         GetChildLinks(node, arr);
     }

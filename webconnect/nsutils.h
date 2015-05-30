@@ -22,7 +22,7 @@ wxString ns2wx(const char16_t* str);
 void wx2ns(const wxString& wxstr, nsEmbedString& nsstr);
 void wx2ns(const wxString& wxstr, nsEmbedCString& nsstr);
 char16_t* wxToUnichar(const wxString& wxstr);
-void freeUnichar(PRUnichar* p);
+void freeUnichar(char16_t* p);
 
 
 nsCOMPtr<nsIWindowWatcher> nsGetWindowWatcherService();
@@ -52,13 +52,18 @@ public:
         m_progress = NULL;
     }
 
-    NS_IMETHODIMP Init(nsIURI* source,
+    NS_IMETHOD Init(nsIURI* source,
                        nsIURI* target,
                        const nsAString& display_name,
                        nsIMIMEInfo* mime_info,
                        PRTime start_time,
-                       nsILocalFile* temp_file,
-                       nsICancelable* cancelable);
+                       nsIFile* temp_file,
+                       nsICancelable* cancelable,
+					   bool isPrivate);
+
+    NS_IMETHOD SetSha256Hash(const nsACString & aHash);
+
+    NS_IMETHOD SetSignatureInfo(nsIArray *aSignatureInfo);
                        
     NS_IMETHOD OnStateChange(nsIWebProgress* web_progress, 
                              nsIRequest* request,
@@ -92,7 +97,7 @@ public:
                              nsIWebProgress* web_progress,
                              nsIRequest* request,
                              nsresult status,
-                             const PRUnichar* message);
+                             const char16_t* message);
 
     NS_IMETHOD OnSecurityChange(
                              nsIWebProgress* web_progress,

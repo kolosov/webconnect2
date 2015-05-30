@@ -45,6 +45,7 @@
 #include "nsILocalFile.h"
 #include "nsAppDirectoryServiceDefs.h"
 #include "nsProfileDirServiceProvider.h"
+#include "nsIDownload.h"
 
 #include "nsIPromptService2.h"
 //#if MOZILLA_VERSION_1 > 1 || (MOZILLA_VERSION_2 == 9 && MOZILLA_VERSION_3 == 2 )

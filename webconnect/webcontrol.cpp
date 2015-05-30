@@ -1538,7 +1538,7 @@ public:
     NS_DECL_NSIWINDOWCREATOR2
 };
 
-NS_IMPL_ISUPPORTS2(WindowCreator, nsIWindowCreator, nsIWindowCreator2)
+NS_IMPL_ISUPPORTS(WindowCreator, nsIWindowCreator, nsIWindowCreator2)
 //NS_IMPL_ISUPPORTS1(WindowCreator, nsIWindowCreator)
 
 

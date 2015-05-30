@@ -424,8 +424,8 @@ PromptService::~PromptService()
 }
 
 NS_IMETHODIMP PromptService::Alert(nsIDOMWindow* parent,
-                                   const PRUnichar* ns_dialog_title,
-                                   const PRUnichar* ns_text)
+                                   const char16_t* ns_dialog_title,
+                                   const char16_t* ns_text)
 {
     wxString title = ns2wx(ns_dialog_title);
     wxString text = ns2wx(ns_text);
@@ -451,9 +451,9 @@ NS_IMETHODIMP PromptService::Alert(nsIDOMWindow* parent,
 
 NS_IMETHODIMP PromptService::AlertCheck(
                                     nsIDOMWindow* parent,
-                                    const PRUnichar* ns_dialog_title,
-                                    const PRUnichar* ns_text,
-                                    const PRUnichar* ns_check_msg,
+                                    const char16_t* ns_dialog_title,
+                                    const char16_t* ns_text,
+                                    const char16_t* ns_check_msg,
 #if MOZILLA_VERSION_1 >= 10
                                     bool* checkValue)
 #else
@@ -469,8 +469,8 @@ NS_IMETHODIMP PromptService::AlertCheck(
 
 NS_IMETHODIMP PromptService::Confirm(
                                     nsIDOMWindow* parent,
-                                    const PRUnichar* ns_dialog_title,
-                                    const PRUnichar* ns_text,
+                                    const char16_t* ns_dialog_title,
+                                    const char16_t* ns_text,
 #if MOZILLA_VERSION_1 >= 10
                                     bool* retval)
 #else
@@ -504,9 +504,9 @@ NS_IMETHODIMP PromptService::Confirm(
 
 NS_IMETHODIMP PromptService::ConfirmCheck(
                                     nsIDOMWindow* parent,
-                                    const PRUnichar* dialog_title,
-                                    const PRUnichar* text,
-                                    const PRUnichar* check_msg,
+                                    const char16_t* dialog_title,
+                                    const char16_t* text,
+                                    const char16_t* check_msg,
 #if MOZILLA_VERSION_1 >= 10
                                     bool* check_value,
                                     bool* retval)
@@ -520,13 +520,13 @@ NS_IMETHODIMP PromptService::ConfirmCheck(
 
 NS_IMETHODIMP PromptService::ConfirmEx(
                                     nsIDOMWindow* parent,
-                                    const PRUnichar* dialog_title,
-                                    const PRUnichar* text,
-                                    PRUint32 buttonFlags,
-                                    const PRUnichar* button0_title,
-                                    const PRUnichar* button1_title,
-                                    const PRUnichar* button2_title,
-                                    const PRUnichar* check_msg,
+                                    const char16_t* dialog_title,
+                                    const char16_t* text,
+                                    uint32_t buttonFlags,
+                                    const char16_t* button0_title,
+                                    const char16_t* button1_title,
+                                    const char16_t* button2_title,
+                                    const char16_t* check_msg,
 #if MOZILLA_VERSION_1 >= 10
                                     bool* check_value,
 #else
@@ -539,10 +539,10 @@ NS_IMETHODIMP PromptService::ConfirmEx(
 
 NS_IMETHODIMP PromptService::Prompt(
                                     nsIDOMWindow* parent,
-                                    const PRUnichar* _dialog_title,
-                                    const PRUnichar* _text,
-                                    PRUnichar** _value,
-                                    const PRUnichar* check_msg,
+                                    const char16_t* _dialog_title,
+                                    const char16_t* _text,
+									char16_t** _value,
+                                    const char16_t* check_msg,
 #if MOZILLA_VERSION_1 >= 10
                                     bool* check_value,
                                     bool* retval)
@@ -587,11 +587,11 @@ NS_IMETHODIMP PromptService::Prompt(
 
 NS_IMETHODIMP PromptService::PromptUsernameAndPassword(
                                     nsIDOMWindow* parent,
-                                    const PRUnichar* dialog_title,
-                                    const PRUnichar* text,
-                                    PRUnichar** username,
-                                    PRUnichar** password,
-                                    const PRUnichar* check_msg,
+                                    const char16_t* dialog_title,
+                                    const char16_t* text,
+									char16_t** username,
+									char16_t** password,
+                                    const char16_t* check_msg,
 #if MOZILLA_VERSION_1 >= 10
                                     bool* check_value,
                                     bool* retval)
@@ -631,10 +631,10 @@ NS_IMETHODIMP PromptService::PromptUsernameAndPassword(
 
 NS_IMETHODIMP PromptService::PromptPassword(
                                     nsIDOMWindow* parent,
-                                    const PRUnichar* dialog_title,
-                                    const PRUnichar* text,
-                                    PRUnichar** password,
-                                    const PRUnichar* check_msg,
+                                    const char16_t* dialog_title,
+                                    const char16_t* text,
+									char16_t** password,
+                                    const char16_t* check_msg,
 #if MOZILLA_VERSION_1 >= 10
                                     bool* check_value,
                                     bool* retval)
@@ -647,10 +647,10 @@ NS_IMETHODIMP PromptService::PromptPassword(
 }
 
 NS_IMETHODIMP PromptService::Select(nsIDOMWindow* parent,
-                                    const PRUnichar* dialog_title,
-                                    const PRUnichar* text,
+                                    const char16_t* dialog_title,
+                                    const char16_t* text,
                                     PRUint32 count,
-                                    const PRUnichar** select_list,
+                                    const char16_t** select_list,
                                     PRInt32* out_selection,
 #if MOZILLA_VERSION_1 >= 10
                                     bool* retval)
@@ -702,7 +702,7 @@ NS_IMETHODIMP PromptService::PromptAuth(nsIDOMWindow* parent,
                                         nsIChannel* channel,
                                         PRUint32 level,
                                         nsIAuthInformation* auth_info,
-                                        const PRUnichar* checkbox_label,
+                                        const char16_t* checkbox_label,
 #if MOZILLA_VERSION_1 >= 10
                                         bool* check_value,
                                         bool* retval)
@@ -752,7 +752,7 @@ NS_IMETHODIMP PromptService::AsyncPromptAuth(nsIDOMWindow* parent,
                                         nsISupports* contxt,
                                         PRUint32 level,
                                         nsIAuthInformation* auth_info,
-                                        const PRUnichar* checkbox_label,
+                                        const char16_t* checkbox_label,
 #if MOZILLA_VERSION_1 >= 10
                                         bool* check_value,
 #else
@@ -885,11 +885,12 @@ void PromptService::onBadCertificate(const wxString& message, nsIDOMWindow* dom_
     nsCOMPtr<nsIURI> uri;
     nsEmbedCString load_uri_text;
     wx2ns(load_uri, load_uri_text);
-    uri_fixup->CreateFixupURI(load_uri_text, 0, getter_AddRefs(uri));
+    uri_fixup->CreateFixupURI(load_uri_text, 0,NULL, getter_AddRefs(uri));
 
     if (!uri)
         return;
     
+    /*
     nsEmbedCString ns_host;
     PRInt32 ns_port = 0;
     uri->GetAsciiHost(ns_host);
@@ -938,13 +939,13 @@ void PromptService::onBadCertificate(const wxString& message, nsIDOMWindow* dom_
                     if (is_not_valid_at_this_time)
                         flags |= nsICertOverrideService::ERROR_TIME;
 
-                    cert_override->RememberValidityOverride(ns_host, ns_port, cert, flags, PR_FALSE /* permanently */);
+                    cert_override->RememberValidityOverride(ns_host, ns_port, cert, flags, false);
                     
                     ctrl->OpenURI(load_uri);
                 }
             }
         }
-    }
+    }*/
 }
 
 
@@ -996,7 +997,7 @@ public:
     }
 };
 
-NS_IMPL_ISUPPORTS1(PromptServiceFactory, nsIFactory);
+NS_IMPL_ISUPPORTS(PromptServiceFactory, nsIFactory);
 
 
 void CreatePromptServiceFactory(nsIFactory** result)
@@ -1152,7 +1153,7 @@ public:
             
         if (outer)
             return NS_ERROR_NO_AGGREGATION;       
-
+/*
 #if MOZILLA_VERSION_1 < 1
 		if (wxWebControl::IsVersion18())
         {
@@ -1173,7 +1174,7 @@ public:
             res = obj->QueryInterface(iid, result);
             obj->Release();
         }
-        
+        */
         
         return res;
     }
@@ -1187,7 +1188,7 @@ public:
     }
 };
 
-NS_IMPL_ISUPPORTS1(TransferFactory, nsIFactory);
+NS_IMPL_ISUPPORTS(TransferFactory, nsIFactory);
 
 
 void CreateTransferFactory(nsIFactory** result)
@@ -1289,14 +1290,16 @@ public:
             switch (evt.m_download_action)
             {
                 case wxWEB_DOWNLOAD_SAVE:
-                    launcher->SaveToDisk(nsnull, false);
+                    launcher->SaveToDisk(NULL, false);
                     break;
                 case wxWEB_DOWNLOAD_SAVEAS:
                     wxASSERT_MSG(evt.m_download_action_path.Length() > 0, wxT("You must specify a filename in the event object"));
                     if (evt.m_download_action_path.IsEmpty())
                     {
                         // no filename specified
-                        launcher->Cancel(0x804b0002 ); // = NS_BINDING_ABORTED
+                    	nsresult res;
+                        //launcher->Cancel(0x804b0002 ); // = NS_BINDING_ABORTED
+                    	launcher->Cancel(res);
                         return NS_OK;
                     }
                      else
@@ -1316,7 +1319,9 @@ public:
                     launcher->LaunchWithApplication(NULL, PR_FALSE);
                     break;
                 case wxWEB_DOWNLOAD_CANCEL:
-                    launcher->Cancel(0x804b0002  ); // = NS_BINDING_ABORTED
+                	nsresult res;
+                    //launcher->Cancel(0x804b0002  ); // = NS_BINDING_ABORTED
+                    launcher->Cancel(res); // = NS_BINDING_ABORTED
                     break;
             }
             
@@ -1338,7 +1343,7 @@ public:
         }
          else
         {
-            launcher->SaveToDisk(nsnull, false);
+            launcher->SaveToDisk(NULL, false);
             return NS_OK;
 /*
             OpenOrSaveDlg dlg(GetTopFrameFromDOMWindow(parent), filename);
@@ -1363,8 +1368,8 @@ public:
 
     NS_IMETHOD PromptForSaveToFile(nsIHelperAppLauncher* launcher,
                                    nsISupports* window_context,
-                                   const PRUnichar* default_file,
-                                   const PRUnichar* suggested_file_extension,
+                                   const char16_t* default_file,
+                                   const char16_t* suggested_file_extension,
                                    nsIFile** new_file)
     {
         return PromptForSaveToFile(launcher, window_context, default_file, suggested_file_extension, false, new_file);
@@ -1372,8 +1377,8 @@ public:
     
     NS_IMETHOD PromptForSaveToFile(nsIHelperAppLauncher* launcher,
                                    nsISupports* window_context,
-                                   const PRUnichar* default_file,
-                                   const PRUnichar* suggested_file_extension,
+                                   const char16_t* default_file,
+                                   const char16_t* suggested_file_extension,
 #if MOZILLA_VERSION_1 >= 10
                                    bool force_prompt,
 #else
@@ -1452,7 +1457,7 @@ public:
             
         if (outer)
             return NS_ERROR_NO_AGGREGATION;
-        
+        /*
         UnknownContentTypeHandler* obj = new UnknownContentTypeHandler;
         if (!obj)
             return NS_ERROR_OUT_OF_MEMORY;
@@ -1460,7 +1465,7 @@ public:
         obj->AddRef();
         res = obj->QueryInterface(iid, result);
         obj->Release();
-        
+        */
         return res;
     }
 #if MOZILLA_VERSION_1 >=10
@@ -1575,7 +1580,7 @@ public:
 };
 
 
-NS_IMPL_ISUPPORTS1(CertOverrideService, nsICertOverrideService);
+NS_IMPL_ISUPPORTS(CertOverrideService, nsICertOverrideService);
 
 
 
@@ -1607,7 +1612,7 @@ public:
             
         if (outer)
             return NS_ERROR_NO_AGGREGATION;
-        
+        /*
         CertOverrideService* obj = new CertOverrideService;
         if (!obj)
             return NS_ERROR_OUT_OF_MEMORY;
@@ -1615,7 +1620,7 @@ public:
         obj->AddRef();
         res = obj->QueryInterface(iid, result);
         obj->Release();
-        
+        */
         return res;
     }
 #if MOZILLA_VERSION_1 >=10
@@ -1628,7 +1633,7 @@ public:
     }
 };
 
-NS_IMPL_ISUPPORTS1(CertOverrideFactory, nsIFactory);
+NS_IMPL_ISUPPORTS(CertOverrideFactory, nsIFactory);
 
 
 void CreateCertOverrideFactory(nsIFactory** result)

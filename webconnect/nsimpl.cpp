@@ -235,10 +235,20 @@ NS_IMETHODIMP ProgressListenerAdaptor::Init(
                                            const nsAString& display_name,
                                            nsIMIMEInfo* mime_info,
                                            PRTime start_time,
-                                           nsILocalFile* temp_file,
-                                           nsICancelable* cancelable)
+                                           nsIFile* temp_file,
+                                           nsICancelable* cancelable,
+										   bool isPrivate)
 {
     return NS_OK;
+}
+
+
+NS_IMETHODIMP ProgressListenerAdaptor::SetSha256Hash(const nsACString& aHash) {
+	return NS_OK;
+}
+
+NS_IMETHODIMP ProgressListenerAdaptor::SetSignatureInfo(nsIArray* aSignatureInfo) {
+	return NS_OK;
 }
 
 NS_IMETHODIMP ProgressListenerAdaptor::OnStateChange(
@@ -313,7 +323,7 @@ NS_IMETHODIMP ProgressListenerAdaptor::OnStatusChange(
                      nsIWebProgress* web_progress,
                      nsIRequest* request,
                      nsresult status,
-                     const PRUnichar* message)
+                     const char16_t* message)
 {
     if (NS_FAILED(status))
     {
@@ -368,3 +378,4 @@ nsIWebProgressListener* CreateProgressListenerAdaptor(wxWebProgressBase* progres
         p->AddRef();
         return (nsIWebProgressListener*)p;
 }
+
