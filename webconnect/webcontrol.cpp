@@ -68,8 +68,9 @@ XRE_TermEmbeddingType XRE_TermEmbedding = 0;
 XRE_NotifyProfileType XRE_NotifyProfile = 0;
 XRE_LockProfileDirectoryType XRE_LockProfileDirectory = 0;
 
-nsCOMPtr<nsILocalFile> prof_dir = 0;
+//nsCOMPtr<nsIFile> prof_dir = 0;
 
+/*
 //Directory service provider
 nsIDirectoryServiceProvider *sAppFileLocProvider = 0;
 class wxDirSrvProvider : public nsIDirectoryServiceProvider2
@@ -86,7 +87,7 @@ NS_IMPL_QUERY_INTERFACE(wxDirSrvProvider,
                          nsIDirectoryServiceProvider,
                          nsIDirectoryServiceProvider2)
 
-/*
+
 NS_IMETHODIMP_(nsrefcnt)
 wxDirSrvProvider::AddRef()
 {
@@ -98,7 +99,7 @@ wxDirSrvProvider::Release()
 {
     return 1;
 }
-*/
+
 
 NS_IMETHODIMP
 wxDirSrvProvider::GetFile(const char *aKey,
@@ -157,7 +158,7 @@ wxDirSrvProvider::GetFiles(const char *aKey,
 
     return dp2->GetFiles(aKey, aResult);
 }
-
+*/
 
 // the purpose of the EmbeddingPtrs structure is to allow us a way
 // to access the ns interfaces without including them in any public
@@ -1999,7 +2000,8 @@ bool GeckoEngine::Init()
 			nsnull,aComps, aNumComps);
 
 #else
-    res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));	
+    //res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));
+    res = XRE_InitEmbedding2(gre_dir, prof_dir, nullptr);
 #endif
     if (NS_FAILED(res))
             return false;
