@@ -17,6 +17,23 @@
 #undef NS_WC_OLD_WAY
 
 #include "moz_config.h"
+
+#include "mozilla/mozalloc.h"
+
+#if defined(_WIN32)
+    #define defXULPathDir  GECKO_SDK_PATH_CONFIG "\\bin\\"
+    #define defXULPathFile defXULPathDir "xpcom.dll"
+#elif defined(__linux__)
+    #define defXULPathDir  GECKO_SDK_PATH_CONFIG "/bin/"
+    #define defXULPathFile defXULPathDir "libxpcom.so"
+#elif defined(__APPLE__)
+    #define defXULPathDir  GECKO_SDK_PATH_CONFIG "/bin/XUL.framework/Versions/Current/"
+    #define defXULPathFile defXULPathDir "XUL"
+#else
+    #error "Unsupported platform!"
+#endif
+
+
 #undef HAVE_CPP_2BYTE_WCHAR_T
 //#define HAVE_CPP_CHAR16_T
 
@@ -51,7 +68,7 @@
 //#if MOZILLA_VERSION_1 > 1 || (MOZILLA_VERSION_2 == 9 && MOZILLA_VERSION_3 == 2 )
 #include "nsIBadCertListener2.h"
 #include "nsIX509Cert.h"
-#include "nsIRecentBadCertsService.h"
+//#include "nsIRecentBadCertsService.h"
 #include "nsICertOverrideService.h"
 //#endif
 

@@ -36,8 +36,13 @@ if(CMAKE_SYSTEM_NAME MATCHES Windows)
   string(REGEX REPLACE "/" "\\\\\\\\" GECKO_SDK_PATH_CONFIG ${GECKO_SDK_PATH})
  else()
   set(GECKO_SDK_PATH_CONFIG ${GECKO_SDK_PATH})
-  include_directories("/usr/include/nspr") #FIXME
 endif()
+
+if (CMAKE_SYSTEM_NAME MATCHES Linux)
+ message("Linux build")
+ add_definitions(-g -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1)
+endif()
+
 message("GECKO_SDK_PATH_CONFIG is ${GECKO_SDK_PATH_CONFIG}")
 #config header
 configure_file (
