@@ -568,7 +568,8 @@ NS_IMETHODIMP PromptService::Prompt(
     int res = dlg.ShowModal();
     if (res == wxID_OK)
     {
-        *_value = wxToUnichar(dlg.GetValue());
+        //*_value = wxToUnichar(dlg.GetValue());
+    	*_value = (char16_t*)NS_ConvertUTF8toUTF16((const char*)dlg.GetValue().mb_str(wxConvUTF8)).get();
 #if MOZILLA_VERSION_1 >= 10
         *retval = true;
 #else
@@ -611,8 +612,10 @@ NS_IMETHODIMP PromptService::PromptUsernameAndPassword(
     int res = dlg.ShowModal();
     if (res == wxID_OK)
     {
-        *username = wxToUnichar(dlg.GetUserName());
-        *password = wxToUnichar(dlg.GetPassword());
+        //*username = wxToUnichar(dlg.GetUserName());
+    	*username = (char16_t*)NS_ConvertUTF8toUTF16((const char*)dlg.GetUserName().mb_str(wxConvUTF8)).get();
+        //*password = wxToUnichar(dlg.GetPassword());
+    	*password = (char16_t*)NS_ConvertUTF8toUTF16((const char*)dlg.GetPassword().mb_str(wxConvUTF8)).get();
 #if MOZILLA_VERSION_1 >= 10
         *retval = true;
 #else

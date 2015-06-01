@@ -556,7 +556,8 @@ NS_IMETHODIMP BrowserChrome::SetFocus()
 
 NS_IMETHODIMP BrowserChrome::GetTitle(char16_t** title)
 {
-    *title = wxToUnichar(m_title);
+    //*title = wxToUnichar(m_title);
+    *title = (char16_t*)NS_ConvertUTF8toUTF16((const char*)m_title.mb_str(wxConvUTF8)).get();
     return NS_OK;
 }
 
@@ -1924,15 +1925,26 @@ bool GeckoEngine::Init()
         wxLogNull log;
 
         wxString default_storage_path = wxStandardPaths::Get().GetTempDir();
+        printf("Storage path1: %s\n", (const char*)default_storage_path.mb_str());
         wxChar path_separator = wxFileName::GetPathSeparator();
         if (default_storage_path.IsEmpty() || default_storage_path.Last() != path_separator)
             default_storage_path += path_separator;
-        default_storage_path += wxT("kwkh01.tmp");
+        printf("Storage path2: %s\n", (const char*)default_storage_path.mb_str());
+        //default_storage_path += wxString(wxT("kwkh01.tmp"));
+        default_storage_path += wxString::FromUTF8("kwkh01.tmp");
+        //wxString suf1 = wxString::FromUTF8("kwkh01.tmp");
+        //printf("Storage path22: %s\n", (const char*)suf1.mb_str());
         
+        printf("Storage path3: %s\n", (const char*)default_storage_path.mb_str());
+
 #ifdef WIN32
         ::wxMkDir(default_storage_path);
 #else
+#if wxMAJOR_VERSION == 3
+        ::wxMkDir(default_storage_path, 0700);
+#else
         ::wxMkDir((const char*)default_storage_path.mbc_str(), 0700);
+#endif
 #endif
 
         m_storage_path = default_storage_path;
@@ -1991,7 +2003,12 @@ bool GeckoEngine::Init()
 
     nsCOMPtr<nsIFile> prof_dir;
 #if MOZILLA_VERSION_1 >=10
+#if wxMAJOR_VERSION == 3
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mb_str(wxConvUTF8)), true, getter_AddRefs(prof_dir));
+    std::cout << "Storage path: " << std::string((const char*)m_storage_path.mb_str(wxConvUTF8)) << std::endl;
+#else
     res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), true, getter_AddRefs(prof_dir));
+#endif
 #else
     res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), PR_TRUE, getter_AddRefs(prof_dir));
 #endif
@@ -2668,8 +2685,13 @@ bool wxWebControl::IsOk() const
 
 wxString wxWebControl::GeckoVersion()
 {
-	wxString version;    
+	wxString version;
+#if wxMAJOR_VERSION == 3
+	version << wxString(std::to_string(MOZILLA_VERSION_1)) << wxString(".") << wxString(std::to_string(MOZILLA_VERSION_2))
+			<< wxString(".") << wxString(std::to_string(MOZILLA_VERSION_3));
+#else
 	version << MOZILLA_VERSION_1 << wxT(".") << MOZILLA_VERSION_2 << wxT(".") << MOZILLA_VERSION_3;
+#endif
 	return version;
 }
 // (METHOD) wxWebControl::Find
@@ -2687,8 +2709,8 @@ bool wxWebControl::Find(const wxString& text,
 {
     if (!(m_ptrs->m_web_browser_find))
         return false;
-
-    char16_t* find_text = wxToUnichar(text);
+    //*title = (char16_t*)NS_ConvertUTF8toUTF16((const char*)m_title.mb_str(wxConvUTF8)).get();
+    char16_t* find_text = (char16_t*)NS_ConvertUTF8toUTF16((const char*)text.mb_str(wxConvUTF8)).get();
     m_ptrs->m_web_browser_find->SetSearchString(find_text);
     freeUnichar(find_text);
 #if MOZILLA_VERSION_1 >=10
@@ -3159,8 +3181,13 @@ void wxWebControl::OpenURI(const wxString& uri,
     }
     
 
+    //char16_t* ns_uri = wxToUnichar(uri);
 
-    char16_t* ns_uri = wxToUnichar(uri);
+    //nsDependentCString((const char*)m_storage_path.mb_str(wxConvUTF8));
+    //const char16_t* ns_uri = NS_ConvertUTF8toUTF16((const char*)uri.mb_str(wxConvUTF8)).get();
+    //char16_t* ns_uri = u"www.opennet.ru";
+
+    //std::cout << "Load URL: " << ns_uri << ", origin: " << uri.ToUTF8().data() << std::endl;
 
     //test
     //NS_ConvertUTF8toUTF16(aUri).get()
@@ -3168,14 +3195,15 @@ void wxWebControl::OpenURI(const wxString& uri,
     //const char* ns_uri_1 = "www.google.com";
     nsresult res;
     //res = m_ptrs->m_web_navigation->LoadURI(NS_ConvertUTF8toUTF16(ns_uri_1).get(),
-    res = m_ptrs->m_web_navigation->LoadURI(ns_uri,
+    //res = m_ptrs->m_web_navigation->LoadURI(ns_uri,
+    res = m_ptrs->m_web_navigation->LoadURI(NS_ConvertUTF8toUTF16(uri.ToUTF8().data()).get(),
                                             ns_load_flags,
                                             NULL,
                                             //getter_AddRefs(sp_post_data),
                                             NULL,
                                             NULL);
 
-    freeUnichar(ns_uri);
+    //freeUnichar(ns_uri);
 
 
     nsCOMPtr<nsIWebBrowserFocus> focus;// = nsRequestInterface(m_ptrs->m_web_browser);

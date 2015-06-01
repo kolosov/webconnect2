@@ -747,7 +747,42 @@ void MyFrame::OnGoAbout(wxCommandEvent& evt)
 {
     wxArrayString arr;
 	wxString geckoVer = m_browser->GeckoVersion();
+#if wxMAJOR_VERSION == 3
+    arr.Add("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"");
+    arr.Add("\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+    arr.Add("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+    arr.Add("<html>");
+    arr.Add("<head>");
+    arr.Add("	<title id=\"title\">About the wxWebConnect Test Application</title>");
+    arr.Add("	<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso8859-1\" />");
+    arr.Add("	<style type=\"text/css\"><!--");
+    arr.Add("		body         { background: #eee; }");
+    arr.Add("		div#main     { width: 540px; padding: 40px 40px 20px 40px; margin: 50px auto; background: #fff; border: 1px solid #bbb; -moz-border-radius: 10px; }");
+    arr.Add("       h3, p        { padding: 0; margin: 0; font-family: Arial, Helvetica, sans-serif; clear: left }");
+    arr.Add("       h5, p        { padding: 0; margin: 0; font-family: Arial, Helvetica, sans-serif; clear: left }");
+    arr.Add("		p            { font-size: 11px; padding: 0; margin: 20px 0; line-height: 16px; }");
+    arr.Add("		p.gray       { color: #999; padding-top: 20px; margin-bottom: 0; clear: both;  }");
+    arr.Add("		p.copyright  { float: left; text-align: left; clear: left                      }");
+    arr.Add("	//--></style>");
+    arr.Add("</head>");
+    arr.Add("<body>");
+    arr.Add("	<div id=\"main\">");
+    arr.Add("		<h3>wxWebConnect Test Application<br/></h3>");
+    arr.Add("		<h5>Version 1.1<br/></h5>");
+    arr.Add("		<p class=\"copyright\">Copyright &copy; 2006-2009 Kirix Corporation. All rights reserved.<br/>");
+    arr.Add("		                       Licence:     wxWindows Library Licence, Version 3.1<br/>");
+    arr.Add("		                       Modified by: Sergey Kolosov</p>");
+    arr.Add("		<p class=\"gray\">This software contains an unmodified binary version of the open-source XULRunner");
+    arr.Add("                         engine as provided by the Mozilla Foundation. Please read the");
+    arr.Add("                         <a href=\"http://www.mozilla.org/MPL/\">license terms and notices");
+    arr.Add( wxString("                         </a> for the XULRunner engine. This software uses XULRunner version ") + geckoVer + wxString(".</p>") );
+    arr.Add("	</div>");
+    arr.Add("</body>");
+    arr.Add("</html>");
 
+
+
+#else
     arr.Add(wxT("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\""));
     arr.Add(wxT("\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"));
     arr.Add(wxT("<?xml version=\"1.0\" encoding=\"utf-8\"?>"));
@@ -779,10 +814,16 @@ void MyFrame::OnGoAbout(wxCommandEvent& evt)
     arr.Add(wxT("	</div>"));
     arr.Add(wxT("</body>"));
     arr.Add(wxT("</html>"));
+#endif
 
     // create a temporary file listing the links
     wxTextFile file;
-    wxString temp_file = wxFileName::CreateTempFileName(wxT("web"));
+#if wxMAJOR_VERSION == 3
+    wxString tmp_file_name = wxString::FromUTF8("web");
+#else
+    wxString tmp_file_name = wxT("web");
+#endif
+    wxString temp_file = wxFileName::CreateTempFileName(tmp_file_name);
     file.Create(temp_file);
 
     int i, count = arr.Count();

@@ -17,6 +17,8 @@
 #include <wx/wx.h>
 #include "webcontrol.h"
 #include "nsinclude.h"
+#include "uchar.h"
+#include <locale>
 
 #ifdef __WXMSW__
 #include <windows.h>
@@ -36,7 +38,7 @@
 wxString ns2wx(nsEmbedCString& str)
 {
     wxString res;
-    res = wxString::FromAscii(str.get());
+    res = wxString::FromUTF8(str.get());
     return res;
 }
 
@@ -77,7 +79,7 @@ void wx2ns(const wxString& wxstr, nsEmbedString& nsstr)
     size_t i, len = wxstr.Length();
     char16_t* buf = new char16_t[len+1];
     for (i = 0; i < len; ++i)
-        buf[i] = wxstr.GetChar(i);
+        //buf[i] = wxstr.GetChar(i);
     nsstr.Assign(buf, len);
     delete[] buf;
 }
@@ -87,6 +89,8 @@ void wx2ns(const wxString& wxstr, nsEmbedCString& nsstr)
     nsstr.Assign(wxstr.mbc_str());
 }
 
+
+/*
 char16_t* wxToUnichar(const wxString& wxstr)
 {
     size_t i,len = wxstr.Length();
@@ -95,7 +99,7 @@ char16_t* wxToUnichar(const wxString& wxstr)
         *(ret+i) = (char16_t)wxstr.GetChar(i);
     *(ret+len) = 0;
     return ret;
-}
+}*/
 
 void freeUnichar(char16_t* p)
 {
