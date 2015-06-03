@@ -209,17 +209,13 @@ public:
 
     void AddPluginPath(const wxString& path);
     
-    // xulrunner versions 1.8 will return true, 1.9 will return false
-    bool IsVersion18() const { return m_is18; }
-    
 private:
 
     wxString m_gecko_path;
     wxString m_storage_path;
     wxString m_history_filename;
     bool m_ok;
-    bool m_is18;
-    
+
     ContentListenerPtrArray m_content_listeners;
     nsCOMPtr<nsIAppShell> m_appshell;
     PluginListProvider* m_plugin_provider;
@@ -1833,7 +1829,6 @@ NS_INTERFACE_MAP_END
 GeckoEngine::GeckoEngine()
 {
     m_ok = false;
-    m_is18 = false;
     m_plugin_provider = new PluginListProvider;
     m_plugin_provider->AddRef();
 }
@@ -2177,8 +2172,7 @@ bool GeckoEngine::Init()
     
     // set path for our cache directory
     prefs->SetCharPref("browser.cache.disk.parent_directory", (const char*)m_storage_path.mbc_str());
-    m_ok = true;    
-    m_is18 = false;
+    m_ok = true;
 
     return true;
 }
@@ -2316,13 +2310,6 @@ bool wxWebControl::GetIgnoreCertErrors()
 {
     return g_ignore_ssl_cert_errors;
 }
-
-//static
-bool wxWebControl::IsVersion18()
-{
-    return g_gecko_engine.IsVersion18();
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 //  wxWebFavIconProgress class implementation
@@ -2496,7 +2483,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
 
     wxSize cli_size = GetClientSize();
     res = m_ptrs->m_base_window->InitWindow(native_handle,
-                                            NULL,
+                                            nullptr,
                                             0, 0,
                                             cli_size.x, cli_size.y);
     if (NS_FAILED(res))
@@ -2517,7 +2504,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     {
         dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
     }
-      
+
     res = m_ptrs->m_base_window->Create();
     if (NS_FAILED(res))
     {
@@ -2626,7 +2613,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     //freeUnichar(ns_uri);
     
     // show the browser component
-    res = m_ptrs->m_base_window->SetVisibility(PR_TRUE);
+    res = m_ptrs->m_base_window->SetVisibility(true);
 }
 
 wxWebControl::~wxWebControl()
@@ -2712,7 +2699,7 @@ bool wxWebControl::Find(const wxString& text,
     //*title = (char16_t*)NS_ConvertUTF8toUTF16((const char*)m_title.mb_str(wxConvUTF8)).get();
     char16_t* find_text = (char16_t*)NS_ConvertUTF8toUTF16((const char*)text.mb_str(wxConvUTF8)).get();
     m_ptrs->m_web_browser_find->SetSearchString(find_text);
-    freeUnichar(find_text);
+    //freeUnichar(find_text);
 #if MOZILLA_VERSION_1 >=10
     m_ptrs->m_web_browser_find->SetFindBackwards((flags & wxWEB_FIND_BACKWARDS) != 0 ? true : false);
     m_ptrs->m_web_browser_find->SetWrapFind((flags & wxWEB_FIND_WRAP) != 0 ? true : false);
@@ -3437,12 +3424,8 @@ void wxWebControl::Print(bool silent)
     nsCOMPtr<nsIPrintSettings> settings19 = m_ptrs->m_print_settings;
     if (settings19)
     {
-        settings19->SetShowPrintProgress(PR_FALSE);
-#if MOZILLA_VERSION_1 < 2 //FIXME workaround for printing, always print silent
-        settings19->SetPrintSilent(silent ? PR_TRUE : PR_FALSE);
-#else
+        settings19->SetShowPrintProgress(false);
 		settings19->SetPrintSilent(silent);
-#endif
         web_browser_print->Print(settings19, NULL);
     }
 	/*nsCOMPtr<nsIPrintSettings> print_settings;

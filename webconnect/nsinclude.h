@@ -91,10 +91,6 @@
 
 #include "nsIDOMEvent.h"
 
-#if MOZILLA_VERSION_1 < 5
-#include "nsIDOM3Document.h"
-#endif
-
 #include "nsIDOMMouseEvent.h"
 #include "nsIURIContentListener.h"
 #include "nsIDirectoryService.h"
@@ -110,12 +106,7 @@
 #include "nsIDocShellTreeItem.h"
 #include "nsIDOMEventTarget.h"
 
-#if MOZILLA_VERSION_1 < 7
-#include "nsIDOMWindow2.h"
-#include "nsIDOMWindowInternal.h"
-#else
 #include "nsIDOMWindow.h"
-#endif
 
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
@@ -152,11 +143,7 @@
 #include "nsIDOMHTMLTextAreaElement.h"
 
 #include "nsXULAppAPI.h"
-#if MOZILLA_VERSION_1 < 2
-#include "nsIPref.h"
-#else
 #include "nsIPrefBranch2.h"
-#endif
 #include "nsITransfer.h"
 
 //#include "nsptr.h"
