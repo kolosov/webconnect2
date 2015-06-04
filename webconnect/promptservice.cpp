@@ -967,7 +967,6 @@ public:
     
     PromptServiceFactory()
     {
-        NS_INIT_ISUPPORTS();
     }
     
     NS_IMETHOD CreateInstance(nsISupports* outer,
@@ -1155,7 +1154,6 @@ public:
     
     TransferFactory()
     {
-        NS_INIT_ISUPPORTS();
     }
     
     NS_IMETHOD CreateInstance(nsISupports* outer,
@@ -1469,7 +1467,6 @@ public:
     
     UnknownContentTypeHandlerFactory()
     {
-        NS_INIT_ISUPPORTS();
     }
     
     NS_IMETHOD CreateInstance(nsISupports* outer,
@@ -1631,7 +1628,6 @@ public:
     
     CertOverrideFactory()
     {
-        NS_INIT_ISUPPORTS();
     }
     
     NS_IMETHOD CreateInstance(nsISupports* outer,

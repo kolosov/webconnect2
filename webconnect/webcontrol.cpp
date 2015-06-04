@@ -1119,8 +1119,6 @@ public:
 
     ContentListener(wxWebContentHandler* handler)
     {
-        NS_INIT_ISUPPORTS();
-        
         m_handler = handler;
     }
     
@@ -1303,8 +1301,6 @@ public:
 
     MainURIListener(wxWebControl* wnd, nsIWebBrowser* browser)
     {
-        NS_INIT_ISUPPORTS();
-        
         m_wnd = wnd;
         m_docshell_uri_listener = do_GetInterface(browser);
     }
@@ -1635,7 +1631,6 @@ public:
     
     PluginEnumerator()
     {
-        NS_INIT_ISUPPORTS();
         m_cur_item = 0;
     }
 
@@ -1722,7 +1717,6 @@ public:
 
     PluginListProvider()
     {
-        NS_INIT_ISUPPORTS();
     }
 
     
@@ -3040,7 +3034,11 @@ void wxWebControl::FetchFavIcon(void* _uri)
     persist->SetProgressListener(la);
     la->Release();
 
+#if MOZILLA_VERSION_1 < 36
     rv = persist->SaveURI(uri, NULL, NULL, NULL, NULL, file, NULL);
+#else
+    rv = persist->SaveURI(uri, nullptr, nullptr, 0, nullptr, nullptr, file, nullptr);
+#endif
     
     if (NS_FAILED(rv))
     {
