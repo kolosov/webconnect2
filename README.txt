@@ -34,6 +34,7 @@ MSC_VER		MS VSC++
 
 xulrunner	MSC_VER
  31		1600
+ 34		1600
  36		1800
 
 
