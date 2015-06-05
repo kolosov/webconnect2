@@ -1,8 +1,11 @@
 find_package(wxWidgets REQUIRED base core aui)
-
 find_library(gecko_libs xpcomglue PATHS ${GECKO_SDK_PATH}/lib)
 find_library(xulrunner_mozalloc mozalloc PATHS ${GECKO_SDK_PATH}/lib)
-find_library(gecko_libs_mozglue mozglue PATHS ${GECKO_SDK_PATH}/lib)
+
+if(CMAKE_SYSTEM_NAME MATCHES Linux)
+ find_library(gecko_libs_mozglue mozglue PATHS ${GECKO_SDK_PATH}/lib)
+ find_library(gecko_libs_memory memory PATHS ${GECKO_SDK_PATH}/lib)
+endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
   find_library(gecko_libs_memory memory PATHS ${GECKO_SDK_PATH}/lib)
@@ -25,6 +28,8 @@ endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES Windows)
 # target_link_libraries(gtkskel listener geckoembed ${gecko_libs}  ${gecko_libs_mozglue} ${xulrunner_mozalloc} ${GTK2_LIBRARIES} )
- target_link_libraries(testapp ${wxWidgets_LIBRARIES} webconlib ${gecko_libs})
+ set_target_properties(testapp PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+ set_target_properties(testapp PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:WINDOWS")
+ target_link_libraries(testapp webconlib ${gecko_libs} ${xulrunner_mozalloc} ${wxWidgets_LIBRARIES})
 endif()
 
