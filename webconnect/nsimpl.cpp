@@ -8,16 +8,19 @@
 // Copyright:   (C) Copyright 2006-2010, Kirix Corporation, All Rights Reserved.
 // Licence:     wxWindows Library Licence, Version 3.1
 ///////////////////////////////////////////////////////////////////////////////
-
+#if defined(WIN32)
+#include "mozilla/Char16.h"
+#endif
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <stdint.h>
 
 #include <string>
 #include <wx/wx.h>
 #include "webcontrol.h"
 #include "nsinclude.h"
-#include "uchar.h"
+//#include "uchar.h"
 #include <locale>
 
 #ifdef __WXMSW__

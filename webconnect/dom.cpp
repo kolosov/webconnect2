@@ -8,7 +8,11 @@
 // Copyright:   (C) Copyright 2006-2010, Kirix Corporation, All Rights Reserved.
 // Licence:     wxWindows Library Licence, Version 3.1
 ///////////////////////////////////////////////////////////////////////////////
+#if defined(WIN32)
+#include "mozilla/Char16.h"
+#endif
 
+#include <stdint.h>
 
 #include <wx/wx.h>
 #include "nsinclude.h"

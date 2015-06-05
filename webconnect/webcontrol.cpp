@@ -8,7 +8,9 @@
 // Copyright:   (C) Copyright 2006-2010, Kirix Corporation, All Rights Reserved.
 // Licence:     wxWindows Library Licence, Version 3.1
 ///////////////////////////////////////////////////////////////////////////////
-
+#if defined(WIN32)
+#include "mozilla/Char16.h"
+#endif
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -2667,9 +2669,20 @@ bool wxWebControl::IsOk() const
 wxString wxWebControl::GeckoVersion()
 {
 	wxString version;
+
+	wxString test("a");
 #if wxMAJOR_VERSION == 3
-	version << wxString(std::to_string(MOZILLA_VERSION_1)) << wxString(".") << wxString(std::to_string(MOZILLA_VERSION_2))
-			<< wxString(".") << wxString(std::to_string(MOZILLA_VERSION_3));
+	version 
+		<< wxString::Format("%i",MOZILLA_VERSION_1)
+		//<< wxString( std::to_string(MOZILLA_VERSION_1))
+		<< wxString(".") 
+		<< wxString::Format("%i",MOZILLA_VERSION_2)
+		//<< wxString(std::to_string(MOZILLA_VERSION_2))
+		<< wxString(".") 
+		<< wxString::Format("%i",MOZILLA_VERSION_3);
+		//<< wxString(std::to_string(MOZILLA_VERSION_3));
+	//version << wxString(std::to_string(MOZILLA_VERSION_1)) << wxString(".") << wxString(std::to_string(MOZILLA_VERSION_2))
+	//		<< wxString(".") << wxString(std::to_string(MOZILLA_VERSION_3));
 #else
 	version << MOZILLA_VERSION_1 << wxT(".") << MOZILLA_VERSION_2 << wxT(".") << MOZILLA_VERSION_3;
 #endif

@@ -9,6 +9,7 @@
 // Licence:     wxWindows Library Licence, Version 3.1
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <stdint.h>
 
 #ifndef __WXWEBCONNECT_DOM_H
 #define __WXWEBCONNECT_DOM_H
