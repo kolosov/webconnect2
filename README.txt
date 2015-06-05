@@ -29,6 +29,14 @@ Steps for windows building:
 directory) to directory build_w2/Debug/xr
 5) Run testapp.exe
 
+MSC_VER		MS VSC++
+1600		2010
+
+xulrunner	MSC_VER
+ 31		1600
+ 36		1800
+
+
 Steps for linux building:
 
 1) mkdir build_w2 && cd build_w2
