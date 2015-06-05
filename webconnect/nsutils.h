@@ -115,7 +115,7 @@ public:
                             PRBool *retval);
 #endif
 
-#if MOZILLA_VERSION_1 >=35
+#if MOZILLA_VERSION_1 >=32
                             NS_IMETHOD SetRedirects(nsIArray *aRedirects);
 #endif
 

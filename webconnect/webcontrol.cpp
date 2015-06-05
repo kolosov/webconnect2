@@ -1608,7 +1608,7 @@ WindowCreator::CreateChromeWindow2(nsIWebBrowserChrome *aParent,
                                    uint32_t aChromeFlags,
 								   uint32_t ,
                                    nsIURI * ,
-#if MOZILLA_VERSION_1 >=35
+#if MOZILLA_VERSION_1 >=32
 								   nsITabParent * ,
 #endif
 								   bool * ,
