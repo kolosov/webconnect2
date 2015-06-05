@@ -48,7 +48,7 @@ endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES Linux)
  message("Linux build")
- add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -std=c++11)
+ add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -std=c++11 -fno-rtti)
 endif()
 
 message("GECKO_SDK_PATH_CONFIG is ${GECKO_SDK_PATH_CONFIG}")
