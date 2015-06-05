@@ -38,9 +38,16 @@ if(CMAKE_SYSTEM_NAME MATCHES Windows)
   set(GECKO_SDK_PATH_CONFIG ${GECKO_SDK_PATH})
 endif()
 
+if(CMAKE_SYSTEM_NAME MATCHES Windows)
+ message("Windows build")
+ add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1)
+ #add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1 -D_ITERATOR_DEBUG_LEVEL=0)
+endif()
+
+
 if (CMAKE_SYSTEM_NAME MATCHES Linux)
  message("Linux build")
- add_definitions(-g -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1)
+ add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -std=c++11)
 endif()
 
 message("GECKO_SDK_PATH_CONFIG is ${GECKO_SDK_PATH_CONFIG}")

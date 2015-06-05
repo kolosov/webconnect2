@@ -9,15 +9,6 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
 endif()
 
 include(${wxWidgets_USE_FILE})
-
-if(CMAKE_SYSTEM_NAME MATCHES Linux)
-add_definitions(-g -std=c++11 -fno-rtti -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1)
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES Windows)
-	add_definitions(-DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1)
-endif()
-
 include_directories ("${PROJECT_SOURCE_DIR}/webconnect")
 
 set(testapp_src testapp.cpp)
