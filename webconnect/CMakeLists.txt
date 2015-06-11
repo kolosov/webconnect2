@@ -2,9 +2,9 @@
 find_package(wxWidgets REQUIRED base core aui)
 include(${wxWidgets_USE_FILE})
 
-#if(CMAKE_SYSTEM_NAME MATCHES Linux)
-# add_definitions(-fshort-wchar -fno-rtti -std=c++11)
-#endif()
+if(CMAKE_SYSTEM_NAME MATCHES Linux)
+ add_definitions(-fshort-wchar)
+endif()
 
 #set nsall header
 include_directories(${GECKO_SDK_PATH}/include ${GECKO_SDK_PATH}/include/nspr)

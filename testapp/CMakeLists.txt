@@ -1,9 +1,7 @@
 find_package(wxWidgets REQUIRED base core aui)
 find_library(gecko_libs xpcomglue PATHS ${GECKO_SDK_PATH}/lib)
 find_library(xulrunner_mozalloc mozalloc PATHS ${GECKO_SDK_PATH}/lib)
-if(${MOZILLA_VERSION_1} GREATER 33)
- find_library(gecko_libs_mozglue mozglue PATHS ${GECKO_SDK_PATH}/lib)
-endif()
+find_library(gecko_libs_mozglue mozglue PATHS ${GECKO_SDK_PATH}/lib)
 
 message ("Building for gecko version: ${MOZILLA_VERSION_1}")
 
@@ -16,7 +14,6 @@ set(testapp_src testapp.cpp)
 add_executable(testapp ${testapp_src})
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
- add_definitions(-fno-rtti -std=c++11)
  target_link_libraries(testapp webconlib ${gecko_libs} ${wxWidgets_LIBRARIES} dl -Wl,--whole-archive ${gecko_libs_mozglue} -Wl,--no-whole-archive ${gecko_libs_memory} pthread ${xulrunner_mozalloc} )
 # target_link_libraries(testapp ${wxWidgets_LIBRARIES} dl  webconlib ${gecko_libs})
 # target_link_libraries(testapp ${wxWidgets_LIBRARIES} webconlib ${gecko_libs})
