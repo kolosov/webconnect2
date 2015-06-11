@@ -1827,6 +1827,9 @@ GeckoEngine::GeckoEngine()
     m_ok = false;
     m_plugin_provider = new PluginListProvider;
     m_plugin_provider->AddRef();
+
+    //path to xulrunner binary!
+    m_gecko_path = wxString::FromUTF8(defXULPathDir);
 }
 
 GeckoEngine::~GeckoEngine()
@@ -1850,6 +1853,13 @@ void GeckoEngine::Uninit()
 		NS_LogTerm();
 	}
 }
+
+/*
+ * Set path to gecko binary, example:
+ * linux: somepath/xulrunner-31/bin
+ * windows: somepath\\xulrunner-31\bin
+ * OSX: somepath/xulrunner-31/bin/XUL.framework/Versions/Current
+ */
 
 void GeckoEngine::SetEnginePath(const wxString& path)
 {
@@ -1943,11 +1953,10 @@ bool GeckoEngine::Init()
 
     SetStoragePath(m_storage_path);
 
-    std::string xpcom_path = std::string(defXULPathFile);
-    /*
+    //std::string xpcom_path = std::string(GECKO_SDK_PATH_CONFIG);
     
     char path_separator = (char)wxFileName::GetPathSeparator();
-    std::string gecko_path = (const char*)m_gecko_path.mbc_str();
+    std::string gecko_path = (const char*)m_gecko_path.mb_str();
     std::string xpcom_path = gecko_path;
     if (xpcom_path.empty() || xpcom_path[xpcom_path.length()-1] != path_separator)
         xpcom_path += path_separator;
@@ -1958,7 +1967,6 @@ bool GeckoEngine::Init()
     #else
     xpcom_path += "libxpcom.so";
     #endif
-    */
 
     std::cout << "xpcom: " << xpcom_path << std::endl;
 
@@ -2286,7 +2294,9 @@ bool wxWebControl::InitEngine(const wxString& path)
         wxFAIL_MSG(wxT("wxWebControl::InitEngine() should only be called once"));
     }
 
-    g_gecko_engine.SetEnginePath(path);
+    if(!path.empty()) {
+    	g_gecko_engine.SetEnginePath(path);
+    }
 
     return g_gecko_engine.Init();
 }
@@ -2670,7 +2680,6 @@ wxString wxWebControl::GeckoVersion()
 {
 	wxString version;
 
-	wxString test("a");
 #if wxMAJOR_VERSION == 3
 	version 
 		<< wxString::Format("%i",MOZILLA_VERSION_1)

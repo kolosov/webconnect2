@@ -178,12 +178,12 @@ public:
         // Locate the XULRunner engine; the following call will look for 
         // a directory named "xr"
         //wxString xulrunner_path = FindXulRunner(wxT("xr"));
-        wxString xulrunner_path = wxT("/home/sk/work/mozilla/sdk/xulrunner-31/");
+        /*wxString xulrunner_path = wxT("/home/sk/work/mozilla/sdk/xulrunner-31/");
         if (xulrunner_path.IsEmpty())
         {
             wxMessageBox(wxT("Could not find xulrunner directory"));
             return false;
-        }    
+        }*/
     
         // Locate some common paths and initialize the control with
         // the plugin paths; add these common plugin directories to 
@@ -208,6 +208,7 @@ public:
         // Finally, initialize the engine; Calling wxWebControl::InitEngine()
         // is very important and has to be made before using wxWebControl.  
         // It instructs wxWebConnect where the xulrunner directory is.
+        wxString xulrunner_path =  wxString::FromUTF8("");//empty string for default xulrunner path
         wxWebControl::InitEngine(xulrunner_path);
 
         // Create and show the frame
