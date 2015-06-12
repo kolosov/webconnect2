@@ -362,93 +362,71 @@ void BrowserChrome::ChromeInit()
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("mousedown"),
                                             this,
-#if MOZILLA_VERSION_1 >= 10
                                             true);
-#else
-                                            PR_TRUE);
-#endif
+
 
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("mouseup"),
                                             this,
-#if MOZILLA_VERSION_1 >= 10
                                             true);
-#else
-                                            PR_TRUE);
-#endif
                                                    
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("dblclick"),
                                             this,
-#if MOZILLA_VERSION_1 >= 10
                                             true);
-#else
-                                            PR_TRUE);
-#endif
 
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("dragdrop"),
                                             this,
-#if MOZILLA_VERSION_1 >= 10
                                             true);
-#else
-                                            PR_TRUE);
-#endif
                                  
     // these two event types are used to capture favicon information
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("DOMLinkAdded"),
                                             this,
-#if MOZILLA_VERSION_1 >= 10
                                             true);
-#else
-                                            PR_TRUE);
-#endif
-                                            
+
     res = m_wnd->m_ptrs->m_event_target->AddEventListener(
                                             NS_LITERAL_STRING("DOMContentLoaded"),
                                             this,
-#if MOZILLA_VERSION_1 >= 10
                                             true);
-#else
-                                            PR_TRUE);
-#endif
+
 }
 
 void BrowserChrome::ChromeUninit()
 {
     nsresult res;
-    
+
     res = m_wnd->m_ptrs->m_event_target->RemoveEventListener(
                                             NS_LITERAL_STRING("mousedown"),
                                             this,
-                                            PR_TRUE);
+											true);
 
     res = m_wnd->m_ptrs->m_event_target->RemoveEventListener(
                                             NS_LITERAL_STRING("mouseup"),
                                             this,
-                                            PR_TRUE);
+											true);
                                                    
     res = m_wnd->m_ptrs->m_event_target->RemoveEventListener(
                                             NS_LITERAL_STRING("dblclick"),
                                             this,
-                                            PR_TRUE);
+											true);
                                             
     res = m_wnd->m_ptrs->m_event_target->RemoveEventListener(
                                             NS_LITERAL_STRING("dragdrop"),
                                             this,
-                                            PR_TRUE);
+											true);
                                             
     res = m_wnd->m_ptrs->m_event_target->RemoveEventListener(
                                             NS_LITERAL_STRING("DOMLinkAdded"),
                                             this,
-                                            PR_FALSE);
+											true);
                                             
     res = m_wnd->m_ptrs->m_event_target->RemoveEventListener(
                                             NS_LITERAL_STRING("DOMContentLoaded"),
                                             this,
-                                            PR_FALSE);
-    
+											true);
+
     m_wnd = NULL;
 }
 
@@ -909,11 +887,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
             return NS_OK;
     
         // skip https
-#if MOZILLA_VERSION_1 >=10
         bool b = false;
-#else
-        PRBool b = PR_FALSE;
-#endif
         uri->SchemeIs("https", &b);
         if (b)
             return NS_OK;
@@ -971,11 +945,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
         // now get the dom document
         nsCOMPtr<nsIDOMDocument> dom_doc;
         element->GetOwnerDocument(getter_AddRefs(dom_doc));
-#if MOZILLA_VERSION_1 < 5
-        nsCOMPtr<nsIDOM3Document> dom3_doc = do_QueryInterface(dom_doc);
-#else
         nsCOMPtr<nsIDOMDocument> dom3_doc = dom_doc;
-#endif
         if (!dom3_doc)
             return NS_OK;
         
@@ -1086,6 +1056,7 @@ NS_IMETHODIMP BrowserChrome::HandleEvent(nsIDOMEvent* evt)
 
     return NS_ERROR_NOT_IMPLEMENTED;
 }
+
 
 wxWebControl* GetWebControlFromBrowserChrome(nsIWebBrowserChrome* chrome)
 {
@@ -2542,15 +2513,8 @@ wxWebControl::wxWebControl(wxWindow* parent,
         return;
     }
     
-#if MOZILLA_VERSION_1 < 7
-    //nsCOMPtr<nsIDOMWindow2> dom_window2 = static_cast<nsIDOMWindow2>(dom_window);
-    //nsCOMPtr<nsIDOMWindow2> dom_window2;
-    //res = dom_window->GetParent(getter_AddRefs(dom_window2));
-    nsCOMPtr<nsIDOMWindow2> dom_window2 = do_QueryInterface(dom_window);
-
-#else
     nsCOMPtr<nsIDOMWindow> dom_window2(dom_window);
-#endif
+
     if (dom_window2)
     {
         res = dom_window2->GetWindowRoot(getter_AddRefs(m_ptrs->m_event_target));
@@ -2569,6 +2533,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
             return;
         }
     }
+
 
 
     // initialize chrome events
