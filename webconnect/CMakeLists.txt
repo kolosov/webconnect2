@@ -3,7 +3,7 @@ find_package(wxWidgets REQUIRED base core aui)
 include(${wxWidgets_USE_FILE})
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
- add_definitions(-fshort-wchar)
+  add_definitions(-fshort-wchar)
 endif()
 
 #set nsall header
