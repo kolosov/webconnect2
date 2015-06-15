@@ -16,8 +16,35 @@
 #include <wx/wx.h>
 #include <wx/artprov.h>
 #include "webcontrol.h"
-#include "nsinclude.h"
+
+
+
+//#include "nsinclude.h"
+
+
+#include "nsutils.h"
 #include "promptservice.h"
+
+#include "nsCOMPtr.h"
+#include "nsIWebBrowserChrome.h"
+#include "nsIDOMWindow.h"
+#include "nsIWindowWatcher.h"
+#include "nsIPromptService2.h"
+#include "nsIBadCertListener2.h"
+
+#include "nsIAuthInformation.h"
+#include "nsIURIFixup.h"
+#include "nsIHelperAppLauncherDialog.h"
+#include "nsIExternalHelperAppService.h"
+#include "nsIURI.h"
+#include "nsIMIMEInfo.h"
+#include "nsIFile.h"
+#include "nsICertOverrideService.h"
+
+#include "nsIServiceManager.h"
+#include "nsServiceManagerUtils.h"
+#include "nsIInterfaceRequestorUtils.h"
+
 
 
 

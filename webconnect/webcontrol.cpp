@@ -22,9 +22,75 @@
 #include <wx/file.h>
 #include "webframe.h"
 #include "webcontrol.h"
-#include "nsinclude.h"
+
+#include "nsutils.h"
+//#include "nsinclude.h"
+
+#include "nsIDOMDocument.h"
+#include "nsIDOMText.h"
+#include "nsIDOMNode.h"
+#include "nsIDOMNodeList.h"
+#include "nsIDOMAttr.h"
+#include "nsIDOMHTMLAnchorElement.h"
+#include "nsIDOMHTMLButtonElement.h"
+#include "nsIDOMHTMLInputElement.h"
+#include "nsIDOMHTMLLinkElement.h"
+#include "nsIDOMHTMLOptionElement.h"
+#include "nsIDOMHTMLSelectElement.h"
+#include "nsIDOMHTMLTextAreaElement.h"
+#include "nsIDOMEventListener.h"
+#include "nsIDOMEventTarget.h"
+
 #include "domprivate.h"
 #include "promptservice.h"
+
+#include "nsEmbedCID.h"
+#include "nsNetCID.h"
+#include "nsIDownload.h"
+
+//xpcom headers
+#include "nsXULAppAPI.h"
+#include "nsXPCOMGlue.h"
+
+#include "nsIWebBrowser.h"
+#include "nsIWebBrowserChrome.h"
+#include "nsIWebBrowserChromeFocus.h"
+#include "nsIWebBrowserFind.h"
+#include "nsIWebBrowserFocus.h"
+#include "nsIBaseWindow.h"
+#include "nsIEmbeddingSiteWindow.h"
+#include "nsIContextMenuListener2.h"
+#include "nsITooltipListener.h"
+#include "nsIInterfaceRequestor.h"
+#include "nsWeakReference.h" //Utils?
+#include "nsIDOMWindow.h"
+#include "nsIURI.h"
+#include "nsIDOMEvent.h"
+#include "nsIDOMMouseEvent.h"
+#include "nsIURIContentListener.h"
+#include "nsIStreamListener.h"
+#include "nsIInputStream.h"
+#include "nsIChannel.h"
+#include "nsIDocShellTreeItem.h"
+#include "nsICacheService.h"
+#include "nsIWebBrowserPersist.h"
+#include "nsIStringStream.h"
+
+
+#include "nsIWindowCreator2.h"
+#include "nsISimpleEnumerator.h"
+#include "nsIFile.h"
+#include "nsIDirectoryService.h"
+#include "nsIComponentRegistrar.h"
+
+#include "nsIWebNavigation.h"
+#include "nsIClipboardCommands.h"
+#include "nsIAppShell.h"
+
+#include "nsIServiceManager.h"
+#include "nsServiceManagerUtils.h"
+#include "nsIInterfaceRequestorUtils.h"
+#include "nsComponentManagerUtils.h"
 
 
 // global preference for whether or not to show certificate errors
@@ -176,7 +242,7 @@ struct EmbeddingPtrs
     nsCOMPtr<nsIClipboardCommands> m_clipboard_commands;
     
     //nsCOMPtr<nsISupports> m_print_settings;
-    nsCOMPtr<nsIPrintSettings> m_print_settings;
+    //nsCOMPtr<nsIPrintSettings> m_print_settings;
 };
 
 
@@ -3302,6 +3368,7 @@ wxString wxWebControl::GetCurrentLoadURI()
 void wxWebControl::InitPrintSettings()
 {
     nsresult rv;
+	/*
 	if (!m_ptrs->m_print_settings)
     {
     	nsCOMPtr<nsIPrintSettingsService> print_settings_service;
@@ -3347,7 +3414,7 @@ void wxWebControl::InitPrintSettings()
             rv = web_browser_print->GetGlobalPrintSettings(getter_AddRefs(supports));
             m_ptrs->m_print_settings = supports;
         }
-    }
+    }*/
 }
 
 // (METHOD) wxWebControl::PrintPreview
@@ -3362,7 +3429,7 @@ void wxWebControl::InitPrintSettings()
 void wxWebControl::PrintPreview(bool silent)
 {
     return; //TODO implement
-
+	/*
 	nsresult rv;
 	nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
@@ -3384,7 +3451,7 @@ void wxWebControl::PrintPreview(bool silent)
         settings19->SetPrintSilent(silent);
         //web_browser_print->PrintPreview(settings19,dom_window,m_chrome);
         web_browser_print->PrintPreviewNavigate(0, 0);
-    }
+    }*/
 
 }
 
@@ -3399,6 +3466,7 @@ void wxWebControl::PrintPreview(bool silent)
 
 void wxWebControl::Print(bool silent)
 {	
+	/*
     nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
     {
@@ -3412,7 +3480,8 @@ void wxWebControl::Print(bool silent)
         settings19->SetShowPrintProgress(false);
 		settings19->SetPrintSilent(silent);
         web_browser_print->Print(settings19, NULL);
-    }
+    }*/
+
 	/*nsCOMPtr<nsIPrintSettings> print_settings;
 	nsresult rv = web_browser_print->GetGlobalPrintSettings(getter_AddRefs(print_settings));
 	if (NS_SUCCEEDED(rv))
@@ -3439,6 +3508,7 @@ void wxWebControl::SetPageSettings(double page_width, double page_height,
                                    double left_margin, double right_margin, 
                                    double top_margin, double bottom_margin)
 {
+	/*
 	nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
     {
@@ -3469,7 +3539,7 @@ void wxWebControl::SetPageSettings(double page_width, double page_height,
         settings19->SetMarginRight(right_margin);
         settings19->SetMarginTop(top_margin);
         settings19->SetMarginBottom(bottom_margin);
-    }
+    }*/
 }
 
 // (METHOD) wxWebControl::GetPageSettings
@@ -3487,6 +3557,7 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
                                    double* left_margin, double* right_margin, 
                                    double* top_margin, double* bottom_margin)
 {
+	/*
 	nsCOMPtr<nsIWebBrowserPrint> web_browser_print = do_GetInterface(m_ptrs->m_web_browser);
     if (!web_browser_print)
     {
@@ -3516,7 +3587,7 @@ void wxWebControl::GetPageSettings(double* page_width, double* page_height,
             *page_width = *page_height;
             *page_height = t;
         }
-    }
+    }*/
 }
 
 // (METHOD) wxWebControl::ViewSource
@@ -3982,24 +4053,27 @@ void wxWebControl::OnSize(wxSizeEvent& evt)
 bool wxWebControl::Execute(const wxString& js_code)
 {
     nsresult rv;
-
+	//FIXME enable again
+	/*
     nsCOMPtr<nsIScriptSecurityManager> security_manager;
     security_manager = do_GetService("@mozilla.org/scriptsecuritymanager;1");
     if (!security_manager)
         return false;
-    
+    */
+	return false;
+	/*
     nsCOMPtr<nsIPrincipal> principal;
     security_manager->GetSystemPrincipal(getter_AddRefs(principal));
     if (!principal)
-        return false;
-    
+        return false;*/
+	/*
     nsCOMPtr<nsIScriptGlobalObject> sgo = do_QueryInterface(m_ptrs->m_web_browser);
     if (!sgo)
         return false;
     nsCOMPtr<nsIScriptContext> ctx = sgo->GetContext();
     if (!ctx)
         return false;
-
+	*/
     /*
     void* obj = sgo->GetGlobalJSObject();
     

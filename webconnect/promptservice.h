@@ -32,6 +32,8 @@
 #define NS_CERTOVERRIDE_CID \
  {0x67ba681d, 0x5485, 0x4fff, {0x95, 0x2c, 0x2e, 0xe3, 0x37, 0xff, 0xdc, 0xd6}}
 
+#include "nsIFactory.h"
+
 
 void CreatePromptServiceFactory(nsIFactory** result);
 void CreateTransferFactory(nsIFactory** result);

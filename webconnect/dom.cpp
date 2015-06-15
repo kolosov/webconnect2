@@ -15,9 +15,30 @@
 #include <stdint.h>
 
 #include <wx/wx.h>
-#include "nsinclude.h"
+
+#include "nsutils.h"
+//#include "nsinclude.h"
+
+#include "nsISupports.h"
+#include "nsIDOMDocument.h"
+#include "nsIDOMText.h"
+#include "nsIDOMNode.h"
+#include "nsIDOMNodeList.h"
+#include "nsIDOMAttr.h"
+#include "nsIDOMHTMLAnchorElement.h"
+#include "nsIDOMHTMLButtonElement.h"
+#include "nsIDOMHTMLInputElement.h"
+#include "nsIDOMHTMLLinkElement.h"
+#include "nsIDOMHTMLOptionElement.h"
+#include "nsIDOMHTMLSelectElement.h"
+#include "nsIDOMHTMLTextAreaElement.h"
+#include "nsIDOMEventListener.h"
+#include "nsIDOMEventTarget.h"
+
+
 #include "webcontrol.h"
 #include "domprivate.h"
+
 
 
 ///////////////////////////////////////////////////////////////////////////////

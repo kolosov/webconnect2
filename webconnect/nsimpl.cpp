@@ -19,9 +19,12 @@
 #include <string>
 #include <wx/wx.h>
 #include "webcontrol.h"
-#include "nsinclude.h"
+//#include "nsinclude.h"
 //#include "uchar.h"
 #include <locale>
+
+
+#include "nsutils.h"
 
 #ifdef __WXMSW__
 #include <windows.h>

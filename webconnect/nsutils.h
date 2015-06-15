@@ -15,6 +15,33 @@
 
 #include "moz_config.h"
 
+
+#if defined(_WIN32)
+#define defXULPathDir  GECKO_SDK_PATH_CONFIG "\\bin\\"
+#define defXULPathFile defXULPathDir "xpcom.dll"
+#elif defined(__linux__)
+#define defXULPathDir  GECKO_SDK_PATH_CONFIG "/bin/"
+#define defXULPathFile defXULPathDir "libxpcom.so"
+#elif defined(__APPLE__)
+#define defXULPathDir  GECKO_SDK_PATH_CONFIG "/bin/XUL.framework/Versions/Current/"
+#define defXULPathFile defXULPathDir "XUL"
+#else
+#error "Unsupported platform!"
+#endif
+
+
+#include "nsCOMPtr.h"
+#include "nsStringAPI.h"
+#include "nsEmbedString.h"
+#include "nsIWindowWatcher.h"
+#include "nsIServiceManager.h"
+#include "nsIPrefBranch.h"
+#include "nsIProperties.h"
+#include "nsIIOService.h"
+#include "nsITransfer.h"
+#include "nsIRequest.h"
+
+
 //wxString ns2wx(nsString& str);
 wxString ns2wx(nsEmbedCString& str);
 wxString ns2wx(nsEmbedString& str);
