@@ -1,10 +1,10 @@
 find_package(wxWidgets REQUIRED base core aui)
-find_library(gecko_libs xpcomglue PATHS ${GECKO_SDK_PATH}/lib)
-find_library(xulrunner_mozalloc mozalloc PATHS ${GECKO_SDK_PATH}/lib)
-find_library(gecko_libs_mozglue mozglue PATHS ${GECKO_SDK_PATH}/lib)
+find_library(gecko_libs xpcomglue PATHS ${GECKO_SDK_PATH}/sdk/lib)
+find_library(xulrunner_mozalloc mozalloc PATHS ${GECKO_SDK_PATH}/sdk/lib)
+find_library(gecko_libs_mozglue mozglue PATHS ${GECKO_SDK_PATH}/sdk/lib)
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
-  find_library(gecko_libs_memory memory PATHS ${GECKO_SDK_PATH}/lib)
+  find_library(gecko_libs_memory memory PATHS ${GECKO_SDK_PATH}/sdk/lib)
 endif()
 
 message ("Building for gecko version: ${MOZILLA_VERSION_1}")
