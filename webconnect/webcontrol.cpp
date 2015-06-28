@@ -64,8 +64,10 @@
 #include "nsIInterfaceRequestor.h"
 #if defined(__APPLE__)
 #include "nsEmbedWeakReference.h" //Utils?
+#else
+#include "nsWeakReference.h" //Utils?
 #endif
-//#include "nsWeakReference.h" //Utils?
+
 //#include "nsIWeakReference.h" //Utils?
 //#include "nsIWeakReferenceUtils.h" //Utils?
 #include "nsIDOMWindow.h"
