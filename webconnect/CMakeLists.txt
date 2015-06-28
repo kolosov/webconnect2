@@ -13,7 +13,10 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 #include_directories("${CMAKE_CURRENT_SOURCE_DIR}/xulheaders")
 include_directories("/usr/include/nspr") #FIXME
 
-set(webconlib_src dom.cpp nsimpl.cpp promptservice.cpp webcontrol.cpp webframe.cpp webprefs.cpp)
+set(webconlib_src dom.cpp nsimpl.cpp promptservice.cpp webcontrol.cpp webframe.cpp webprefs.cpp )
+if((CMAKE_SYSTEM_NAME MATCHES Darwin) AND (MOZILLA_VERSION_1 VERSION_LESS "33"))
+  set ( webconlib_src ${webconlib_src} nsEmbedWeakReference.cpp)
+endif()
 
 add_library(webconlib STATIC ${webconlib_src})
 

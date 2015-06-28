@@ -62,7 +62,12 @@
 #include "nsIContextMenuListener2.h"
 #include "nsITooltipListener.h"
 #include "nsIInterfaceRequestor.h"
-#include "nsWeakReference.h" //Utils?
+#if defined(__APPLE__)
+#include "nsEmbedWeakReference.h" //Utils?
+#endif
+//#include "nsWeakReference.h" //Utils?
+//#include "nsIWeakReference.h" //Utils?
+//#include "nsIWeakReferenceUtils.h" //Utils?
 #include "nsIDOMWindow.h"
 #include "nsIURI.h"
 #include "nsIDOMEvent.h"

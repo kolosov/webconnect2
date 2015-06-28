@@ -45,6 +45,10 @@ if(CMAKE_SYSTEM_NAME MATCHES Windows)
   #add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1 -D_ITERATOR_DEBUG_LEVEL=0)
 endif()
 
+if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+ message("Darwin build")
+ add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -std=c++11)
+endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES Linux)
   message("Linux build")

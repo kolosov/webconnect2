@@ -36,3 +36,10 @@ if(CMAKE_SYSTEM_NAME MATCHES Windows)
   endif()
 endif()
 
+if(CMAKE_SYSTEM_NAME MATCHES Darwin)
+  target_link_libraries(testapp webconlib ${gecko_libs} ${wxWidgets_LIBRARIES} dl  pthread )
+#  target_link_libraries(testapp webconlib ${gecko_libs} ${wxWidgets_LIBRARIES} dl -Wl,--whole-archive ${gecko_libs_mozglue} -Wl,--no-whole-archive ${gecko_libs_memory} pthread ${xulrunner_mozalloc} )
+# target_link_libraries(testapp ${wxWidgets_LIBRARIES} dl  webconlib ${gecko_libs})
+# target_link_libraries(testapp ${wxWidgets_LIBRARIES} webconlib ${gecko_libs})
+endif()
+
