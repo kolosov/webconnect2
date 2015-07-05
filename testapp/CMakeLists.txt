@@ -21,7 +21,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
   if(WC_STATIC)
     target_link_libraries(testapp webconlib ${gecko_libs} ${wxWidgets_LIBRARIES} dl -Wl,--whole-archive ${gecko_libs_mozglue} -Wl,--no-whole-archive ${gecko_libs_memory} pthread ${gecko_mozalloc} )
   else()
-    target_link_libraries(testapp webconlib ${wxWidgets_LIBRARIES} -L${GECKO_SDK_PATH}/lib xul dl pthread )
+    target_link_libraries(testapp webconlib ${wxWidgets_LIBRARIES} -L${GECKO_SDK_PATH}/lib -Wl,-rpath=${GECKO_SDK_PATH}/bin  dl pthread )
   endif()
 endif()
 
@@ -39,7 +39,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Windows)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES Darwin)
-  target_link_libraries(testapp webconlib ${gecko_libs} ${wxWidgets_LIBRARIES} dl  pthread )
+  target_link_libraries(testapp webconlib ${gecko_libs} ${wxWidgets_LIBRARIES} dl  pthread "-rpath-link,${GECKO_SDK_PATH}/bin" )
 #  target_link_libraries(testapp webconlib ${gecko_libs} ${wxWidgets_LIBRARIES} dl -Wl,--whole-archive ${gecko_libs_mozglue} -Wl,--no-whole-archive ${gecko_libs_memory} pthread ${gecko_mozalloc} )
 endif()
 

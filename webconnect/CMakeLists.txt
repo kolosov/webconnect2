@@ -31,7 +31,7 @@ add_definitions( -DXPCOM_GLUE=1 )
 if(${WC_STATIC})
   add_library(webconlib STATIC ${webconlib_src})
 else()
-  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lmozalloc")
+  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc")
   add_library(webconlib SHARED ${webconlib_src})
 endif()
 
