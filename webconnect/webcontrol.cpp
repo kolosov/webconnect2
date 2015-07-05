@@ -26,6 +26,10 @@
 #include "nsutils.h"
 //#include "nsinclude.h"
 
+#include "nsDirectoryServiceDefs.h"
+#include "nsDirectoryServiceUtils.h"
+#include "nsIComponentRegistrar.h"
+#include "nsStringGlue.h"
 #include "nsIDOMDocument.h"
 #include "nsIDOMText.h"
 #include "nsIDOMNode.h"
@@ -48,6 +52,7 @@
 #include "nsNetCID.h"
 #include "nsIDownload.h"
 
+#include "xpcom-config.h"
 //xpcom headers
 #include "nsXULAppAPI.h"
 #include "nsXPCOMGlue.h"
@@ -134,14 +139,11 @@ DEFINE_EVENT_TYPE(wxEVT_WEB_DOMEVENT)
 IMPLEMENT_DYNAMIC_CLASS(wxWebEvent, wxNotifyEvent)
 
 
-#if MOZILLA_VERSION_1 <2
-XRE_InitEmbeddingType XRE_InitEmbedding = 0;
-#else
-XRE_InitEmbedding2Type XRE_InitEmbedding2 = 0;
-#endif
-XRE_TermEmbeddingType XRE_TermEmbedding = 0;
-XRE_NotifyProfileType XRE_NotifyProfile = 0;
-XRE_LockProfileDirectoryType XRE_LockProfileDirectory = 0;
+//XRE_InitEmbedding2Type XRE_InitEmbedding2 = 0;
+XRE_InitEmbedding2Type XRE_InitEmbedding2 NS_HIDDEN;
+XRE_TermEmbeddingType XRE_TermEmbedding NS_HIDDEN;
+XRE_NotifyProfileType XRE_NotifyProfile NS_HIDDEN;
+XRE_LockProfileDirectoryType XRE_LockProfileDirectory NS_HIDDEN;
 
 //nsCOMPtr<nsIFile> prof_dir = 0;
 

@@ -2,6 +2,11 @@ cmake_minimum_required (VERSION 3.0)
 
 project(webconnect2)
 
+if(${WC_STATIC})
+  message("Static build")
+else()
+  message("Shared build")
+endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 #check for xulrunner dir
 if(NOT GECKO_SDK_PATH)
@@ -41,18 +46,18 @@ endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES Windows)
   message("Windows build")
-  add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1)
-  #add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1 -D_ITERATOR_DEBUG_LEVEL=0)
+  #add_definitions( -DXPCOM_GLUE_USE_NSPR -DXP_WIN=1)
+  add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -DXP_WIN=1 -D_ITERATOR_DEBUG_LEVEL=0)
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES Darwin)
  message("Darwin build")
- add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -std=c++11)
+ add_definitions( -DXPCOM_GLUE_USE_NSPR -std=c++11)
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES Linux)
   message("Linux build")
-  add_definitions( -DXPCOM_GLUE_USE_NSPR -DXPCOM_GLUE=1 -std=c++11 -fno-rtti)
+  add_definitions( -DXPCOM_GLUE_USE_NSPR -std=c++11 -fno-rtti)
 endif()
 
 message("GECKO_SDK_PATH_CONFIG is ${GECKO_SDK_PATH_CONFIG}")
