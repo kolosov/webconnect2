@@ -17,6 +17,7 @@
 
 #include <string>
 #include <wx/wx.h>
+#include <wx/event.h>
 #include <wx/filename.h>
 #include <wx/stdpaths.h>
 #include <wx/file.h>
@@ -114,6 +115,8 @@ bool g_ignore_ssl_cert_errors = false;
 //  event declarations
 ///////////////////////////////////////////////////////////////////////////////
 
+
+//wxDEFINE_EVENT(wxEVT_WEB_OPENURI, wxCommandEvent);
 
 DEFINE_EVENT_TYPE(wxEVT_WEB_OPENURI)
 DEFINE_EVENT_TYPE(wxEVT_WEB_TITLECHANGE)
@@ -273,19 +276,19 @@ public:
 
     GeckoEngine();
     ~GeckoEngine();
-    
+
     void SetEnginePath(const wxString& path);
     void SetStoragePath(const wxString& path);
-    
+
     bool Init();
     bool IsOk() const;
     void Uninit();
-    
+
     void AddContentListener(ContentListener* l);
     ContentListenerPtrArray& GetContentListeners();
 
     void AddPluginPath(const wxString& path);
-    
+
 private:
 
     wxString m_gecko_path;
@@ -1860,8 +1863,233 @@ NS_INTERFACE_MAP_BEGIN(PluginListProvider)
     NS_INTERFACE_MAP_ENTRY(nsIDirectoryServiceProvider2)
 NS_INTERFACE_MAP_END
 
+///////////////////////////////////////////////////////////////////////////////
+//  SimpleGeckoEngine class implementation
+///////////////////////////////////////////////////////////////////////////////
 
 
+SimpleGeckoEngine::SimpleGeckoEngine()
+{
+    m_ok = false;
+    //m_plugin_provider = new PluginListProvider;
+    //m_plugin_provider->AddRef();
+
+    //path to xulrunner binary!
+    m_gecko_path = wxString::FromUTF8(defXULPathDir);
+}
+
+SimpleGeckoEngine::~SimpleGeckoEngine()
+{
+    //m_plugin_provider->Release();
+}
+
+bool SimpleGeckoEngine::IsOk() const
+{
+    return m_ok;
+}
+void SimpleGeckoEngine::Uninit()
+{
+	if(IsOk())
+	{
+		NS_LogInit();
+		if(!XRE_TermEmbedding) return;
+		XRE_TermEmbedding();
+		nsresult res;
+		//res = XPCOMGlueShutdown();
+		NS_LogTerm();
+	}
+}
+
+/*
+ * Set path to gecko binary, example:
+ * linux: somepath/xulrunner-31/bin
+ * windows: somepath\\xulrunner-31\bin
+ * OSX: somepath/xulrunner-31/bin/XUL.framework/Versions/Current
+ */
+/*
+void SimpleGeckoEngine::SetEnginePath(const char* path)
+{
+    wxASSERT_MSG(!m_ok, wxT("This must be called before the first wxWebControl is instantiated"));
+    wxString wxPath = wxString(path);
+    m_gecko_path = wxPath;
+}
+
+void SimpleGeckoEngine::SetStoragePath(const char* path)
+{
+    wxASSERT_MSG(!m_ok, wxT("This must be called before the first wxWebControl is instantiated"));
+
+    wxString wxPath = wxString(path);
+    m_storage_path = wxPath;
+
+    wxChar path_separator = wxFileName::GetPathSeparator();
+    m_history_filename = m_storage_path;
+    if (m_history_filename.IsEmpty() || m_history_filename.Last() != path_separator)
+        m_history_filename += path_separator;
+
+    m_history_filename += wxT("kwkh01.dat");
+}*/
+
+void SimpleGeckoEngine::SetEnginePath(const wxString& path)
+{
+    wxASSERT_MSG(!m_ok, wxT("This must be called before the first wxWebControl is instantiated"));
+    m_gecko_path = path;
+}
+
+void SimpleGeckoEngine::SetStoragePath(const wxString& path)
+{
+    wxASSERT_MSG(!m_ok, wxT("This must be called before the first wxWebControl is instantiated"));
+
+    m_storage_path = path;
+
+    wxChar path_separator = wxFileName::GetPathSeparator();
+    m_history_filename = m_storage_path;
+    if (m_history_filename.IsEmpty() || m_history_filename.Last() != path_separator)
+        m_history_filename += path_separator;
+
+    m_history_filename += wxT("kwkh01.dat");
+}
+
+bool SimpleGeckoEngine::Init()
+{
+    nsresult res;
+
+    if (IsOk())
+        return true;
+
+    //if (m_gecko_path.IsEmpty())
+    //    return false;
+
+    if (m_storage_path.IsEmpty())
+    {
+        wxLogNull log;
+
+        wxString default_storage_path = wxStandardPaths::Get().GetTempDir();
+        printf("Storage path1: %s\n", (const char*)default_storage_path.mb_str());
+        wxChar path_separator = wxFileName::GetPathSeparator();
+        if (default_storage_path.IsEmpty() || default_storage_path.Last() != path_separator)
+            default_storage_path += path_separator;
+        printf("Storage path2: %s\n", (const char*)default_storage_path.mb_str());
+        //default_storage_path += wxString(wxT("kwkh01.tmp"));
+        default_storage_path += wxString::FromUTF8("kwkh01.tmp");
+        //wxString suf1 = wxString::FromUTF8("kwkh01.tmp");
+        //printf("Storage path22: %s\n", (const char*)suf1.mb_str());
+
+        printf("Storage path3: %s\n", (const char*)default_storage_path.mb_str());
+
+#ifdef WIN32
+        ::wxMkDir(default_storage_path);
+#else
+#if wxMAJOR_VERSION == 3
+        ::wxMkDir(default_storage_path, 0700);
+#else
+        ::wxMkDir((const char*)default_storage_path.mbc_str(), 0700);
+#endif
+#endif
+
+        m_storage_path = default_storage_path;
+    }
+
+    SetStoragePath(m_storage_path);
+
+    //std::string xpcom_path = std::string(GECKO_SDK_PATH_CONFIG);
+
+    char path_separator = (char)wxFileName::GetPathSeparator();
+    std::string gecko_path = (const char*)m_gecko_path.mb_str();
+    std::string xpcom_path = gecko_path;
+    if (xpcom_path.empty() || xpcom_path[xpcom_path.length()-1] != path_separator)
+        xpcom_path += path_separator;
+    #if defined __WXMSW__
+    xpcom_path += "xpcom.dll";
+    #elif defined __WXMAC__
+    xpcom_path += "libxpcom.dylib";
+    #else
+    xpcom_path += "libxpcom.so";
+    #endif
+
+    std::cout << "xpcom: " << xpcom_path << std::endl;
+
+    res = XPCOMGlueStartup(xpcom_path.c_str());
+    if (NS_FAILED(res))
+        return false;
+
+    NS_LogInit();
+
+        // load XUL functions
+    nsDynamicFunctionLoad nsFuncs[] = {
+                {"XRE_InitEmbedding2", (NSFuncPtr*)&XRE_InitEmbedding2},
+                {"XRE_TermEmbedding", (NSFuncPtr*)&XRE_TermEmbedding},
+                {"XRE_NotifyProfile", (NSFuncPtr*)&XRE_NotifyProfile},
+                {"XRE_LockProfileDirectory", (NSFuncPtr*)&XRE_LockProfileDirectory},
+                {0, 0}
+    };
+
+    res = XPCOMGlueLoadXULFunctions(nsFuncs);
+       if (NS_FAILED(res)) {
+            return false;
+       }
+
+
+    nsCOMPtr<nsIFile> gre_dir;
+#if MOZILLA_VERSION_1 >=10
+    res = NS_NewNativeLocalFile(nsCString(defXULPathDir), true, getter_AddRefs(gre_dir));
+#else
+    res = NS_NewNativeLocalFile(nsDependentCString(gecko_path.c_str()), PR_TRUE, getter_AddRefs(gre_dir));
+#endif
+    if (NS_FAILED(res))
+         return false;
+
+    nsCOMPtr<nsIFile> prof_dir;
+#if MOZILLA_VERSION_1 >=10
+#if wxMAJOR_VERSION == 3
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mb_str(wxConvUTF8)), true, getter_AddRefs(prof_dir));
+    std::cout << "Storage path: " << std::string((const char*)m_storage_path.mb_str(wxConvUTF8)) << std::endl;
+#else
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), true, getter_AddRefs(prof_dir));
+#endif
+#else
+    res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), PR_TRUE, getter_AddRefs(prof_dir));
+#endif
+    if (NS_FAILED(res))
+            return false;
+
+    // init embedding
+#if MOZILLA_VERSION_1 < 2
+    const nsStaticModuleInfo* aComps = 0;
+    int aNumComps = 0;
+
+	//res = XRE_InitEmbedding(gre_dir, prof_dir,
+	//		const_cast<wxDirSrvProvider*>(&DirectoryProvider),aComps, aNumComps);
+	res = XRE_InitEmbedding(gre_dir, prof_dir,
+			nsnull,aComps, aNumComps);
+
+#else
+    //res = XRE_InitEmbedding2(gre_dir, prof_dir, const_cast<wxDirSrvProvider*>(&DirectoryProvider));
+    res = XRE_InitEmbedding2(gre_dir, prof_dir, nullptr);
+#endif
+    if (NS_FAILED(res))
+            return false;
+
+    // initialize profile:
+    XRE_NotifyProfile();
+
+    NS_LogTerm();
+
+    // set the window creator
+    //nsCOMPtr<nsIWindowCreator> wnd_creator = static_cast<nsIWindowCreator*>(new WindowCreator);
+    nsCOMPtr<WindowCreator> wnd_creator = new WindowCreator();
+
+    //set window watcher
+    nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
+    //nsCOMPtr<nsIWindowWatcher> window_watcher(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
+    if (!window_watcher)
+        return false;
+
+    window_watcher->SetWindowCreator(wnd_creator);
+
+
+
+    return true;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //  GeckoEngine class implementation

@@ -13,10 +13,18 @@
 #ifndef __WXWEBCONNECT_WEBCONTROL_H
 #define __WXWEBCONNECT_WEBCONTROL_H
 
+#include <wx/dlimpexp.h>
+#include <wx/wx.h>
 
 #include "dom.h"
 
+#define WC_CREATING_DLL
 
+#ifdef WC_CREATING_DLL
+#define WC_EXPORT WXEXPORT
+#else
+#define WC_EXPORT WXIMPORT
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //  web states, used by the EVT_WEB_STATECHANGE event
@@ -322,7 +330,44 @@ public:
     void SetBoolPref(const wxString& name, bool value);
 };
 
+///////////////////////////////////////////////////////////////////////////////
+//  wxWebControl class
+///////////////////////////////////////////////////////////////////////////////
 
+class SimpleGeckoEngine
+{
+public:
+
+    SimpleGeckoEngine();
+    ~SimpleGeckoEngine();
+
+    //void SetEnginePath(const char* path);
+    //void SetStoragePath(const char* path);
+
+    void SetEnginePath(const wxString& path);
+    void SetStoragePath(const wxString& path);
+
+    bool Init();
+    bool IsOk() const;
+    void Uninit();
+
+    //void AddContentListener(ContentListener* l);
+    //ContentListenerPtrArray& GetContentListeners();
+
+    //void AddPluginPath(const wxString& path);
+
+private:
+
+    wxString m_gecko_path;
+    wxString m_storage_path;
+    wxString m_history_filename;
+    bool m_ok;
+
+    //ContentListenerPtrArray m_content_listeners;
+    //nsCOMPtr<nsIAppShell> m_appshell;
+    //PluginListProvider* m_plugin_provider;
+    friend class WindowCreator;
+};
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -467,8 +512,8 @@ private:
     wxImage m_favicon;
     bool m_favicon_fetched;
     bool m_content_loaded;
-    
-    DECLARE_EVENT_TABLE()
+    wxDECLARE_EVENT_TABLE();
+    //DECLARE_EVENT_TABLE()
 };
 
 
@@ -558,7 +603,8 @@ private:
 // (METHOD) wxWebEvent::SetOutputContentType
 // Syntax: void wxWebEvent::SetOutputContentType(const wxString& value)    
 
-class WXDLLIMPEXP_AUI wxWebEvent : public wxNotifyEvent
+//class WXDLLIMPEXP_AUI wxWebEvent : public wxNotifyEvent
+class WXEXPORT wxWebEvent : public wxNotifyEvent
 {
 public:
     wxWebEvent(wxEventType command_type = wxEVT_NULL,
