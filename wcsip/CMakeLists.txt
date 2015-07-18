@@ -28,7 +28,7 @@ add_custom_target (
 )
 
 add_custom_target (
-	webconnect.so
+	webconnect.so ALL
 	COMMAND make -f SIPMakefile
 	DEPENDS SIPMakefile webconlib
 	COMMENT "Building webconnect.so by SIPMakefile"
