@@ -1,0 +1,35 @@
+import os
+import sipconfig
+build_file = "webconnect.sbf"
+
+wx_phoenix_path = "@WX_PHOENIX_PATH@"
+wx_widgets_pathes = "@wxWidgets_INCLUDE_DIRS@"
+wc_python_src_path = "@wc_python_src_DIR@"
+
+wx_widgets_list = wx_widgets_pathes.split(";")
+
+#sip_path1 = "/home/sk/work/odesk/wxgecko/wxparty/Phoenix/sip/gen"
+sip_path1 = wx_phoenix_path + "/sip/gen"
+#sip_path2 = "/home/sk/work/odesk/wxgecko/wxparty/Phoenix/src"
+sip_path2 = wx_phoenix_path + "/src"
+wc_path1 = wc_python_src_path + "/"+"../webconnect"
+#wx_dir_path1 = "/usr/lib/x86_64-linux-gnu/wx/include/gtk2-unicode-3.0"
+#wx_dir_path2 = "/usr/include/wx-3.0"
+
+#wx_inc = ""
+
+config = sipconfig.Configuration()
+
+os.system(" ".join([config.sip_bin, "-c", ".", "-I", sip_path1, "-I", sip_path2, "-b", build_file, wc_python_src_path+"/"+"webconnect.sip"]))
+#os.system(" ".join([config.sip_bin, "-c", ".", "-b", build_file, "-I../webconnect", "webconnectwrap.sip"]))
+#os.system(" ".join([config.sip_bin, "-c", ".", "-b", build_file, "-I", config.pyqt_sip_dir, pyqt_sip_flags, "hello.sip"]))
+
+makefile = sipconfig.SIPModuleMakefile(config, build_file, makefile="SIPMakefile")
+
+makefile.extra_defines = ["__WXGTK__"]
+#makefile.extra_include_dirs = [sip_path1, sip_path2, wc_path1, wx_dir_path1, wx_dir_path2] + wx_widgets_list
+makefile.extra_include_dirs = [sip_path1, sip_path2, wc_path1] + wx_widgets_list
+makefile.extra_libs = ["webconlib"]
+makefile.extra_lib_dirs = ["../webconnect"]
+
+makefile.generate()

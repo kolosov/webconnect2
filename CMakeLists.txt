@@ -18,6 +18,13 @@ if(NOT GECKO_SDK_PATH)
   endif()
 endif()
 
+if(NOT WX_PHOENIX_PATH)
+  message("Wx Phoenix path is not defined, webconnect python interface will not build. Use WX_PHOENIX_PATH to define it")
+else()
+  message("Wx Phoenix path is ${WX_PHOENIX_PATH}")
+  add_subdirectory (wcsip)
+endif()
+
 set(is_mozver_3 false)
 
 #set mozilla version
