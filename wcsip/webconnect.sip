@@ -6,20 +6,18 @@
 			language="C++" )
 
 %Import _core.sip
+%Import _adv.sip
 
 %ModuleHeaderCode
 #include <webcontrol.h>
 %End
 
-
+//SimpleGeckoEngine class
 class SimpleGeckoEngine {
 %Docstring
   SimpleGeckoEngine()
 %End
 
-//%TypeHeaderCode
-//#include <webcontrol.h>
-//%End
 public:
      SimpleGeckoEngine();
     ~SimpleGeckoEngine();
@@ -32,6 +30,7 @@ public:
     void Uninit();
 };
 
+//wxWebControl class
 class wxWebContentHandler;
 class wxWebPreferences;
 class wxWebPostData;
@@ -39,7 +38,9 @@ class wxWebProgressBase;
 class wxDOMDocument;
 class wxWebControl : public wxControl
 {
-
+%Docstring
+  wxWebControl()
+%End
 public:
 
     static bool InitEngine(const wxString& path);
