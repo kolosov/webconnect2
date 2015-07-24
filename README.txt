@@ -51,6 +51,9 @@ There is also python binding. We need SIP and wxPython(Phoenix) sources to build
 1) Compile wxPython (we need wxPython sip files)
 2) Point directory wxPython source directory for CMake by WX_PHOENIX_PATH parameter.
 3) Build wcsip subproject/subdirectory
+4) Run python interpreter and set LD_LIBRARY_PATH to places webconnect (libwebconlib.so),
+wxpython-phoenix and xulrunner libraries. Also set PYTHONPATH to wxpython-phoenix, webconnect module
+directories. There is a tip after successfull building.
 
 
 

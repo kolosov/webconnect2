@@ -71,3 +71,15 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
     target_link_libraries(webconnect webconlib ${wxWidgets_LIBRARIES} -L${GECKO_SDK_PATH}/lib -Wl,-rpath=${GECKO_SDK_PATH}/bin  dl pthread )
 endif()
 
+add_custom_target( SHOW_ENV_PATHS ALL
+  DEPENDS ${ALL_TARGETS}
+  COMMAND ${CMAKE_COMMAND} -E echo ""
+  COMMAND ${CMAKE_COMMAND} -E echo "Webconnect python module is ready"
+  COMMAND ${CMAKE_COMMAND} -E echo "use follow ENV to run python interpreter:"
+  COMMAND ${CMAKE_COMMAND} -E echo "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/webconnect:${WX_PHOENIX_PATH}/wx:${GECKO_SDK_PATH}/bin"
+  COMMAND ${CMAKE_COMMAND} -E echo "PYTHONPATH=${PROJECT_BINARY_DIR}/wcsip:${WX_PHOENIX_PATH}:${WX_PHOENIX_PATH}/wx"
+  COMMAND ${CMAKE_COMMAND} -E echo ""
+)
+
+add_dependencies(SHOW_ENV_PATHS webconnect)
+
