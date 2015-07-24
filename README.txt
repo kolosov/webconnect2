@@ -1,12 +1,10 @@
 It is deeply modification of webconnect 1.1 project(please read old webconnect 
-readme_1.1.txt)
+readme_1.1.txt) with some features and improvements.
 
 Improvements:
- - supports gecko from 1.9.0 to 10 (gecko 10 ask some additional workaround 
-with mozalloc library, under windows Gecko 10 build requires a mozutils.dll
- copy to root binary directory).
+ - supports gecko upto 31
  - cmake build system
- - support Linux (32bit and 64bit) and Windows build
+ - support Linux (32bit and 64bit) Windows and OSX
 
 Limitations:
  - I used webconnect only for base embedding, for example, working with 
@@ -48,4 +46,11 @@ xulrunner-dev-9.0.1/lib/xulrunner-devel-9.0.1/ -G"Eclipse CDT4 - Unix Makefiles"
 bin/ directory, cp -r /home/sk/work/src/build/xulrunner-dev-9.0.1/lib/\
 xulrunner-devel-9.0.1/bin xr)
 5) testapp/testapp
+
+There is also python binding. We need SIP and wxPython(Phoenix) sources to build python binding.
+1) Compile wxPython (we need wxPython sip files)
+2) Point directory wxPython source directory for CMake by WX_PHOENIX_PATH parameter.
+3) Build wcsip subproject/subdirectory
+
+
 
