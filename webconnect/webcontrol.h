@@ -484,7 +484,7 @@ public:
     // other
     wxImage GetFavIcon() const;
     wxDOMDocument GetDOMDocument();
-    
+
 private:
 
     void OnSize(wxSizeEvent& evt);
@@ -512,8 +512,11 @@ private:
     wxImage m_favicon;
     bool m_favicon_fetched;
     bool m_content_loaded;
+#if wxMAJOR_VERSION == 3
     wxDECLARE_EVENT_TABLE();
-    //DECLARE_EVENT_TABLE()
+#else
+    DECLARE_EVENT_TABLE();
+#endif
 };
 
 
