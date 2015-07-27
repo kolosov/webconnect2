@@ -4259,6 +4259,8 @@ void wxWebControl::OnSetFocus(wxFocusEvent& evt)
     if (!IsOk())
         return;
 
+    std::cout << "OnSetFocus" << std::endl;
+
     nsCOMPtr<nsIWebBrowserFocus> focus = do_QueryInterface(m_ptrs->m_web_browser);
     if (!focus)
         return;
@@ -4268,6 +4270,7 @@ void wxWebControl::OnSetFocus(wxFocusEvent& evt)
 
 void wxWebControl::OnKillFocus(wxFocusEvent& evt)
 {
+	std::cout << "OnKillFocus" << std::endl;
 }
 
 void wxWebControl::OnSize(wxSizeEvent& evt)
@@ -4279,10 +4282,11 @@ void wxWebControl::OnSize(wxSizeEvent& evt)
 
     if (m_ptrs->m_base_window)
     {
+        std::cout << "wxWebControl::OnSize" << std::endl;
         m_ptrs->m_base_window->SetPositionAndSize(0, 0,
                                     cli_rect.GetWidth(),
                                     cli_rect.GetHeight(),
-                                    PR_TRUE);
+                                    true);
     }
 }
 
