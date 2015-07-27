@@ -8,6 +8,9 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
 endif()
 
 message ("Building for gecko version: ${MOZILLA_VERSION_1}")
+#message ("wxWidgets libs: ${wxWidgets_LIBRARIES}")
+#message ("wxWidgets lib dirs: ${wxWidgets_LIBRARY_DIRS}")
+
 
 include(${wxWidgets_USE_FILE})
 include_directories ("${PROJECT_SOURCE_DIR}/webconnect")
