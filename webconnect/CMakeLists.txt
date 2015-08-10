@@ -30,8 +30,17 @@ add_definitions( -DXPCOM_GLUE=1 )
 
 if(${WC_STATIC})
   add_library(webconlib STATIC ${webconlib_src})
-else()
-  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc")
+else() #else dynamic
+#  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc")
+  if(CMAKE_SYSTEM_NAME MATCHES Linux)# OS selection Linux
+    set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc")
+  elseif (CMAKE_SYSTEM_NAME MATCHES Darwin) #Darwin
+    if(MOZILLA_VERSION_1 VERSION_LESS "34")
+      set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc")
+    else()
+      set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc")
+    endif()
+  endif() #end OS selection
   add_library(webconlib SHARED ${webconlib_src})
-endif()
+endif()#end dynamic
 
