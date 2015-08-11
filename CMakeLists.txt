@@ -80,6 +80,6 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 add_subdirectory (webconnect)
 add_subdirectory (testapp)
-add_subdirectory (wxgeckolib)
-add_subdirectory (wxgeckolib-test)
+#add_subdirectory (wxgeckolib)
+#add_subdirectory (wxgeckolib-test)
 

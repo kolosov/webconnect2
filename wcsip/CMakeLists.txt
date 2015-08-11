@@ -44,7 +44,12 @@ include(${wxWidgets_USE_FILE})
 
 
 #generate SIP
-set(sip_cmd ${WX_PHOENIX_PATH}/bin/sip-4.16.7-linux)
+if(CMAKE_SYSTEM_NAME MATCHES Linux)
+  set(sip_cmd ${WX_PHOENIX_PATH}/bin/sip-4.16.7-linux)
+endif()
+if(CMAKE_SYSTEM_NAME MATCHES Darwin)
+  set(sip_cmd ${WX_PHOENIX_PATH}/bin/sip-4.16.7-darwin)
+endif()
 set(sip_args -c ./ -I ${WX_PHOENIX_PATH}/sip/gen -I ${WX_PHOENIX_PATH}/src  ${CMAKE_CURRENT_SOURCE_DIR}/webconnect.sip)
 
 set(pywebconnect_SRC sipwebconnectcmodule.cpp sipwebconnectwxWebContentHandler.cpp sipwebconnectwxWebPreferences.cpp
@@ -61,14 +66,31 @@ add_custom_command (
 
 if (CMAKE_SYSTEM_NAME MATCHES Linux)
   add_definitions( -DXPCOM_GLUE_USE_NSPR -std=c++11 -fno-rtti)
+  set(CMAKE_SHARED_LIBRARY_PREFIX "")
 endif()
 
-set(CMAKE_SHARED_LIBRARY_PREFIX "")
+if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  set(CMAKE_SHARED_LIBRARY_PREFIX "")
+  set(CMAKE_SHARED_LIBRARY_SUFFIX ".so")
+endif()
+
 add_library(webconnect SHARED ${pywebconnect_SRC})
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
 	#set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc  -Wl,--version-script=webconnect.exp")
     target_link_libraries(webconnect webconlib ${wxWidgets_LIBRARIES} -L${GECKO_SDK_PATH}/lib -Wl,-rpath=${GECKO_SDK_PATH}/bin  dl pthread )
+endif()
+if(CMAKE_SYSTEM_NAME MATCHES Darwin)
+	#set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc  -Wl,--version-script=webconnect.exp")
+    target_link_libraries(webconnect webconlib ${wxWidgets_LIBRARIES} -L${GECKO_SDK_PATH}/lib ${PYTHON_LIBRARY} dl pthread )
+endif()
+
+
+if (CMAKE_SYSTEM_NAME MATCHES Linux)
+  set(LDPREFIXMESSAGE LD_LIBRARY_PATH)
+endif()
+if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+  set(LDPREFIXMESSAGE DYLD_LIBRARY_PATH)
 endif()
 
 add_custom_target( SHOW_ENV_PATHS ALL
@@ -76,7 +98,7 @@ add_custom_target( SHOW_ENV_PATHS ALL
   COMMAND ${CMAKE_COMMAND} -E echo ""
   COMMAND ${CMAKE_COMMAND} -E echo "Webconnect python module is ready"
   COMMAND ${CMAKE_COMMAND} -E echo "use follow ENV to run python interpreter:"
-  COMMAND ${CMAKE_COMMAND} -E echo "LD_LIBRARY_PATH=${PROJECT_BINARY_DIR}/webconnect:${WX_PHOENIX_PATH}/wx:${GECKO_SDK_PATH}/bin"
+  COMMAND ${CMAKE_COMMAND} -E echo "${LDPREFIXMESSAGE}=${PROJECT_BINARY_DIR}/webconnect:${WX_PHOENIX_PATH}/wx:${GECKO_SDK_PATH}/bin"
   COMMAND ${CMAKE_COMMAND} -E echo "PYTHONPATH=${PROJECT_BINARY_DIR}/wcsip:${WX_PHOENIX_PATH}:${WX_PHOENIX_PATH}/wx"
   COMMAND ${CMAKE_COMMAND} -E echo ""
 )
