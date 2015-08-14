@@ -2259,6 +2259,7 @@ bool GeckoEngine::Init()
                 {0, 0}
     };
 
+    std::cout << "xpcom glue load xul functions" << std::endl;
     res = XPCOMGlueLoadXULFunctions(nsFuncs);
        if (NS_FAILED(res)) {
             return false;
@@ -2289,6 +2290,7 @@ bool GeckoEngine::Init()
             return false;
 
     // init embedding
+    std::cout << "Init embedding" << std::endl;
 #if MOZILLA_VERSION_1 < 2
     const nsStaticModuleInfo* aComps = 0;
     int aNumComps = 0;
@@ -2306,15 +2308,18 @@ bool GeckoEngine::Init()
             return false;
 
     // initialize profile:
+    std::cout << "Notify profile" << std::endl;
     XRE_NotifyProfile();
 
     NS_LogTerm();
     
     // set the window creator
     //nsCOMPtr<nsIWindowCreator> wnd_creator = static_cast<nsIWindowCreator*>(new WindowCreator);
+    std::cout << "Create windowcreator" << std::endl;
     nsCOMPtr<WindowCreator> wnd_creator = new WindowCreator();
 
     //set window watcher
+    std::cout << "Create window watcher" << std::endl;
     nsCOMPtr<nsIWindowWatcher> window_watcher = nsGetWindowWatcherService();
     //nsCOMPtr<nsIWindowWatcher> window_watcher(do_GetService(NS_WINDOWWATCHER_CONTRACTID));
     if (!window_watcher)
@@ -2324,7 +2329,7 @@ bool GeckoEngine::Init()
 
 
     // set up our own custom prompting service
-    
+    std::cout << "Set custom prompting service" << std::endl;
     nsCOMPtr<nsIComponentRegistrar> comp_reg;
     res = NS_GetComponentRegistrar(getter_AddRefs(comp_reg));
     if (NS_FAILED(res))
@@ -2350,6 +2355,7 @@ bool GeckoEngine::Init()
                                     prompt_factory);
 
     // set up our own download progress service
+    std::cout << "Set download progress service" << std::endl;
     
     nsCOMPtr<nsIFactory> transfer_factory;
     CreateTransferFactory(getter_AddRefs(transfer_factory));
@@ -2393,6 +2399,7 @@ bool GeckoEngine::Init()
     // don't store any history entries)
 
     //nsCOMPtr<nsIDirectoryService> dir_service = nsGetDirectoryService();
+    std::cout << "Get directory service" << std::endl;
     nsCOMPtr<nsIProperties> dir_service_props = nsGetDirectoryService();
     
     /*nsCOMPtr<nsILocalFile> history_file;
@@ -2403,14 +2410,14 @@ bool GeckoEngine::Init()
     */
 
 /*
-    /*res = dir_service_props->Set((const char*)"UHist", history_file);
+    res = dir_service_props->Set((const char*)"UHist", history_file);
     if (NS_FAILED(res))
-        return false;*
+        return false;
 
     // set up a profile directory, which is necessary for many
     // parts of the gecko engine, including ssl on linux
 
-    /*FIXME implement later
+    //FIXME implement later
     nsCOMPtr<nsILocalFile> prof_dir;
     res = NS_NewNativeLocalFile(nsDependentCString((const char*)m_storage_path.mbc_str()), PR_TRUE, getter_AddRefs(prof_dir));
     if (NS_FAILED(res))
@@ -2436,6 +2443,7 @@ bool GeckoEngine::Init()
     
 
     // set up preferences
+    std::cout << "Get settings"  << std::endl;
     nsCOMPtr<nsIPrefBranch> prefs = nsGetPrefService();
 
     if (!prefs)
@@ -2443,12 +2451,15 @@ bool GeckoEngine::Init()
     
     // this was originally so that we wouldn't have to set
     // up a prompting service.
-    prefs->SetBoolPref("security.warn_submit_insecure", PR_FALSE);
+    std::cout << "Set security.warn_submit_insecure setting"  << std::endl;
+    prefs->SetBoolPref("security.warn_submit_insecure", false);
     
     // don't store a history
+    std::cout << "Set browser.history_expire_days setting"  << std::endl;
     prefs->SetIntPref("browser.history_expire_days", 0);
     
     // set path for our cache directory
+    std::cout << "Set browser.cache.disk.parent_directory setting"  << std::endl;
     prefs->SetCharPref("browser.cache.disk.parent_directory", (const char*)m_storage_path.mbc_str());
     m_ok = true;
 
