@@ -88,9 +88,11 @@ endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES Linux)
   set(LDPREFIXMESSAGE LD_LIBRARY_PATH)
+  set(GECKOBINMESSAGE ${GECKO_SDK_PATH}/bin)
 endif()
 if (CMAKE_SYSTEM_NAME MATCHES Darwin)
   set(LDPREFIXMESSAGE DYLD_LIBRARY_PATH)
+  set(GECKOBINMESSAGE ${GECKO_SDK_PATH}/bin/XUL.framework/Versions/Current)
 endif()
 
 add_custom_target( SHOW_ENV_PATHS ALL
@@ -98,7 +100,7 @@ add_custom_target( SHOW_ENV_PATHS ALL
   COMMAND ${CMAKE_COMMAND} -E echo ""
   COMMAND ${CMAKE_COMMAND} -E echo "Webconnect python module is ready"
   COMMAND ${CMAKE_COMMAND} -E echo "use follow ENV to run python interpreter:"
-  COMMAND ${CMAKE_COMMAND} -E echo "${LDPREFIXMESSAGE}=${PROJECT_BINARY_DIR}/webconnect:${WX_PHOENIX_PATH}/wx:${GECKO_SDK_PATH}/bin"
+  COMMAND ${CMAKE_COMMAND} -E echo "${LDPREFIXMESSAGE}=${PROJECT_BINARY_DIR}/webconnect:${WX_PHOENIX_PATH}/wx:${GECKOBINMESSAGE}"
   COMMAND ${CMAKE_COMMAND} -E echo "PYTHONPATH=${PROJECT_BINARY_DIR}/wcsip:${WX_PHOENIX_PATH}:${WX_PHOENIX_PATH}/wx"
   COMMAND ${CMAKE_COMMAND} -E echo ""
 )
