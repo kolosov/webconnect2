@@ -212,8 +212,9 @@ public:
         // Finally, initialize the engine; Calling wxWebControl::InitEngine()
         // is very important and has to be made before using wxWebControl.  
         // It instructs wxWebConnect where the xulrunner directory is.
-        wxString xulrunner_path =  wxString::FromUTF8("");//empty string for default xulrunner path
-        wxWebControl::InitEngine(xulrunner_path);
+
+        //wxString xulrunner_path =  wxString::FromUTF8("");//empty string for default xulrunner path
+        //wxWebControl::InitEngine(xulrunner_path);
 
         // Create and show the frame
         wxFrame* frame1 = new wxFrame(NULL,
@@ -222,11 +223,16 @@ public:
                                      wxDefaultPosition,
                                      wxSize(1024, 768));
 
+	std::cout << "Creating wxWebControl object" << std::endl;
+	wxWebControl *m_browser = new wxWebControl(frame1, wxID_WEB, wxPoint(0,0), wxSize(800,600));
+
         //wxWindow win1 = this->GetTopWindow();
         //wxWebControl(frame1);
 
         SetTopWindow(frame1);
         frame1->Show();
+
+	m_browser->OpenURI("www.opennet.ru");
 
 /*
         app = wx.App()
