@@ -18,7 +18,7 @@
 
 #include "dom.h"
 
-#define WC_CREATING_DLL
+//#define WC_CREATING_DLL
 
 #ifdef WC_CREATING_DLL
 #define WC_EXPORT WXEXPORT

@@ -29,8 +29,13 @@ endif()
 add_definitions( -DXPCOM_GLUE=1 )
 
 if(${WC_STATIC})
+  if (CMAKE_SYSTEM_NAME MATCHES Darwin)
+   add_definitions( -fno-rtti )
+  endif()
+
   add_library(webconlib STATIC ${webconlib_src})
 else() #else dynamic
+  add_definitions( -DWC_CREATING_DLL )
   add_library(webconlib SHARED ${webconlib_src})
 #  set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--whole-archive -L${GECKO_SDK_PATH}/lib ${gecko_xpcomglue} ${gecko_libs_mozglue} ${gecko_libs_memory} -Wl,--no-whole-archive -lxul -lmozalloc")
   if(CMAKE_SYSTEM_NAME MATCHES Linux)# OS selection Linux
