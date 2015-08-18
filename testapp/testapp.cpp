@@ -83,6 +83,10 @@ public:
 private:
 
     void OnSize(wxSizeEvent& evt);
+    void OnShow(wxShowEvent& evt);
+    void OnPaint(wxPaintEvent& evt);
+    void OnSetCursor(wxSetCursorEvent& evt);
+
     void OnEraseBackground(wxEraseEvent& evt);
 
     void OnUrlTextEntered(wxCommandEvent& evt);
@@ -258,6 +262,12 @@ IMPLEMENT_APP(MyApp);
 
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 
+	//debug ebents
+	EVT_SHOW(MyFrame::OnShow)
+	EVT_SET_CURSOR(MyFrame::OnSetCursor)
+	EVT_PAINT(MyFrame::OnPaint)
+
+
     // frame events
     EVT_SIZE(MyFrame::OnSize)
     EVT_ERASE_BACKGROUND(MyFrame::OnEraseBackground)
@@ -413,6 +423,7 @@ MyFrame::MyFrame(wxWindow* parent,
     // create the main browser control
     m_browser = new wxWebControl(this, wxID_WEB, wxPoint(0,0), wxSize(800,600));
 
+//    m_browser->CreateBrowser(this, wxID_WEB, wxPoint(0,0), wxSize(800,600));
 
     // add the toolbar to the manager
     m_mgr.AddPane(toolbar, wxAuiPaneInfo().
@@ -428,7 +439,7 @@ MyFrame::MyFrame(wxWindow* parent,
 
 
     // update the wxAUI manager
-    m_mgr.Update();    
+    m_mgr.Update();
 
 
     // set the default browser preferences; to learn
@@ -436,9 +447,9 @@ MyFrame::MyFrame(wxWindow* parent,
     // http://kb.mozillazine.org/About:config_entries
 
     // for the example, disable cookies and popups
-    wxWebPreferences webprefs = wxWebControl::GetPreferences();
-    webprefs.SetIntPref(wxT("network.cookie.cookieBehavior"), 2 /* disable all cookies */);
-    webprefs.SetIntPref(wxT("privacy.popups.policy"), 2 /* reject popups */);    
+    //wxWebPreferences webprefs = wxWebControl::GetPreferences();
+    //webprefs.SetIntPref(wxT("network.cookie.cookieBehavior"), 2 /* disable all cookies */);
+    //webprefs.SetIntPref(wxT("privacy.popups.policy"), 2 /* reject popups */);    
 
     // example proxy settings
     // webprefs.SetIntPref(wxT("network.proxy.type"),           0 /* no proxy */);
@@ -466,16 +477,16 @@ MyFrame::MyFrame(wxWindow* parent,
 
 
     // set the default home and help URIs
-    m_uri_home = wxT("http://www.kirix.com/labs");
-    m_uri_help = wxT("http://www.kirix.com/labs/wxwebconnect/documentation/quick-facts.html");
-    m_uri_forums = wxT("http://www.kirix.com/forums/");
-    m_uri_about = wxT("http://www.kirix.com/labs/wxwebconnect.html");       
+    //m_uri_home = wxT("http://www.kirix.com/labs");
+    //m_uri_help = wxT("http://www.kirix.com/labs/wxwebconnect/documentation/quick-facts.html");
+    //m_uri_forums = wxT("http://www.kirix.com/forums/");
+    //m_uri_about = wxT("http://www.kirix.com/labs/wxwebconnect.html");       
 
     // set the DOM content loaded flag
-    m_dom_contentloaded = false;
+    //m_dom_contentloaded = false;
 
     // open the home location
-    m_browser->OpenURI(m_uri_home);
+    //m_browser->OpenURI(m_uri_home);
 }
 
 MyFrame::~MyFrame()
@@ -485,10 +496,27 @@ MyFrame::~MyFrame()
 
 void MyFrame::OnSize(wxSizeEvent& evt)
 {
+	std::cout << "MyFrame::OnSize" << std::endl;
+}
+
+void MyFrame::OnShow(wxShowEvent& evt)
+{
+	//std::cout << "MyFrame::OnShow" << std::endl;
+}
+
+void MyFrame::OnPaint(wxPaintEvent& evt)
+{
+	//std::cout << "MyFrame::OnPaint" << std::endl;
+}
+
+void MyFrame::OnSetCursor(wxSetCursorEvent& evt)
+{
+	//std::cout << "MyFrame::OnSetCursor" << std::endl;
 }
 
 void MyFrame::OnEraseBackground(wxEraseEvent& evt)
 {
+	//std::cout << "OnEraseBackground" << std::endl;
 }
 
 void MyFrame::OnUrlTextEntered(wxCommandEvent& evt)
