@@ -424,6 +424,7 @@ public:
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize);
     ~wxWebControl();
+    bool CreateBrowser();
 	wxString GeckoVersion();
     bool IsOk() const;
     
@@ -490,6 +491,7 @@ private:
     void OnSize(wxSizeEvent& evt);
     void OnSetFocus(wxFocusEvent& evt);
     void OnKillFocus(wxFocusEvent& evt);
+    void OnEraseBackground(wxEraseEvent& evt);
 
     void InitPrintSettings();
     wxString GetCurrentLoadURI();
@@ -504,6 +506,7 @@ private:
     EmbeddingPtrs* m_ptrs;
     BrowserChrome* m_chrome;
     bool m_ok;
+    bool m_browser_ready;
     wxWebContentHandlerPtrArray m_content_handlers;
     wxWebContentHandlerPtrArray m_to_delete;
     wxWebFavIconProgress* m_favicon_progress;

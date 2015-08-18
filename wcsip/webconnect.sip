@@ -72,6 +72,7 @@ public:
                  wxWindowID id = wxID_ANY,
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize);
+    bool CreateBrowser();
     ~wxWebControl();
 	wxString GeckoVersion();
     bool IsOk() const;

@@ -2182,6 +2182,31 @@ private:
 };
 
 
+class DelayedWindowCreator : public wxTimer
+{
+public:
+    DelayedWindowCreator(wxWebControl* ctrl, int seconds)
+    {
+    	std::cout << "Start delayed browser creation" << std::endl;
+    	m_ctrl = ctrl;
+        Start(seconds*1000, wxTIMER_ONE_SHOT);
+    }
+
+    void Notify()
+    {
+    	std::cout << "Run create browser" << std::endl;
+    	m_ctrl->CreateBrowser();
+
+        //if (!wxPendingDelete.Member(this))
+        //    wxPendingDelete.Append(this);
+
+    }
+
+private:
+    wxWebControl* m_ctrl;
+};
+
+
 // initialize the gecko engine; his is automatically called
 // when wxWebControl objects are created.
 
@@ -2703,6 +2728,7 @@ BEGIN_EVENT_TABLE(wxWebControl, wxControl)
     EVT_SIZE(wxWebControl::OnSize)
     EVT_SET_FOCUS(wxWebControl::OnSetFocus)
     EVT_KILL_FOCUS(wxWebControl::OnKillFocus)
+	EVT_ERASE_BACKGROUND(wxWebControl::OnEraseBackground)
 END_EVENT_TABLE()
 
 // (CONSTRUCTOR) wxWebControl::wxWebControl
@@ -2765,6 +2791,12 @@ wxWebControl::wxWebControl(wxWindow* parent,
         return;
     }
 
+    //////////////////////////////////
+    //////////////////////////////////
+    return;
+    //////////////////////////////////
+    //////////////////////////////////
+
     // get base window interface and set its native window
     #ifdef __WXGTK__
     void* native_handle = (void*)m_wxwindow;
@@ -2795,6 +2827,9 @@ wxWebControl::wxWebControl(wxWindow* parent,
     {
         dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
     }
+
+    return;
+
 
     res = m_ptrs->m_base_window->Create();
     if (NS_FAILED(res))
@@ -2899,6 +2934,182 @@ wxWebControl::wxWebControl(wxWindow* parent,
     
     // show the browser component
     res = m_ptrs->m_base_window->SetVisibility(true);
+}
+
+bool wxWebControl::CreateBrowser()
+{
+    // set return value for IsOk() to false until initialization can be
+    // verified as successful (end of the constructor)
+    m_ok = false;
+/*
+    m_content_loaded = true;
+
+    m_favicon_progress = NULL;
+
+    m_ptrs = new EmbeddingPtrs;
+
+    // create browser chrome
+    BrowserChrome* chrome = new BrowserChrome(this);
+    chrome->AddRef();
+    m_chrome = chrome;
+
+    // make sure gecko is initialized
+    if (!g_gecko_engine.IsOk())
+    {
+        if (!g_gecko_engine.Init())
+        {
+            m_chrome->Release();
+            m_chrome = NULL;
+            return;
+        }
+    }
+
+    nsresult res;
+
+    // create gecko web browser component
+	m_ptrs->m_web_browser = do_CreateInstance(NS_WEBBROWSER_CONTRACTID,&res);
+	if(NS_FAILED(res))
+    {
+        wxASSERT(0);
+        return false;
+    }
+
+    //m_chrome->m_web_browser = m_ptrs->m_web_browser;
+
+    m_ptrs->m_base_window = do_QueryInterface(m_ptrs->m_web_browser);
+    if (!m_ptrs->m_base_window)
+    {
+        wxASSERT(0);
+        return false;
+    }
+*/
+
+    nsresult res;
+    // get base window interface and set its native window
+    #ifdef __WXGTK__
+    void* native_handle = (void*)m_wxwindow;
+    #else
+    void* native_handle = (void*)GetHandle();
+    #endif
+
+    wxSize cli_size = GetClientSize();
+    res = m_ptrs->m_base_window->InitWindow(native_handle,
+                                            nullptr,
+                                            0, 0,
+                                            cli_size.x, cli_size.y);
+    if (NS_FAILED(res))
+    {
+        wxASSERT(0);
+        return false;
+    }
+
+
+	m_chrome->m_web_browser = m_ptrs->m_web_browser;
+
+    // create browser chrome
+    res = m_ptrs->m_web_browser->SetContainerWindow(static_cast<nsIWebBrowserChrome*>(m_chrome));
+
+    // set the type to contentWrapper
+    nsCOMPtr<nsIDocShellTreeItem> dsti = do_QueryInterface(m_ptrs->m_web_browser);
+    if (dsti)
+    {
+        dsti->SetItemType(nsIDocShellTreeItem::typeContentWrapper);
+    }
+
+    //nsresult res;
+    std::cout << "Create base window" << std::endl;
+    res = m_ptrs->m_base_window->Create();
+    if (NS_FAILED(res))
+    {
+        wxASSERT(0);
+        return false;
+    }
+
+    // set our web progress listener
+    std::cout << "Set progress listener" << std::endl;
+    nsIWeakReference* weak = NS_GetWeakReference((nsIWebProgressListener*)m_chrome);
+    res = m_ptrs->m_web_browser->AddWebBrowserListener(weak, NS_GET_IID(nsIWebProgressListener));
+    weak->Release();
+
+
+
+    // set our URI content listener
+    std::cout << "Set URI listener" << std::endl;
+    m_main_uri_listener = new MainURIListener(this, m_ptrs->m_web_browser);
+    m_main_uri_listener->AddRef();
+    res = m_ptrs->m_web_browser->SetParentURIContentListener(static_cast<nsIURIContentListener*>(m_main_uri_listener));
+
+    // get the event target
+
+    nsCOMPtr<nsIDOMWindow> dom_window;
+    res = m_ptrs->m_web_browser->GetContentDOMWindow(getter_AddRefs(dom_window));
+    if (!dom_window)
+    {
+        wxASSERT(0);
+        return false;
+    }
+
+    nsCOMPtr<nsIDOMWindow> dom_window2(dom_window);
+
+    if (dom_window2)
+    {
+        res = dom_window2->GetWindowRoot(getter_AddRefs(m_ptrs->m_event_target));
+        if (NS_FAILED(res))
+        {
+            wxASSERT(0);
+            return false;
+        }
+    }
+     else
+    {
+        res = dom_window2->GetWindowRoot(getter_AddRefs(m_ptrs->m_event_target));
+        if (NS_FAILED(res))
+        {
+            wxASSERT(0);
+            return false;
+        }
+    }
+
+
+
+    // initialize chrome events
+    std::cout << "Chrome Init" << std::endl;
+    m_chrome->ChromeInit();
+
+
+    // get the nsIClipboardCommands interface
+    m_ptrs->m_clipboard_commands = do_GetInterface(m_ptrs->m_web_browser);
+    if (!m_ptrs->m_clipboard_commands)
+    {
+        wxASSERT(0);
+        return false;
+    }
+
+    // get the nsIWebBrowserFind interface
+    m_ptrs->m_web_browser_find = do_GetInterface(m_ptrs->m_web_browser);
+    if (!m_ptrs->m_web_browser_find)
+    {
+        wxASSERT(0);
+        return false;
+    }
+
+    // get the nsIWebNavigation interface
+    m_ptrs->m_web_navigation = do_QueryInterface(m_ptrs->m_web_browser);
+    if (!m_ptrs->m_web_navigation)
+    {
+        wxASSERT(0);
+        return false;
+    }
+
+    m_favicon_progress = new wxWebFavIconProgress(this);
+
+    // now that initialization is complete (and successful, tell IsOk()
+    // to return true)
+    m_ok = true;
+
+    // show the browser component
+    res = m_ptrs->m_base_window->SetVisibility(true);
+    return true;
 }
 
 wxWebControl::~wxWebControl()
@@ -4283,6 +4494,17 @@ void wxWebControl::OnKillFocus(wxFocusEvent& evt)
 {
 	std::cout << "OnKillFocus" << std::endl;
 }
+
+void wxWebControl::OnEraseBackground(wxEraseEvent& evt)
+{
+	//std::cout << "OnEraseBackground" << std::endl;
+	if(!m_browser_ready) {
+		m_browser_ready = true;
+		std::cout << "Create timer object" << std::endl;
+		DelayedWindowCreator *creator = new DelayedWindowCreator(this,1);
+	}
+}
+
 
 void wxWebControl::OnSize(wxSizeEvent& evt)
 {
