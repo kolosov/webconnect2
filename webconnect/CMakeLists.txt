@@ -30,7 +30,7 @@ add_definitions( -DXPCOM_GLUE=1 )
 
 if(${WC_STATIC})
   if (CMAKE_SYSTEM_NAME MATCHES Darwin)
-   add_definitions( -fno-rtti )
+#   add_definitions( -fno-rtti )
   endif()
 
   add_library(webconlib STATIC ${webconlib_src})
