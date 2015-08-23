@@ -1191,23 +1191,18 @@ public:
         return NS_OK;
     }
 
-    NS_IMETHODIMP DoContent(const char* content_type,
-#if MOZILLA_VERSION_1 >= 10
+    NS_IMETHODIMP DoContent(
+#if MOZILLA_VERSION_1 < 39
+			const char* content_type,
+#else
+			const nsACString& /*aContentType*/,
+#endif
     		bool is_content_preferred,
-#else
-                            PRBool is_content_preferred,
-#endif
-                            nsIRequest* request,
-                            nsIStreamListener** content_handler,
-#if MOZILLA_VERSION_1 >= 10
-                            bool* retval)
+            nsIRequest* request,
+            nsIStreamListener** content_handler,
+            bool* retval)
     {
-            *retval = false;
-#else
-                            PRBool* retval)
-    {
-        *retval = PR_FALSE;
-#endif
+        *retval = false;
         *content_handler = static_cast<nsIStreamListener*>(this);
         (*content_handler)->AddRef();
         return NS_OK;
@@ -1420,18 +1415,16 @@ public:
         return NS_OK;
     }
 
-    NS_IMETHODIMP DoContent(const char* content_type,
-#if MOZILLA_VERSION_1 >= 10
-    		                bool is_content_preferred,
-    		                nsIRequest* request,
-    		                nsIStreamListener** content_handler,
-    		                bool* retval)
+    NS_IMETHODIMP DoContent(
+#if MOZILLA_VERSION_1 < 39
+		const char* content_type,
 #else
-                            PRBool is_content_preferred,
-                            nsIRequest* request,
-                            nsIStreamListener** content_handler,
-                            PRBool* retval)
+		const nsACString& ,
 #endif
+        bool is_content_preferred,
+        nsIRequest* request,
+        nsIStreamListener** content_handler,
+        bool* retval)
     {
         return NS_ERROR_NOT_IMPLEMENTED;
     }
