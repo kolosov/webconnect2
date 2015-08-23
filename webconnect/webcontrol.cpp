@@ -68,14 +68,9 @@
 #include "nsIContextMenuListener2.h"
 #include "nsITooltipListener.h"
 #include "nsIInterfaceRequestor.h"
-#if defined(__APPLE__)
-#include "nsEmbedWeakReference.h" //Utils?
-#else
-#include "nsWeakReference.h" //Utils?
-#endif
 
-//#include "nsIWeakReference.h" //Utils?
-//#include "nsIWeakReferenceUtils.h" //Utils?
+#include "nsIWeakReference.h" //Utils?
+#include "nsIWeakReferenceUtils.h" //Utils?
 #include "nsIDOMWindow.h"
 #include "nsIURI.h"
 #include "nsIDOMEvent.h"
@@ -346,7 +341,6 @@ class BrowserChrome : public nsIWebBrowserChrome,
                       public nsIWebProgressListener,
                       public nsIEmbeddingSiteWindow,
                       public nsIInterfaceRequestor,
-                      public nsSupportsWeakReference,
                       public nsIContextMenuListener2,
                       public nsITooltipListener,
                       public nsIDOMEventListener
@@ -414,7 +408,6 @@ NS_INTERFACE_MAP_BEGIN(BrowserChrome)
     NS_INTERFACE_MAP_ENTRY(nsIWebProgressListener)
     NS_INTERFACE_MAP_ENTRY(nsIEmbeddingSiteWindow)
     NS_INTERFACE_MAP_ENTRY(nsIInterfaceRequestor)
-    NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
     NS_INTERFACE_MAP_ENTRY(nsIContextMenuListener2)
     NS_INTERFACE_MAP_ENTRY(nsITooltipListener)
     NS_INTERFACE_MAP_ENTRY(nsIDOMEventListener)
@@ -1161,8 +1154,7 @@ wxWebControl* GetWebControlFromBrowserChrome(nsIWebBrowserChrome* chrome)
 // public wxWebContentHandler class
 
 class ContentListener : public nsIURIContentListener,
-                        public nsIStreamListener,
-                        public nsSupportsWeakReference
+                        public nsIStreamListener
 {
 public:
 
@@ -1324,7 +1316,6 @@ NS_IMPL_RELEASE(ContentListener)
 NS_INTERFACE_MAP_BEGIN(ContentListener)
     NS_INTERFACE_MAP_ENTRY(nsIURIContentListener)
     NS_INTERFACE_MAP_ENTRY(nsIStreamListener)
-    NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
 NS_INTERFACE_MAP_END
 
 
@@ -1335,8 +1326,7 @@ NS_INTERFACE_MAP_END
 ///////////////////////////////////////////////////////////////////////////////
 
 
-class MainURIListener : public nsIURIContentListener,
-                        public nsSupportsWeakReference
+class MainURIListener : public nsIURIContentListener
 
 {
     friend class wxWebControl;
@@ -1549,7 +1539,6 @@ NS_IMPL_RELEASE(MainURIListener)
 NS_INTERFACE_MAP_BEGIN(MainURIListener)
     NS_INTERFACE_MAP_ENTRY_AMBIGUOUS(nsISupports, nsIURIContentListener)
     NS_INTERFACE_MAP_ENTRY(nsIURIContentListener)
-    NS_INTERFACE_MAP_ENTRY(nsISupportsWeakReference)
 NS_INTERFACE_MAP_END
 
 
@@ -2832,10 +2821,17 @@ wxWebControl::wxWebControl(wxWindow* parent,
     }
     
     // set our web progress listener
-
+    //webconnect way:
     nsIWeakReference* weak = NS_GetWeakReference((nsIWebProgressListener*)m_chrome);
     res = m_ptrs->m_web_browser->AddWebBrowserListener(weak, NS_GET_IID(nsIWebProgressListener));
-    weak->Release();
+    //weak->Release();
+    //gecko way:
+    // register the progress listener
+    //nsCOMPtr<nsIWebProgressListener> listener = do_QueryInterface(mPrivate->mChrome);
+    //nsCOMPtr<nsIWeakReference> thisListener(do_GetWeakReference(listener));
+    //mPrivate->mWebBrowser->AddWebBrowserListener(thisListener, NS_GET_IID(nsIWebProgressListener));
+
+
 
     
 
@@ -2934,6 +2930,8 @@ bool wxWebControl::CreateBrowser()
     // set return value for IsOk() to false until initialization can be
     // verified as successful (end of the constructor)
     m_ok = false;
+
+    std::cout << "wxWebControl::CreateBrowser stating" << std::endl;
 /*
     m_content_loaded = true;
 
@@ -2986,6 +2984,7 @@ bool wxWebControl::CreateBrowser()
     #endif
 
     wxSize cli_size = GetClientSize();
+    std::cout << "wxWebControl::CreateBrowser InitWindow" << std::endl;
     res = m_ptrs->m_base_window->InitWindow(native_handle,
                                             nullptr,
                                             0, 0,
@@ -2999,6 +2998,7 @@ bool wxWebControl::CreateBrowser()
 
 	m_chrome->m_web_browser = m_ptrs->m_web_browser;
 
+    std::cout << "wxWebControl::CreateBrowser SetContainerWindow" << std::endl;
     // create browser chrome
     res = m_ptrs->m_web_browser->SetContainerWindow(static_cast<nsIWebBrowserChrome*>(m_chrome));
 
@@ -3022,7 +3022,7 @@ bool wxWebControl::CreateBrowser()
     std::cout << "Set progress listener" << std::endl;
     nsIWeakReference* weak = NS_GetWeakReference((nsIWebProgressListener*)m_chrome);
     res = m_ptrs->m_web_browser->AddWebBrowserListener(weak, NS_GET_IID(nsIWebProgressListener));
-    weak->Release();
+    //weak->Release();
 
 
 

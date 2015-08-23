@@ -23,7 +23,7 @@ include_directories("/usr/include/nspr") #FIXME
 
 set(webconlib_src dom.cpp nsimpl.cpp promptservice.cpp webcontrol.cpp webframe.cpp webprefs.cpp )
 if((CMAKE_SYSTEM_NAME MATCHES Darwin) AND (MOZILLA_VERSION_1 VERSION_LESS "33"))
-  set ( webconlib_src ${webconlib_src} nsEmbedWeakReference.cpp)
+#  set ( webconlib_src ${webconlib_src} nsEmbedWeakReference.cpp)
 endif()
 
 add_definitions( -DXPCOM_GLUE=1 )
