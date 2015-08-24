@@ -192,14 +192,14 @@ public:
         // Locate some common paths and initialize the control with
         // the plugin paths; add these common plugin directories to 
         // MOZ_PLUGIN_PATH
-        wxString program_files_dir;
-        ::wxGetEnv(wxT("ProgramFiles"), &program_files_dir);
-        if (program_files_dir.Length() == 0 || program_files_dir.Last() != '\\')
-            program_files_dir += wxT("\\");
+        //wxString program_files_dir;
+        //::wxGetEnv(wxT("ProgramFiles"), &program_files_dir);
+        //if (program_files_dir.Length() == 0 || program_files_dir.Last() != '\\')
+        //    program_files_dir += wxT("\\");
 
-        wxString dir = program_files_dir;
-        dir += wxT("Mozilla Firefox\\plugins");
-        wxWebControl::AddPluginPath(dir);
+        //wxString dir = program_files_dir;
+        //dir += wxT("Mozilla Firefox\\plugins");
+        //wxWebControl::AddPluginPath(dir);
 
         // to install the flash plugin automatically, if it exists, 
         // add a path to the flash location; for example, on windows,
@@ -477,7 +477,7 @@ MyFrame::MyFrame(wxWindow* parent,
 
 
     // set the default home and help URIs
-    //m_uri_home = wxT("http://www.kirix.com/labs");
+    m_uri_home = wxT("http://www.kirix.com/labs");
     //m_uri_help = wxT("http://www.kirix.com/labs/wxwebconnect/documentation/quick-facts.html");
     //m_uri_forums = wxT("http://www.kirix.com/forums/");
     //m_uri_about = wxT("http://www.kirix.com/labs/wxwebconnect.html");       
@@ -486,7 +486,7 @@ MyFrame::MyFrame(wxWindow* parent,
     //m_dom_contentloaded = false;
 
     // open the home location
-    //m_browser->OpenURI(m_uri_home);
+    m_browser->OpenURI(m_uri_home);
 }
 
 MyFrame::~MyFrame()
