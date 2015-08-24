@@ -2189,6 +2189,38 @@ private:
 };
 
 
+class DelayedFirstURILoader : public wxTimer
+{
+	//friend class wxWebControl;
+public:
+	DelayedFirstURILoader(wxWebControl* ctrl, int seconds)
+    {
+    	std::cout << "Start delayed first uri loading" << std::endl;
+    	m_ctrl = ctrl;
+        Start(seconds*1000, wxTIMER_ONE_SHOT);
+    }
+
+    void Notify()
+    {
+    	std::cout << "Run DelayedFirstURILoader" << std::endl;
+    	m_ctrl->m_loadurl_ready = true;
+
+        //now check and load uri
+        if(m_ctrl->m_loadurl_pending) {
+        	m_ctrl->m_loadurl_pending = false;
+        	m_ctrl->RealOpenURI(m_ctrl->m_pending_uri, m_ctrl->m_pending_load_flags, m_ctrl->m_pending_post_data);
+        }
+
+        //if (!wxPendingDelete.Member(this))
+        //    wxPendingDelete.Append(this);
+
+    }
+
+private:
+    wxWebControl* m_ctrl;
+};
+
+
 // initialize the gecko engine; his is automatically called
 // when wxWebControl objects are created.
 
@@ -2733,6 +2765,7 @@ wxWebControl::wxWebControl(wxWindow* parent,
     // verified as successful (end of the constructor)
     m_ok = false;
     m_content_loaded = true;
+    m_loadurl_ready = false;
 
     m_favicon_progress = NULL;
 
@@ -2929,7 +2962,8 @@ bool wxWebControl::CreateBrowser()
 {
     // set return value for IsOk() to false until initialization can be
     // verified as successful (end of the constructor)
-    m_ok = false;
+    //m_ok = false;
+    //m_loadurl_ready = false;
 
     std::cout << "wxWebControl::CreateBrowser stating" << std::endl;
 /*
@@ -3099,6 +3133,12 @@ bool wxWebControl::CreateBrowser()
     // now that initialization is complete (and successful, tell IsOk()
     // to return true)
     m_ok = true;
+
+    //delayed loader
+	std::cout << "Create timer object for URI" << std::endl;
+	//TODO do it as singleton
+	DelayedFirstURILoader *tmp_uri_loader = new DelayedFirstURILoader(this,1);
+
 
     // show the browser component
     res = m_ptrs->m_base_window->SetVisibility(true);
@@ -3627,6 +3667,61 @@ wxDOMDocument wxWebControl::GetDOMDocument()
     return doc;
 }
 
+
+void wxWebControl::RealOpenURI(const wxString& uri,
+                           unsigned int load_flags,
+                           wxWebPostData* post_data)
+{
+	std::cout << "RealOpenURI, url:" << uri.ToUTF8() << std::endl;
+    if (!IsOk())
+        return;
+
+    m_favicon = wxImage();
+    m_favicon_fetched = false;
+    m_content_loaded = false;
+
+    unsigned int ns_load_flags = nsIWebNavigation::LOAD_FLAGS_NONE;
+
+    if (load_flags & wxWEB_LOAD_LINKCLICK)
+        ns_load_flags |= nsIWebNavigation::LOAD_FLAGS_IS_LINK;
+
+    // post data
+    nsCOMPtr<nsIInputStream> sp_post_data;
+    if (post_data)
+    {
+        nsCOMPtr<nsIStringInputStream> strs;
+        strs = do_CreateInstance("@mozilla.org/io/string-input-stream;1");
+        //wxASSERT(strs.p);
+
+        if (strs)
+        {
+            wxString poststr = post_data->GetPostString();
+            strs->SetData((const char*)poststr.mbc_str(), poststr.Length());
+            sp_post_data = strs;
+        }
+    }
+
+
+    nsresult res;
+    res = m_ptrs->m_web_navigation->LoadURI(NS_ConvertUTF8toUTF16(uri.ToUTF8().data()).get(),
+                                            ns_load_flags,
+                                            NULL,
+                                            //getter_AddRefs(sp_post_data),
+                                            NULL,
+                                            NULL);
+
+    //freeUnichar(ns_uri);
+
+
+    nsCOMPtr<nsIWebBrowserFocus> focus;// = nsRequestInterface(m_ptrs->m_web_browser);
+    focus = do_QueryInterface(m_ptrs->m_web_browser);
+    if (!focus)
+        return;
+
+    focus->Activate();
+}
+
+
 // (METHOD) wxWebControl::OpenURI
 // Description:
 //
@@ -3642,8 +3737,23 @@ void wxWebControl::OpenURI(const wxString& uri,
                            unsigned int load_flags,
                            wxWebPostData* post_data)
 {
-    if (!IsOk())
-        return;
+    //if (!IsOk() )
+    //    return;
+
+    if (m_loadurl_ready) {
+    	std::cout << "OpenURI, can run RealOpenURI, url:" << uri.ToUTF8() << std::endl;
+    	RealOpenURI(uri, load_flags, post_data);
+    } else {
+    	std::cout << "OpenURI, still cannot run RealOpenURI, url:" << uri.ToUTF8() << std::endl;
+    	//still not initialized
+    	//store data, set pending and exit
+    	m_loadurl_pending = true;
+    	m_pending_uri = uri;
+    	m_pending_load_flags = load_flags;
+    	m_pending_post_data = post_data; //TODO check post_data
+    }
+
+	return;
 
     m_favicon = wxImage();
     m_favicon_fetched = false;
@@ -4490,10 +4600,11 @@ void wxWebControl::OnKillFocus(wxFocusEvent& evt)
 
 void wxWebControl::OnEraseBackground(wxEraseEvent& evt)
 {
-	//std::cout << "OnEraseBackground" << std::endl;
+	std::cout << "OnEraseBackground" << std::endl;
 	if(!m_browser_ready) {
 		m_browser_ready = true;
 		std::cout << "Create timer object" << std::endl;
+		//TODO do it as singleton
 		DelayedWindowCreator *creator = new DelayedWindowCreator(this,1);
 	}
 }

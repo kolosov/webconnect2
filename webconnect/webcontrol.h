@@ -391,6 +391,7 @@ friend class BrowserChrome;
 friend class PromptService;
 friend class WindowCreator;
 friend class wxWebFavIconProgress;
+friend class DelayedFirstURILoader;
 
 public:
 
@@ -430,6 +431,11 @@ public:
     
     // navigation
     void OpenURI(const wxString& uri,
+                     unsigned int flags = wxWEB_LOAD_NORMAL,
+                     wxWebPostData* post_data = NULL);
+
+    //TODO should be private
+    void RealOpenURI(const wxString& uri,
                  unsigned int flags = wxWEB_LOAD_NORMAL,
                  wxWebPostData* post_data = NULL);
                      
@@ -501,12 +507,18 @@ private:
     void OnFavIconFetched(const wxString& filename);
     void OnDOMContentLoaded();
     
-private:
+protected:
 
     EmbeddingPtrs* m_ptrs;
     BrowserChrome* m_chrome;
     bool m_ok;
     bool m_browser_ready;
+    bool m_loadurl_ready;
+    bool m_loadurl_pending;
+    wxString m_pending_uri;
+	wxWebPostData* m_pending_post_data;
+    unsigned int m_pending_load_flags;
+
     wxWebContentHandlerPtrArray m_content_handlers;
     wxWebContentHandlerPtrArray m_to_delete;
     wxWebFavIconProgress* m_favicon_progress;
